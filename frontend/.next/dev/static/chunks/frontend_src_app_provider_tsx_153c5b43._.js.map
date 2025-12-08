@@ -1,0 +1,6 @@
+{
+  "version": 3,
+  "sources": [],
+  "sections": [
+    {"offset": {"line": 4, "column": 0}, "map": {"version":3,"sources":["file:///C:/Users/usere/Desktop/FYP/AcuityTalent/frontend/src/app/provider.tsx"],"sourcesContent":["\"use client\";\r\n\r\nimport { SessionProvider } from \"next-auth/react\";\r\nimport { QueryClient, QueryClientProvider } from \"@tanstack/react-query\";\r\nimport { useState } from \"react\";\r\n\r\nexport default function Provider({\r\n  children,\r\n}: {\r\n  children: React.ReactElement;\r\n}) {\r\n  const [queryClient] = useState(() => new QueryClient());\r\n\r\n  return (\r\n    <SessionProvider>\r\n      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>\r\n    </SessionProvider>\r\n  );\r\n}\r\n"],"names":[],"mappings":";;;;;AAEA;AACA;AAAA;AACA;;;AAJA;;;;AAMe,SAAS,SAAS,EAC/B,QAAQ,EAGT;;IACC,MAAM,CAAC,YAAY,GAAG,IAAA,qLAAQ;6BAAC,IAAM,IAAI,2MAAW;;IAEpD,qBACE,yMAAC,gLAAe;kBACd,cAAA,yMAAC,4NAAmB;YAAC,QAAQ;sBAAc;;;;;;;;;;;AAGjD;GAZwB;KAAA","debugId":null}}]
+}

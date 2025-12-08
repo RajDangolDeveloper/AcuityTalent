@@ -1,0 +1,6 @@
+{
+  "version": 3,
+  "sources": [],
+  "sections": [
+    {"offset": {"line": 14, "column": 0}, "map": {"version":3,"sources":["file:///C:/Users/usere/Desktop/FYP/AcuityTalent/frontend/src/app/%28public%29/login/page.tsx"],"sourcesContent":["import { redirect } from \"next/navigation\";\r\n\r\nexport default function loginPage() {\r\n  return (\r\n    <h1>\r\n      This is the login page{\" \"}\r\n      <button\r\n        onClick={() => {\r\n          redirect(\"/dashboard\");\r\n        }}\r\n      >\r\n        login\r\n      </button>\r\n    </h1>\r\n  );\r\n}\r\n"],"names":[],"mappings":";;;;;AAAA;AAAA;;;AAEe,SAAS;IACtB,qBACE,0PAAC;;YAAG;YACqB;0BACvB,0PAAC;gBACC,SAAS;oBACP,IAAA,6MAAQ,EAAC;gBACX;0BACD;;;;;;;;;;;;AAKP","debugId":null}}]
+}
