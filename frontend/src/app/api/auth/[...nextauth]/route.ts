@@ -38,15 +38,31 @@ export const authOptions: NextAuthOptions = {
           password: credentials.password,
         };
 
-        const response = apiClient.post("/api/auth/login", user);
+        try {
+          const response = apiClient.post("/auth/login", user);
 
-        const userData = (await response).data;
+          if (
+            (await response).status !== 200 &&
+            (await response).status !== 201
+          ) {
+            console.warn(
+              "Login API returned non-success status:",
+              (await response).status
+            );
+            return null;
+          }
 
-        return {
-          id: userData.id,
-          email: userData.email,
-          role: userData.role,
-        };
+          const userData = (await response).data;
+
+          return {
+            id: userData.id,
+            email: userData.email,
+            role: userData.role,
+          };
+        } catch (error) {
+          console.error("Login API failed:", error);
+          return null;
+        }
       },
     }),
   ],

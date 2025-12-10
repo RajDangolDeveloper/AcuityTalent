@@ -1,8 +1,7 @@
 generator client {
   provider = "prisma-client-js"
-  output   = "./generated/prisma" // Your custom output path
-  moduleFormat = "esm" // Explicitly set to ESM
-  generatedFileExtension = "js" // Generates .js files
+  moduleFormat = "esm"
+  generatedFileExtension = "js"
 }
 
 datasource db {
@@ -13,4 +12,11 @@ model User {
   id Int @id @default(autoincrement())
   email String @unique
   passwordHash String 
+  role Role
+}
+
+enum Role {
+  CANDIDATE 
+  EMPLOYEE
+  ADMIN
 }

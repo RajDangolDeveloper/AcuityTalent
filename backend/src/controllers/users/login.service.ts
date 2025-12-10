@@ -22,6 +22,7 @@ export class LoginService {
           id: true,
           email: true,
           passwordHash: true,
+          role: true,
         },
       });
 

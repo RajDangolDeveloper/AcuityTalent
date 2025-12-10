@@ -30,6 +30,7 @@ let LoginService = class LoginService {
                     id: true,
                     email: true,
                     passwordHash: true,
+                    role: true,
                 },
             });
             if (!user) {

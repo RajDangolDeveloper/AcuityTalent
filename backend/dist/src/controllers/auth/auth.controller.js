@@ -27,25 +27,10 @@ let LoginController = class LoginController {
     async loginUser(loginData) {
         try {
             const result = await this.loginService.validateUser(loginData);
-            return {
-                success: true,
-                message: 'Login successful',
-                user: result,
-            };
+            return result;
         }
         catch (error) {
-            if (error instanceof common_1.UnauthorizedException) {
-                return {
-                    success: false,
-                    message: error.message || 'Invalid credentials',
-                    user: null,
-                };
-            }
-            return {
-                success: false,
-                message: 'An error occurred during authentication',
-                user: null,
-            };
+            throw new error();
         }
     }
 };
