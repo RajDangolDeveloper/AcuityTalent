@@ -1,7 +1,7 @@
 node_modules/
 
 generated/
-dist/
-.next/
-migrations/
+**/dist/
+**/.next/
+**/migrations/
 **/.env
