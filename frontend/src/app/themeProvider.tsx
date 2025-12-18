@@ -1,20 +1,28 @@
-// Example: A Client Component Theme Provider
 "use client";
-import { useState, useEffect } from "react";
 
-export function ThemeProvider({ children }: { children: React.ReactElement }) {
-  const [theme, setTheme] = useState("light");
-  const [mounted, setMounted] = useState(false);
+import { useState, useEffect, ReactNode } from "react";
+
+export function ThemeProvider({ children }: { children: ReactNode }) {
+  const [config, setConfig] = useState({ theme: "light", mounted: false });
 
   useEffect(() => {
     const savedTheme = localStorage.getItem("theme") || "light";
-    setTheme(savedTheme);
-    setMounted(true);
+
+    requestAnimationFrame(() => {
+      setConfig({
+        theme: savedTheme,
+        mounted: true,
+      });
+    });
   }, []);
 
+  if (!config.mounted) {
+    return <div style={{ visibility: "hidden" }}>{children}</div>;
+  }
+
   return (
-    <div data-theme={theme} style={{ colorScheme: theme }}>
-      {!mounted ? <div>Loading...</div> : children}
+    <div data-theme={config.theme}>
+      {children}
     </div>
   );
 }
