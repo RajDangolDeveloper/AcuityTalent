@@ -4,6 +4,7 @@ node_modules/
 /dist/
 /.next/
 /migrations/
+/.env/
 
 /frontend/node_modules
 /backend/node_modules
