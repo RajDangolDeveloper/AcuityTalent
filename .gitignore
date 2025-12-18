@@ -1,11 +1,7 @@
 node_modules/
 
-/generated/
-/dist/
-/.next/
-/migrations/
-/frontend/.env/
-/backend/.env/
-/frontend/node_modules
-/backend/node_modules
-/backend/dist
+generated/
+dist/
+.next/
+migrations/
+**/.env
