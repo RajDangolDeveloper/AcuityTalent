@@ -1,6 +1,0 @@
-{
-  "version": 3,
-  "sources": [],
-  "sections": [
-    {"offset": {"line": 4, "column": 0}, "map": {"version":3,"sources":["file:///C:/Users/usere/Desktop/FYP/AcuityTalent/frontend/src/app/%28protected%29/dashboard/page.tsx"],"sourcesContent":["// components/LogoutButton.tsx\r\n\"use client\";\r\n\r\nimport { signOut } from \"next-auth/react\";\r\n\r\nexport default function LogoutButton() {\r\n  return (\r\n    <button\r\n      onClick={() => signOut({ callbackUrl: \"/login\" })}\r\n      style={{\r\n        padding: \"10px 20px\",\r\n        backgroundColor: \"#f44336\",\r\n        color: \"white\",\r\n        border: \"none\",\r\n        borderRadius: \"5px\",\r\n        cursor: \"pointer\",\r\n        fontSize: \"16px\",\r\n        fontWeight: \"bold\",\r\n      }}\r\n    >\r\n      Sign Out\r\n    </button>\r\n  );\r\n}\r\n"],"names":[],"mappings":"AAAA,8BAA8B;;;;;;AAG9B;AAFA;;;AAIe,SAAS;IACtB,qBACE,yMAAC;QACC,SAAS,IAAM,IAAA,wKAAO,EAAC;gBAAE,aAAa;YAAS;QAC/C,OAAO;YACL,SAAS;YACT,iBAAiB;YACjB,OAAO;YACP,QAAQ;YACR,cAAc;YACd,QAAQ;YACR,UAAU;YACV,YAAY;QACd;kBACD;;;;;;AAIL;KAlBwB","debugId":null}}]
-}
