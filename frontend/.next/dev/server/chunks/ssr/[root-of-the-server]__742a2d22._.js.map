@@ -1,6 +1,0 @@
-{
-  "version": 3,
-  "sources": [],
-  "sections": [
-    {"offset": {"line": 14, "column": 0}, "map": {"version":3,"sources":["file:///C:/Users/usere/Desktop/FYP/AcuityTalent/frontend/src/app/page.tsx"],"sourcesContent":["export default function HomePage() {\r\n  return <h1 className=\"text-primary-600 text-2xl\">Hello World</h1>;\r\n}\r\n"],"names":[],"mappings":";;;;;;AAAe,SAAS;IACtB,qBAAO,0PAAC;QAAG,WAAU;kBAA4B;;;;;;AACnD"}}]
-}
