@@ -14,11 +14,11 @@ export default function AuthLayout({
   return (
     <div
       className={`flex min-h-screen ${
-        isLogin ? "flex-row-reverse" : "flex-row"
+        isLogin ? "flex-row" : "flex-row-reverse"
       }`}
     >
-      <div className="hidden lg:flex w-1/2 bg-primary-700 items-center justify-center p-12">
-        <div className="relative w-full aspect-square max-w-xl rounded-2xl overflow-hidden border border-white/10 p-4">
+      <div className="hidden lg:flex w-3/4 bg-primary-700 items-center justify-center p-12">
+        <div className="relative w-full aspect-square max-w-3xl rounded-2xl overflow-hidden border border-white/10">
           <img
             src="/stock-images/auth-image.png"
             alt="Office working"
@@ -27,7 +27,7 @@ export default function AuthLayout({
         </div>
       </div>
 
-      <div className="w-full lg:w-1/2 flex flex-col items-center justify-center bg-white p-8">
+      <div className="w-full h-full lg:w-1/2 flex flex-col justify-center bg-white p-8">
         <div className="w-full max-w-md">{children}</div>
       </div>
     </div>
