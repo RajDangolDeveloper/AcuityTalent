@@ -1,5 +1,6 @@
 "use client";
 
+import CustomButton from "@/src/components/CustomButton";
 import CustomInput from "@/src/components/CustomInput";
 import { Key, Mail } from "lucide-react";
 import { signIn } from "next-auth/react";
@@ -56,9 +57,14 @@ export default function LoginPage() {
           placeholder="Enter your password"
           required
         />
-        <button type="submit">Sign In</button>
+        <CustomButton type="submit">Sign In</CustomButton>
         {error && <p style={{ color: "red" }}>{error}</p>}
       </form>
+      <div className="flex flex-col gap-3 self-center ">
+        <div  className="self-center">Don't have an account?<a className="text-primary-500" href="/candidate/register"> Sign Up</a></div>
+        <div  className="self-center">Or</div>
+        <div  className="self-center">Are you a recruiter?<a className="text-primary-500" href="/recruiter/login"> Sign In</a></div>
+    </div>
     </div>
   );
 }
