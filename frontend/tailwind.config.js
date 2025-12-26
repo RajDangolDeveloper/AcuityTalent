@@ -1,38 +1,35 @@
-/** @type {import('tailwindcss').Config} */
-module.exports = {
+export default {
   content: [
-    "./app/**/*.{js,ts,jsx,tsx,mdx}",
-    "./pages/**/*.{js,ts,jsx,tsx,mdx}",
-    "./components/**/*.{js,ts,jsx,tsx,mdx}",
+    "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
+    "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
+    "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
     extend: {
       colors: {
         primary: {
-          50: "#8e85f0",
-          100: "#867ee2",
-          200: "#776fc6",
-          300: "#6760ab",
-          400: "#595390",
-          500: "#4a4577",
-          600: "#3c385e",
-          700: "#2e2b47",
-          800: "#211f30",
-          900: "#15131c",
-          950: "#0c0b11",
+          50: "#edecf1",
+          100: "#dbdae4",
+          200: "#b7b5c9",
+          300: "#928fad",
+          400: "#6e6a92",
+          500: "#4a4577", // Base Primary
+          600: "#3b375f",
+          700: "#2c2947",
+          800: "#1e1c30",
+          900: "#0f0e18",
         },
         secondary: {
-          50: "#f5f7c3",
-          100: "#e7f085",
-          200: "#cad276",
-          300: "#afb566",
-          400: "#949958",
-          500: "#7a7e49",
-          600: "#60633b",
-          700: "#484a2e",
-          800: "#313321",
-          900: "#1c1d14",
-          950: "#11120c",
+          50: "#fafbed",
+          100: "#f5f7dc",
+          200: "#ecf0b8",
+          300: "#e2e895",
+          400: "#d9e171",
+          500: "#cfd94e", // Base Secondary
+          600: "#a6ae3e",
+          700: "#7c822f",
+          800: "#53571f",
+          900: "#292b10",
         },
         neutral: {
           50: "#f9fafb",

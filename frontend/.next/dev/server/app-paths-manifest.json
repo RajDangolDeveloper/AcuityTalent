@@ -1,6 +1,4 @@
 {
-  "/(protected)/dashboard/page": "app/(protected)/dashboard/page.js",
-  "/(public)/login/page": "app/(public)/login/page.js",
-  "/api/auth/[...nextauth]/route": "app/api/auth/[...nextauth]/route.js",
-  "/page": "app/page.js"
+  "/(public)/(auth)/candidate/login/page": "app/(public)/(auth)/candidate/login/page.js",
+  "/api/auth/[...nextauth]/route": "app/api/auth/[...nextauth]/route.js"
 }
