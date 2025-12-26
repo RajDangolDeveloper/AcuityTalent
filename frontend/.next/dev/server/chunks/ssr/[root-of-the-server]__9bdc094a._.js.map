@@ -1,6 +1,0 @@
-{
-  "version": 3,
-  "sources": [],
-  "sections": [
-    {"offset": {"line": 18, "column": 0}, "map": {"version":3,"sources":["file:///C:/Users/usere/Desktop/FYP/AcuityTalent/frontend/src/app/%28protected%29/dashboard/page.tsx"],"sourcesContent":["export default function dashboardPage() {\n  return <h1>This is the dashboard page</h1>;\n}\n"],"names":[],"mappings":";;;;;;AAAe,SAAS;IACtB,qBAAO,0PAAC;kBAAG;;;;;;AACb","debugId":null}}]
-}
