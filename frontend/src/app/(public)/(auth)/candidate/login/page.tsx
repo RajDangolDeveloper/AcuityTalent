@@ -36,7 +36,10 @@ export default function LoginPage() {
         src="/logo/primary-full-noslogan.png"
         alt=""
       />
-      <form className="flex flex-col gap-4 self-center" onSubmit={handleSubmit}>
+      <form
+        className="flex flex-col gap-4 self-center pt-16"
+        onSubmit={handleSubmit}
+      >
         <div className="flex flex-col gap-3">
           <h1 className="text-4xl font-roboto">Sign In</h1>
           <p className="text-lg">
@@ -61,10 +64,22 @@ export default function LoginPage() {
         {error && <p style={{ color: "red" }}>{error}</p>}
       </form>
       <div className="flex flex-col gap-3 self-center ">
-        <div  className="self-center">Don't have an account?<a className="text-primary-500" href="/candidate/register"> Sign Up</a></div>
-        <div  className="self-center">Or</div>
-        <div  className="self-center">Are you a recruiter?<a className="text-primary-500" href="/recruiter/login"> Sign In</a></div>
-    </div>
+        <div className="self-center">
+          Don't have an account?
+          <a className="text-primary-500" href="/candidate/register">
+            {" "}
+            Sign Up
+          </a>
+        </div>
+        <div className="self-center">Or</div>
+        <div className="self-center">
+          Are you a recruiter?
+          <a className="text-primary-500" href="/recruiter/login">
+            {" "}
+            Sign In
+          </a>
+        </div>
+      </div>
     </div>
   );
 }

@@ -11,10 +11,16 @@ import { LoginDto } from './dto/login.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { RegisterDto } from './dto/register.dto';
 import { ForgetPasswordDto } from './dto/forgotPassword.dto';
+import { ConfigService } from '@nestjs/config';
+import { PasswordService } from 'src/config/password.service';
 
 @Injectable()
 export class AuthService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private config: ConfigService,
+    private passwordService: PasswordService,
+  ) {}
 
   async validateUser(loginDto: LoginDto): Promise<any> {
     try {
@@ -35,7 +41,10 @@ export class AuthService {
         throw new UnauthorizedException('Invalid credentials');
       }
 
-      const isPasswordValid = password === user.passwordHash;
+      const isPasswordValid = this.passwordService.comparePassword(
+        password,
+        user.passwordHash,
+      );
 
       if (!isPasswordValid) {
         throw new UnauthorizedException('Invalid Credentials');
@@ -44,6 +53,7 @@ export class AuthService {
       const { passwordHash, ...userWithoutPassword } = user;
       return userWithoutPassword;
     } catch (error) {
+      console.log(error);
       throw new UnauthorizedException('Authenticated Failed');
     }
   }

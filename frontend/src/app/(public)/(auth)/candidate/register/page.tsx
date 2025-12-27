@@ -43,42 +43,56 @@ export default function RegisterPage() {
         src="/logo/primary-full-noslogan.png"
         alt=""
       />
-      <form className="flex flex-col gap-4 self-center" onSubmit={handleSubmit}>
-        <div className="flex flex-col gap-3">
+      <form className="flex flex-col self-center pt-12" onSubmit={handleSubmit}>
+        <div className="flex flex-col gap-4">
           <h1 className="text-4xl font-roboto">Sign Up</h1>
-          <p className="text-lg">
-            Create an account to find the jobs you want
-          </p>
+          <p className="text-lg">Create an account to find the jobs you want</p>
         </div>
-        <CustomInput
-          name="email"
-          type="email"
-          leftIcon={<Mail size={18} />}
-          placeholder="Enter your email"
-          required
-        />
-        <CustomInput
-          name="password"
-          type="password"
-          leftIcon={<Key size={18} />}
-          placeholder="Enter your password"
-          required
-        />
-        <CustomInput
-          name="confirmPassword"
-          type="password"
-          leftIcon={<Key size={18} />}
-          placeholder="Reenter your password"
-          required
-        />
-        <CustomButton type="submit">Sign Up</CustomButton>
+        <div className="flex flex-col gap-4 py-4">
+          <CustomInput
+            name="email"
+            type="email"
+            leftIcon={<Mail size={18} />}
+            placeholder="Enter your email"
+            required
+          />
+          <CustomInput
+            name="password"
+            type="password"
+            leftIcon={<Key size={18} />}
+            placeholder="Enter your password"
+            required
+          />
+          <CustomInput
+            name="confirmPassword"
+            type="password"
+            leftIcon={<Key size={18} />}
+            placeholder="Reenter your password"
+            required
+          />
+        </div>
+        <CustomButton className="self-center" type="submit">
+          Sign Up
+        </CustomButton>
         {error && <p style={{ color: "red" }}>{error}</p>}
       </form>
-    <div className="flex flex-col gap-3 self-center ">
-        <div  className="self-center">Already have an account?<a className="text-primary-500" href="/candidate/login"> Sign In</a></div>
-        <div  className="self-center">Or</div>
-        <div  className="self-center">Are you a recruiter?<a className="text-primary-500" href="/recruiter/register"> Sign Up</a></div>
-    </div>
+      <div className="flex flex-col gap-3 self-center ">
+        <div className="self-center">
+          Already have an account?
+          <a className="text-primary-500" href="/candidate/login">
+            {" "}
+            Sign In
+          </a>
+        </div>
+        <div className="self-center">Or</div>
+        <div className="self-center">
+          Are you a recruiter?
+          <a className="text-primary-500" href="/recruiter/register">
+            {" "}
+            Sign Up
+          </a>
+        </div>
+      </div>
     </div>
   );
 }

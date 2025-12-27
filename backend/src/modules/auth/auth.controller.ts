@@ -17,12 +17,7 @@ export class AuthController {
 
   @Post('login')
   async loginUser(@Body() loginData: LoginDto) {
-    try {
-      const result = await this.authService.validateUser(loginData);
-      return result;
-    } catch (error) {
-      throw new error();
-    }
+    return await this.authService.validateUser(loginData);
   }
 
   @Post('register')
@@ -30,18 +25,14 @@ export class AuthController {
     try {
       const result = await this.authService.registerUser(registerData);
       return result;
-    } catch (error) {
-      throw new error();
-    }
+    } catch (error) {}
   }
 
   @Post('forgot-password')
   async forgotUser(@Body() forgetPasswordDto: ForgetPasswordDto) {
     try {
       const result = await this.authService.findUser(forgetPasswordDto);
-    } catch (error) {
-      throw new error();
-    }
+    } catch (error) {}
   }
 
   @Post('verify-otp')
