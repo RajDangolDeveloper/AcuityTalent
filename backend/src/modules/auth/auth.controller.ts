@@ -22,28 +22,17 @@ export class AuthController {
 
   @Post('register')
   async registerUser(@Body() registerData: RegisterDto) {
-    try {
-      const result = await this.authService.registerUser(registerData);
-      return result;
-    } catch (error) {}
+    return await this.authService.registerUser(registerData);
   }
 
   @Post('forgot-password')
   async forgotUser(@Body() forgetPasswordDto: ForgetPasswordDto) {
-    try {
-      const result = await this.authService.findUser(forgetPasswordDto);
-    } catch (error) {}
+    const result = await this.authService.findUser(forgetPasswordDto);
   }
 
   @Post('verify-otp')
-  async verifyOtp(@Body() verifyOtp: UpdatePasswordDto) {
-    try {
-    } catch (error) {}
-  }
+  async verifyOtp(@Body() verifyOtp: UpdatePasswordDto) {}
 
   @Post('update-password')
-  async updatePassword(@Body() updatePasswordDto: UpdatePasswordDto) {
-    try {
-    } catch (error) {}
-  }
+  async updatePassword(@Body() updatePasswordDto: UpdatePasswordDto) {}
 }

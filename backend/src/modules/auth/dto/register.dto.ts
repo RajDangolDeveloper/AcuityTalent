@@ -6,9 +6,11 @@ import {
   IsStrongPassword,
   MinLength,
 } from 'class-validator';
+import { Transform } from 'class-transformer';
 
 export class RegisterDto {
   @IsEmail()
+  @Transform(({ value }) => value?.toLowerCase())
   email: string;
 
   @IsString()

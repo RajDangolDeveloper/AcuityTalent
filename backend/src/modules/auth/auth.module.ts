@@ -8,6 +8,7 @@ import { PasswordService } from 'src/config/password.service';
 
 @Module({
   imports: [
+    ConfigModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({

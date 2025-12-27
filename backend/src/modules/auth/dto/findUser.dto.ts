@@ -1,7 +1,7 @@
 import { IsEmail } from 'class-validator';
 import { Transform } from 'class-transformer';
 
-export class ForgetPasswordDto {
+export class FindUser {
   @IsEmail()
   @Transform(({ value }) => value?.toLowerCase())
   email: string;

@@ -4,6 +4,8 @@ import {
   Injectable,
   UnauthorizedException,
   BadRequestException,
+  InternalServerErrorException,
+  ConflictException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
@@ -13,12 +15,12 @@ import { RegisterDto } from './dto/register.dto';
 import { ForgetPasswordDto } from './dto/forgotPassword.dto';
 import { ConfigService } from '@nestjs/config';
 import { PasswordService } from 'src/config/password.service';
+import { FindUser } from './dto/findUser.dto';
 
 @Injectable()
 export class AuthService {
   constructor(
     private prisma: PrismaService,
-    private config: ConfigService,
     private passwordService: PasswordService,
   ) {}
 
@@ -41,7 +43,7 @@ export class AuthService {
         throw new UnauthorizedException('Invalid credentials');
       }
 
-      const isPasswordValid = this.passwordService.comparePassword(
+      const isPasswordValid = await this.passwordService.comparePassword(
         password,
         user.passwordHash,
       );
@@ -59,18 +61,38 @@ export class AuthService {
   }
 
   async registerUser(registerDto: RegisterDto): Promise<any> {
-    try {
-      const result = await this.prisma.user.create({ data: registerDto });
-      return result;
-    } catch (error) {
-      throw new error();
+    const isUserAvailable = await this.prisma.user.findUnique({
+      where: { email: registerDto.email },
+    });
+
+    if (isUserAvailable) {
+      throw new ConflictException('User already exists');
     }
+    const hashedPassword = await this.passwordService.hashPassword(
+      registerDto.passwordHash,
+    );
+
+    const { passwordHash, ...userData } = registerDto;
+
+    if (registerDto.role === 'ADMIN') {
+      throw new BadRequestException('Cannot create ADMIN user');
+    }
+
+    const result = await this.prisma.user.create({
+      data: {
+        ...userData,
+        passwordHash: hashedPassword,
+      },
+    });
+
+    const { passwordHash: _, ...userWithoutPassword } = result;
+    return userWithoutPassword;
   }
 
-  async findUser(forgetPasswordDto: ForgetPasswordDto): Promise<boolean> {
+  async findUser(findUser: FindUser): Promise<boolean> {
     try {
       const user = await this.prisma.user.findUnique({
-        where: { email: forgetPasswordDto.email },
+        where: { email: findUser.email },
         select: {
           id: true,
           email: true,
@@ -88,4 +110,8 @@ export class AuthService {
       throw new error();
     }
   }
+
+  async forgetPassword() {}
+
+  async resetPassword() {}
 }

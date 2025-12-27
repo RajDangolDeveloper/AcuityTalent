@@ -10,6 +10,7 @@ import { AuthModule } from './modules/auth/auth.module';
     ConfigModule.forRoot({
       envFilePath: '.env',
       isGlobal: true,
+      cache: true,
     }),
     AuthModule,
   ],
