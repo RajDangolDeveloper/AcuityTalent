@@ -16,6 +16,8 @@ import { ForgetPasswordDto } from './dto/forgotPassword.dto';
 import { ConfigService } from '@nestjs/config';
 import { PasswordService } from 'src/config/password.service';
 import { FindUser } from './dto/findUser.dto';
+import { UpdatePasswordDto } from './dto/updatePassword.dto';
+import { User } from '@prisma/client';
 
 @Injectable()
 export class AuthService {
@@ -89,29 +91,34 @@ export class AuthService {
     return userWithoutPassword;
   }
 
-  async findUser(findUser: FindUser): Promise<boolean> {
-    try {
-      const user = await this.prisma.user.findUnique({
-        where: { email: findUser.email },
-        select: {
-          id: true,
-          email: true,
-          passwordHash: true,
-          role: true,
-        },
-      });
+  async findUser(findUser: string): Promise<User> {
+    const user = await this.prisma.user.findUnique({
+      where: { email: findUser },
+      select: {
+        id: true,
+        email: true,
+        passwordHash: true,
+        role: true,
+      },
+    });
 
-      if (!user) {
-        return false;
-      }
-
-      return true;
-    } catch (error) {
-      throw new error();
+    if (!user) {
+      throw new BadRequestException('User not found');
     }
+
+    return user;
   }
 
-  async forgetPassword() {}
+  async forgetPassword(forgetPassword: ForgetPasswordDto) {
+    const user = this.findUser(forgetPassword.email);
+  }
 
-  async resetPassword() {}
+  async updatePassword(updatePassword: UpdatePasswordDto) {
+    const user = this.findUser(updatePassword.email);
+  }
+
+  async createOtp() {
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    return otp;
+  }
 }

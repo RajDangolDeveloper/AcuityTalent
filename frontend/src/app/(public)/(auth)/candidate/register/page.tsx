@@ -71,7 +71,7 @@ export default function RegisterPage() {
             required
           />
         </div>
-        <CustomButton className="self-center" type="submit">
+        <CustomButton color="primary" className="self-center" type="submit">
           Sign Up
         </CustomButton>
         {error && <p style={{ color: "red" }}>{error}</p>}

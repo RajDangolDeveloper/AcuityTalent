@@ -3,8 +3,5 @@
     "start:backend": "cd backend && npm run start:dev",
     "start:frontend": "cd frontend && npm run dev",
     "start:python": "cd ai && python -m uvicorn main:app --reload"
-  },
-  "dependencies": {
-    "class-transformer": "^0.5.1"
   }
 }

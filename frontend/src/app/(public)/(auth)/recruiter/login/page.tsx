@@ -60,7 +60,9 @@ export default function LoginPage() {
           placeholder="Enter your password"
           required
         />
-        <CustomButton type="submit">Sign In</CustomButton>
+        <CustomButton color="primary" type="submit">
+          Sign In
+        </CustomButton>
         {error && <p style={{ color: "red" }}>{error}</p>}
       </form>
       <div className="flex flex-col gap-3 self-center ">

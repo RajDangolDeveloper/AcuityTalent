@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Get,
@@ -26,9 +27,7 @@ export class AuthController {
   }
 
   @Post('forgot-password')
-  async forgotUser(@Body() forgetPasswordDto: ForgetPasswordDto) {
-    const result = await this.authService.findUser(forgetPasswordDto);
-  }
+  async forgetUser(@Body() forgetPasswordDto: ForgetPasswordDto) {}
 
   @Post('verify-otp')
   async verifyOtp(@Body() verifyOtp: UpdatePasswordDto) {}

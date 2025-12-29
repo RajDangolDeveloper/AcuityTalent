@@ -74,7 +74,9 @@ export default function RegisterPage() {
           placeholder="Reenter your password"
           required
         />
-        <CustomButton type="submit">Sign Up</CustomButton>
+        <CustomButton color="primary" type="submit">
+          Sign Up
+        </CustomButton>
         {error && <p style={{ color: "red" }}>{error}</p>}
       </form>
       <div className="flex flex-col gap-3 self-center ">
