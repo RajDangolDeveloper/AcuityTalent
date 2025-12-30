@@ -1,5 +1,6 @@
 "use client";
 
+import apiClient from "@/src/app/api/api-client";
 import CustomButton from "@/src/components/CustomButton";
 import CustomInput from "@/src/components/CustomInput";
 import { Key, Mail } from "lucide-react";
@@ -21,6 +22,21 @@ export default function RegisterPage() {
     if (formData.get("password") !== formData.get("confirmPassword")) {
       setError("Passwords do not match");
       return;
+    }
+
+    const payload = {
+      email: formData.get("email"),
+      password: formData.get("password"),
+      role: "RECRUITER",
+    };
+
+    const response = await apiClient.post("/auth/register", payload);
+
+    if (response.status !== 200 && response.status !== 201) {
+      return {
+        success: false,
+        message: "Registration failed",
+      };
     }
 
     const result = await signIn("credentials", {
@@ -48,9 +64,9 @@ export default function RegisterPage() {
         onSubmit={handleSubmit}
       >
         <div className="flex flex-col gap-3">
-          <h1 className="text-4xl font-roboto">Sign In</h1>
+          <h1 className="text-4xl font-roboto">Sign Up</h1>
           <p className="text-lg">
-            Log into your account to continue your journey
+            Create your account to find talent for your positions
           </p>
         </div>
         <CustomInput

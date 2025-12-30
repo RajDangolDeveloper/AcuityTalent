@@ -65,6 +65,9 @@ export default function LoginPage() {
         </CustomButton>
         {error && <p style={{ color: "red" }}>{error}</p>}
       </form>
+      <a href="/forget-password" className="self-end">
+        Forgot your password?
+      </a>
       <div className="flex flex-col gap-3 self-center ">
         <div className="self-center">
           Don't have an account?

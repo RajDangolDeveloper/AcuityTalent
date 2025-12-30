@@ -7,23 +7,23 @@ import {
   InternalServerErrorException,
   ConflictException,
 } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
-import * as bcrypt from 'bcrypt';
 import { LoginDto } from './dto/login.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { RegisterDto } from './dto/register.dto';
 import { ForgetPasswordDto } from './dto/forgotPassword.dto';
-import { ConfigService } from '@nestjs/config';
 import { PasswordService } from 'src/config/password.service';
-import { FindUser } from './dto/findUser.dto';
 import { UpdatePasswordDto } from './dto/updatePassword.dto';
 import { User } from '@prisma/client';
+import { EmailService } from 'src/config/email.service';
+import { SendOtp } from './dto/sendOtp.dto';
+import { VerifyOtpDto } from './dto/verifyOtp.dto';
 
 @Injectable()
 export class AuthService {
   constructor(
     private prisma: PrismaService,
     private passwordService: PasswordService,
+    private emailService: EmailService,
   ) {}
 
   async validateUser(loginDto: LoginDto): Promise<any> {
@@ -71,10 +71,10 @@ export class AuthService {
       throw new ConflictException('User already exists');
     }
     const hashedPassword = await this.passwordService.hashPassword(
-      registerDto.passwordHash,
+      registerDto.password,
     );
 
-    const { passwordHash, ...userData } = registerDto;
+    const { password, ...userData } = registerDto;
 
     if (registerDto.role === 'ADMIN') {
       throw new BadRequestException('Cannot create ADMIN user');
@@ -110,15 +110,75 @@ export class AuthService {
   }
 
   async forgetPassword(forgetPassword: ForgetPasswordDto) {
-    const user = this.findUser(forgetPassword.email);
+    const user = await this.findUser(forgetPassword.email);
+    const otp = await this.createOtp(forgetPassword.email);
+
+    const otpDto: SendOtp = {
+      email: user.email,
+      otp: Number(otp),
+    };
+
+    await this.emailService.sendOtpEmail(otpDto);
+
+    return;
   }
 
-  async updatePassword(updatePassword: UpdatePasswordDto) {
-    const user = this.findUser(updatePassword.email);
+  async updatePassword(updatePasswordDto: UpdatePasswordDto) {
+    const findUser = await this.findUser(updatePasswordDto.email);
+
+    const updatePassword = await this.passwordService.hashPassword(
+      updatePasswordDto.passwordHash,
+    );
+
+    const updatedUser = await this.prisma.user.update({
+      where: { email: findUser.email },
+      data: {
+        passwordHash: updatePassword,
+      },
+      select: {
+        email: true,
+      },
+    });
+
+    return updatedUser;
   }
 
-  async createOtp() {
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+  async createOtp(userEmail: string) {
+    const otp = Math.floor(100000 + Math.random() * 900000);
+    await this.prisma.otp.create({
+      data: {
+        code: otp,
+        expiresAt: new Date(Date.now() + 5 * 60000),
+        user: {
+          connect: { email: userEmail },
+        },
+      },
+    });
     return otp;
+  }
+
+  async validateOtp(verifyOtp: VerifyOtpDto) {
+    const otpRecord = await this.prisma.otp.findFirst({
+      where: {
+        email: verifyOtp.email,
+        code: verifyOtp.otp,
+      },
+    });
+
+    if (!otpRecord) {
+      throw new Error('Invalid OTP code.');
+    }
+
+    const isExpired = new Date() > otpRecord.expiresAt;
+    if (isExpired) {
+      await this.prisma.otp.delete({ where: { id: otpRecord.id } });
+      throw new Error('OTP has expired. Please request a new one.');
+    }
+
+    await this.prisma.otp.deleteMany({
+      where: { email: verifyOtp.email },
+    });
+
+    return { success: true, message: 'OTP verified successfully!' };
   }
 }

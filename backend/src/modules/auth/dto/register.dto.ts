@@ -1,11 +1,5 @@
 import { Role } from '@prisma/client';
-import {
-  IsEmail,
-  IsEnum,
-  IsString,
-  IsStrongPassword,
-  MinLength,
-} from 'class-validator';
+import { IsEmail, IsEnum, IsString, MinLength } from 'class-validator';
 import { Transform } from 'class-transformer';
 
 export class RegisterDto {
@@ -15,8 +9,7 @@ export class RegisterDto {
 
   @IsString()
   @MinLength(6)
-  @IsStrongPassword()
-  passwordHash: string;
+  password: string;
 
   @IsEnum(Role)
   role: Role;

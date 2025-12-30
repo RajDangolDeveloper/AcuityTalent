@@ -11,6 +11,7 @@ import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
 import { ForgetPasswordDto } from './dto/forgotPassword.dto';
 import { UpdatePasswordDto } from './dto/updatePassword.dto';
+import { VerifyOtpDto } from './dto/verifyOtp.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -26,12 +27,18 @@ export class AuthController {
     return await this.authService.registerUser(registerData);
   }
 
-  @Post('forgot-password')
-  async forgetUser(@Body() forgetPasswordDto: ForgetPasswordDto) {}
+  @Post('forget-password')
+  async forgetUser(@Body() forgetPasswordDto: ForgetPasswordDto) {
+    return await this.authService.forgetPassword(forgetPasswordDto);
+  }
 
   @Post('verify-otp')
-  async verifyOtp(@Body() verifyOtp: UpdatePasswordDto) {}
+  async verifyOtp(@Body() verifyOtp: VerifyOtpDto) {
+    return await this.authService.validateOtp(verifyOtp);
+  }
 
   @Post('update-password')
-  async updatePassword(@Body() updatePasswordDto: UpdatePasswordDto) {}
+  async updatePassword(@Body() updatePasswordDto: UpdatePasswordDto) {
+    return await this.authService.updatePassword(updatePasswordDto);
+  }
 }

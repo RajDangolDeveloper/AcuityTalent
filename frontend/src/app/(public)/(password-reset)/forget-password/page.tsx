@@ -4,6 +4,7 @@ import { useState, FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import CustomButton from "@/src/components/CustomButton";
 import CustomInput from "@/src/components/CustomInput";
+import apiClient from "@/src/app/api/api-client";
 
 interface ApiResponse {
   message?: string;
@@ -22,21 +23,14 @@ export default function ResetPage() {
     setError("");
 
     try {
-      const response = await fetch("/api/auth/reset-password", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email,
-          action: "request",
-        }),
+      const response = await apiClient.post("auth/forget-password", {
+        email: email,
       });
 
-      const data: ApiResponse = await response.json();
-
-      if (response.ok) {
+      if (response.status) {
         router.push(`/verify-otp/${encodeURIComponent(email)}`);
       } else {
-        setError(data.error || "Failed to send reset email");
+        setError("Failed to send reset email");
       }
     } catch (err) {
       setError("Network error. Please try again.");

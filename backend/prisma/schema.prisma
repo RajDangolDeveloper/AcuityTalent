@@ -13,10 +13,22 @@ model User {
   email String @unique
   passwordHash String 
   role Role
+  otps  Otp[]
+}
+
+model Otp {
+  id        Int      @id @default(autoincrement())
+  code      Int
+  email     String   
+  user      User     @relation(fields: [email], references: [email])
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([email])
 }
 
 enum Role {
   CANDIDATE 
-  EMPLOYEE
+  RECRUITER
   ADMIN
 }

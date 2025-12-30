@@ -24,7 +24,7 @@ export class EmailService {
     const { email, otp } = sendOtp;
 
     const mailOptions = {
-      from: `"Your App Name" <${this.configService.get('MAIL_FROM')}>`,
+      from: `"AcuityTalent" <${this.configService.get('MAIL_FROM')}>`,
       to: email,
       subject: 'Your Verification Code',
       text: `Your OTP is: ${otp}. It will expire in 5 minutes.`,
@@ -34,7 +34,6 @@ export class EmailService {
     try {
       return await this.transporter.sendMail(mailOptions);
     } catch (error) {
-      // Using the InternalServerErrorException you imported
       throw new InternalServerErrorException('Failed to send OTP email', error);
     }
   }

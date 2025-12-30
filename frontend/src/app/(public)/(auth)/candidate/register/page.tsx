@@ -1,5 +1,6 @@
 "use client";
 
+import apiClient from "@/src/app/api/api-client";
 import CustomButton from "@/src/components/CustomButton";
 import CustomInput from "@/src/components/CustomInput";
 import { Key, Mail } from "lucide-react";
@@ -21,6 +22,21 @@ export default function RegisterPage() {
     if (formData.get("password") !== formData.get("confirmPassword")) {
       setError("Passwords do not match");
       return;
+    }
+
+    const payload = {
+      email: formData.get("email"),
+      password: formData.get("password"),
+      role: "CANDIDATE",
+    };
+
+    const response = await apiClient.post("/auth/register", payload);
+
+    if (response.status !== 200 && response.status !== 201) {
+      return {
+        success: false,
+        message: "Registration failed",
+      };
     }
 
     const result = await signIn("credentials", {
