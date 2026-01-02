@@ -28,7 +28,7 @@ export default function ResetPage() {
       });
 
       if (response.status) {
-        router.push(`/verify-otp/${encodeURIComponent(email)}`);
+        router.push(`forget-password/verify-otp/${encodeURIComponent(email)}`);
       } else {
         setError("Failed to send reset email");
       }
