@@ -12,7 +12,7 @@ export default function LoginPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const callbackUrl =
-    searchParams?.get("callbackUrl") || "/dashboard/candidate";
+    searchParams?.get("callbackUrl") || "/candidate/dashboard";
   const [error, setError] = useState("");
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {

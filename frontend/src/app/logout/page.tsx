@@ -1,0 +1,20 @@
+"use client";
+
+import { signOut } from "next-auth/react";
+import { useEffect } from "react";
+
+export default function LogoutPage() {
+  useEffect(() => {
+    const handleLogout = () => {
+      signOut({ callbackUrl: "/home" });
+    };
+
+    handleLogout();
+  }, []);
+
+  return (
+    <div className="flex items-center justify-center min-h-screen">
+      <p className="text-lg text-gray-600">Logging out...</p>
+    </div>
+  );
+}

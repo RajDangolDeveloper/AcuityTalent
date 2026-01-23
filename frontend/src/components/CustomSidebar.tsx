@@ -1,11 +1,13 @@
+"use client";
+
 import React, { ReactNode } from "react";
-import "./CustomSidebar.css";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 interface SidebarItemProps {
   icon?: ReactNode;
   label: string;
-  onClick?: () => void;
-  active?: boolean;
+  href: string;
   className?: string;
 }
 
@@ -18,52 +20,56 @@ interface CustomSidebarProps {
   children: ReactNode;
 }
 
-// 1. Individual Item Component
-const SidebarItem: React.FC<SidebarItemProps> = ({
+export const SidebarItem = ({
   icon,
   label,
-  onClick,
-  active,
+  href,
   className = "",
-}) => (
-  <div
-    className={`sidebar-item ${active ? "active" : ""} ${className}`}
-    onClick={onClick}
-  >
-    {icon && <span className="sidebar-icon">{icon}</span>}
-    <span className="sidebar-label">{label}</span>
-  </div>
+}: SidebarItemProps) => {
+  const pathname = usePathname();
+  const isActive = pathname === href;
+
+  return (
+    <Link
+      href={href}
+      className={`
+        flex items-center px-6 py-3 transition-colors duration-200
+        text-white font-semibold text-lg hover:bg-white/10
+        ${isActive ? "text-blue-400 underline underline-offset-4" : ""} 
+        ${className}
+      `}
+    >
+      {icon && <span className="mr-3">{icon}</span>}
+      <span>{label}</span>
+    </Link>
+  );
+};
+
+export const TopItems = ({ children }: SidebarSectionProps) => (
+  <div className="flex flex-col pt-8 flex-grow">{children}</div>
 );
 
-// 2. Section Wrappers
-const SidebarTop: React.FC<SidebarSectionProps> = ({ children }) => (
-  <div className="sidebar-top">{children}</div>
+export const BottomItems = ({ children }: SidebarSectionProps) => (
+  <div className="flex flex-col pb-8">{children}</div>
 );
 
-const SidebarBottom: React.FC<SidebarSectionProps> = ({ children }) => (
-  <div className="sidebar-bottom">{children}</div>
-);
+export default function CustomSidebar({
+  variant = "primary",
+  children,
+}: CustomSidebarProps) {
+  // Map variants to specific purple shades from your image
+  const variantClasses =
+    variant === "primary" ? "bg-[#484677]" : "bg-[#ffffff]";
 
-// 3. Main Sidebar Component
-const CustomSidebar: React.FC<CustomSidebarProps> & {
-  Item: typeof SidebarItem;
-  Top: typeof SidebarTop;
-  Bottom: typeof SidebarBottom;
-} = ({ variant = "primary", children }) => {
   return (
     <aside
-      className={`custom-sidebar h-screen ${variant} ${
-        variant === "secondary" ? "overflow-y-auto scrollbar-none" : ""
-      }`}
+      className={`
+        ${variantClasses} 
+        h-screen w-64 flex flex-col 
+        ${variant === "secondary" ? "overflow-y-auto scrollbar-hide" : ""}
+      `}
     >
       {children}
     </aside>
   );
-};
-
-// Attaching sub-components to the main object
-CustomSidebar.Item = SidebarItem;
-CustomSidebar.Top = SidebarTop;
-CustomSidebar.Bottom = SidebarBottom;
-
-export default CustomSidebar;
+}
