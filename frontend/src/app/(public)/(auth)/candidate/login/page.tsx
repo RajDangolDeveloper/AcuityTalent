@@ -2,6 +2,7 @@
 
 import CustomButton from "@/src/components/CustomButton";
 import CustomInput from "@/src/components/CustomInput";
+import Notification from "@/src/element/Notification";
 import { Key, Mail } from "lucide-react";
 import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -10,7 +11,8 @@ import { useState } from "react";
 export default function LoginPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const callbackUrl = searchParams?.get("callbackUrl") || "/dashboard";
+  const callbackUrl =
+    searchParams?.get("callbackUrl") || "/dashboard/candidate";
   const [error, setError] = useState("");
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -22,8 +24,16 @@ export default function LoginPage() {
       redirect: false,
     });
     if (result?.error) {
+      Notification({
+        toastMessage: "Invalid email or password",
+        toastStatus: "error",
+      });
       setError("Invalid email or password");
     } else {
+      Notification({
+        toastMessage: "Login successful!",
+        toastStatus: "success",
+      });
       router.push(callbackUrl);
       router.refresh();
     }
@@ -63,7 +73,6 @@ export default function LoginPage() {
         <CustomButton color="primary" type="submit">
           Sign In
         </CustomButton>
-        {error && <p style={{ color: "red" }}>{error}</p>}
       </form>
       <a href="/forget-password" className="self-end">
         Forgot your password?

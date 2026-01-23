@@ -37,4 +37,145 @@ export class EmailService {
       throw new InternalServerErrorException('Failed to send OTP email', error);
     }
   }
+
+  /**
+   * Step 18: Send shortlist notification email to candidate
+   */
+  async sendShortlistEmail(data: {
+    email: string;
+    jobTitle: string;
+    companyName: string;
+  }) {
+    const { email, jobTitle, companyName } = data;
+
+    const mailOptions = {
+      from: `"AcuityTalent" <${this.configService.get('MAIL_FROM')}>`,
+      to: email,
+      subject: `Great News! You've Been Shortlisted for ${jobTitle} at ${companyName}`,
+      text: `Congratulations! You have been shortlisted for the ${jobTitle} position at ${companyName}. We look forward to proceeding with the next steps.`,
+      html: `
+        <h2>Congratulations!</h2>
+        <p>We are pleased to inform you that you have been shortlisted for the <strong>${jobTitle}</strong> position at <strong>${companyName}</strong>.</p>
+        <p>Our team will be in touch with you soon regarding the next steps in the interview process.</p>
+        <p>Best regards,<br>AcuityTalent Team</p>
+      `,
+    };
+
+    try {
+      return await this.transporter.sendMail(mailOptions);
+    } catch (error) {
+      throw new InternalServerErrorException(
+        'Failed to send shortlist email',
+        error,
+      );
+    }
+  }
+
+  /**
+   * Step 23: Send offer/hiring email to candidate
+   */
+  async sendOfferEmail(data: {
+    email: string;
+    jobTitle: string;
+    companyName: string;
+  }) {
+    const { email, jobTitle, companyName } = data;
+
+    const mailOptions = {
+      from: `"AcuityTalent" <${this.configService.get('MAIL_FROM')}>`,
+      to: email,
+      subject: `Offer Letter: ${jobTitle} at ${companyName}`,
+      text: `Congratulations! We are pleased to offer you the position of ${jobTitle} at ${companyName}. Please review the offer details and respond at your earliest convenience.`,
+      html: `
+        <h2>Offer Letter</h2>
+        <p>Congratulations!</p>
+        <p>We are pleased to extend an offer for the position of <strong>${jobTitle}</strong> at <strong>${companyName}</strong>.</p>
+        <p>Please review the offer details and let us know your acceptance at your earliest convenience.</p>
+        <p>We look forward to welcoming you to our team!</p>
+        <p>Best regards,<br>AcuityTalent Team</p>
+      `,
+    };
+
+    try {
+      return await this.transporter.sendMail(mailOptions);
+    } catch (error) {
+      throw new InternalServerErrorException(
+        'Failed to send offer email',
+        error,
+      );
+    }
+  }
+
+  /**
+   * Steps 26, 30: Send rejection email to candidate
+   */
+  async sendRejectionEmail(data: {
+    email: string;
+    jobTitle: string;
+    companyName: string;
+  }) {
+    const { email, jobTitle, companyName } = data;
+
+    const mailOptions = {
+      from: `"AcuityTalent" <${this.configService.get('MAIL_FROM')}>`,
+      to: email,
+      subject: `Application Status Update: ${jobTitle} at ${companyName}`,
+      text: `Thank you for your interest in the ${jobTitle} position at ${companyName}. We appreciate the time and effort you invested in the application process.`,
+      html: `
+        <h2>Application Status Update</h2>
+        <p>Thank you for your interest in the <strong>${jobTitle}</strong> position at <strong>${companyName}</strong>.</p>
+        <p>We appreciate the time and effort you invested in the application process. While we were impressed by your qualifications, we have decided to move forward with other candidates at this time.</p>
+        <p>We encourage you to apply for future positions that match your profile.</p>
+        <p>Best regards,<br>AcuityTalent Team</p>
+      `,
+    };
+
+    try {
+      return await this.transporter.sendMail(mailOptions);
+    } catch (error) {
+      throw new InternalServerErrorException(
+        'Failed to send rejection email',
+        error,
+      );
+    }
+  }
+
+  /**
+   * Step 12: Send new application notification to recruiter
+   */
+  async sendApplicationNotificationEmail(data: {
+    email: string;
+    candidateName: string;
+    jobTitle: string;
+    candidateEmail: string;
+  }) {
+    const { email, candidateName, jobTitle, candidateEmail } = data;
+
+    const mailOptions = {
+      from: `"AcuityTalent" <${this.configService.get('MAIL_FROM')}>`,
+      to: email,
+      subject: `New Application: ${candidateName} for ${jobTitle}`,
+      text: `A new candidate has applied for your job posting. Candidate: ${candidateName} (${candidateEmail})`,
+      html: `
+        <h2>New Application Received</h2>
+        <p>A new candidate has applied for your job posting:</p>
+        <ul>
+          <li><strong>Job Title:</strong> ${jobTitle}</li>
+          <li><strong>Candidate:</strong> ${candidateName}</li>
+          <li><strong>Email:</strong> ${candidateEmail}</li>
+        </ul>
+        <p>Please log in to AcuityTalent to review the application and the candidate's resume.</p>
+        <p>Best regards,<br>AcuityTalent Team</p>
+      `,
+    };
+
+    try {
+      return await this.transporter.sendMail(mailOptions);
+    } catch (error) {
+      throw new InternalServerErrorException(
+        'Failed to send application notification email',
+        error,
+      );
+    }
+  }
 }
