@@ -1,8 +1,7 @@
 import { ReactNode } from "react";
 
-interface CustomButtonProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  color: "primary" | "white";
+interface CustomButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  color: "primary" | "secondary" | "white";
   children: ReactNode;
 }
 
@@ -16,6 +15,7 @@ export default function CustomButton({
     string
   > = {
     primary: "bg-primary-500 hover:bg-primary-600 text-white",
+    secondary: "bg-secondary-500 hover:bg-secondary-600 text-white",
     white: "bg-gray-100 hover:bg-gray-300 text-primary",
   };
   return (

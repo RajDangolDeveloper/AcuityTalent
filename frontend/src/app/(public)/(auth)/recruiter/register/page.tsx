@@ -11,7 +11,8 @@ import { useState } from "react";
 export default function RegisterPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const callbackUrl = searchParams?.get("callbackUrl") || "/dashboard";
+  const callbackUrl =
+    searchParams?.get("callbackUrl") || "/recruiter/dashboard";
   const [error, setError] = useState("");
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {

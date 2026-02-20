@@ -12,7 +12,20 @@ export default function Provider({
 }: {
   children: React.ReactElement;
 }) {
-  const [queryClient] = useState(() => new QueryClient());
+  const [queryClient] = useState(
+    () =>
+      new QueryClient({
+        defaultOptions: {
+          queries: {
+            // Do not refetch when window/tab gains focus — avoids showing
+            // loading states on every tab switch. Initial page load still fetches.
+            refetchOnWindowFocus: false,
+            // Optional: avoid automatic refetch on reconnect as well
+            refetchOnReconnect: false,
+          },
+        },
+      }),
+  );
 
   return (
     <SessionProvider>

@@ -150,6 +150,12 @@ model Company {
   
   // Relationships
   recruiters    RecruiterProfile[]
+  employees     CandidateProfile[]  // Candidates currently working at this company
+  jobs          Job[]               // Jobs posted by this company
+  
+  @@index([name])
+  @@index([industry])
+  @@index([companySize])
 }
 
 model RecruiterProfile {
@@ -174,31 +180,75 @@ model CandidateProfile {
   userId            Int           @unique
   headline          String?
   currentPosition   String?
-  currentCompany    String?
+  currentCompanyId  Int?
   experienceYears   Int?
-  highestDegree     EducationLevel?
-  skills            String?       // Could store as JSON or comma-separated
+  highestDegree    EducationLevel?
+  skills            String[]      // Changed to array type
   preferredLocation String?
-  preferredJobType  EmploymentType? // Use EmploymentType enum
+  preferredJobType  EmploymentType?
   expectedSalary    Float?
   linkedinUrl       String?
   githubUrl         String?
+  phone             String?       // Candidate contact phone
+  location          String?       // Current location
+  summary           String?       // Professional summary
   createdAt         DateTime      @default(now())
   updatedAt         DateTime      @updatedAt
   
   // Relationships
   user              User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  currentCompany    Company?      @relation(fields: [currentCompanyId], references: [id], onDelete: SetNull)
   resumes           Resume[]
   applications      Application[]
+  workHistory       WorkExperience[]
+  education         Education[]
+  savedJobs         SavedJob[]
   
   @@index([userId])
-  @@index([skills])
+  @@index([skills])  // PostgreSQL supports GIN indexes on arrays
   @@index([experienceYears])
+  @@index([highestDegree])
+}
+
+model WorkExperience {
+  id              Int      @id @default(autoincrement())
+  candidateId     Int
+  company         String
+  position        String
+  startDate       DateTime
+  endDate         DateTime?
+  isCurrent       Boolean  @default(false)
+  description     String?
+  createdAt       DateTime @default(now())
+  
+  // Relationships
+  candidate       CandidateProfile @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  
+  @@index([candidateId])
+}
+
+model Education {
+  id              Int           @id @default(autoincrement())
+  candidateId     Int
+  institution     String
+  degree          EducationLevel
+  fieldOfStudy    String?
+  startDate       DateTime
+  endDate         DateTime?
+  gpa             Float?
+  description     String?
+  createdAt       DateTime      @default(now())
+  
+  // Relationships
+  candidate       CandidateProfile @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  
+  @@index([candidateId])
 }
 
 model Job {
   id                  Int            @id @default(autoincrement())
-  recruiterId         Int
+  companyId           Int            // Direct company reference
+  recruiterId         Int            // Recruiter who posted the job
   title               String
   description         String
   requirements        String?
@@ -215,13 +265,18 @@ model Job {
   updatedAt           DateTime       @updatedAt
   
   // Relationships
+  company             Company        @relation(fields: [companyId], references: [id], onDelete: Cascade)
   recruiter           RecruiterProfile @relation(fields: [recruiterId], references: [id], onDelete: Cascade)
   applications        Application[]
+  savedBy             SavedJob[]
   
+  @@index([companyId])
   @@index([recruiterId])
   @@index([status])
   @@index([location])
   @@index([postedDate])
+  @@index([employmentType])
+  @@index([experienceLevel])
 }
 
 model Resume {
@@ -229,7 +284,7 @@ model Resume {
   candidateId Int
   filePath    String    // S3 URL or local path
   fileName    String
-  fileType    FileType  // Use FileType enum
+  fileType    FileType
   fileSize    Int       // in bytes
   textContent String?   // Extracted text for search
   uploadedAt  DateTime? @default(now())
@@ -265,4 +320,20 @@ model Application {
   @@index([jobId])
   @@index([status])
   @@index([appliedAt])
+  @@index([matchScore])
+}
+
+model SavedJob {
+  id          Int      @id @default(autoincrement())
+  candidateId Int
+  jobId       Int
+  createdAt   DateTime @default(now())
+  
+  // Relationships
+  candidate   CandidateProfile @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  job         Job              @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  
+  @@unique([candidateId, jobId])
+  @@index([candidateId])
+  @@index([jobId])
 }

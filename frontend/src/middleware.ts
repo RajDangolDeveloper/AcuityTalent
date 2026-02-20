@@ -50,9 +50,9 @@ export default withAuth(
       },
     },
     pages: {
-      signIn: "/login",
+      signIn: "/recruiter/login",
     },
-  }
+  },
 );
 
 export const config = {

@@ -76,7 +76,7 @@ export default function ResetPage({ params }: VerifyOtpProps) {
               color="primary"
               type="submit"
               onClick={handleSubmit}
-              disabled={loading || otp.length <= 6}
+              disabled={loading || otp.length < 6}
             >
               {loading ? "Verifying..." : "Submit"}
             </CustomButton>

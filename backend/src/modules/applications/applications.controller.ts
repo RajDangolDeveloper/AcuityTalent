@@ -114,23 +114,21 @@ export class ApplicationController {
   }
 
   /**
-   * GET /applications/:id
-   * Get single application details
-   * Both recruiter and candidate can view their own applications
+   * GET /applications/stats/dashboard
+   * Recruiter dashboard statistics
+   * Shows count of applications by status
    */
-  @Get(':id')
-  async getApplicationById(
-    @Param('id') id: string,
+  @Get('stats/dashboard')
+  async getApplicationStats(
     @Req() req: any,
-  ): Promise<{ statusCode: number; data: ApplicationResponseDto }> {
-    const application = await this.applicationService.getApplicationById(
-      parseInt(id),
+  ): Promise<{ statusCode: number; data: any }> {
+    const stats = await this.applicationService.getApplicationStats(
       req.user.id,
     );
 
     return {
       statusCode: HttpStatus.OK,
-      data: application,
+      data: stats,
     };
   }
 
@@ -167,21 +165,23 @@ export class ApplicationController {
   }
 
   /**
-   * GET /applications/stats/dashboard
-   * Recruiter dashboard statistics
-   * Shows count of applications by status
+   * GET /applications/:id
+   * Get single application details
+   * Both recruiter and candidate can view their own applications
    */
-  @Get('stats/dashboard')
-  async getApplicationStats(
+  @Get(':id')
+  async getApplicationById(
+    @Param('id') id: string,
     @Req() req: any,
-  ): Promise<{ statusCode: number; data: any }> {
-    const stats = await this.applicationService.getApplicationStats(
+  ): Promise<{ statusCode: number; data: ApplicationResponseDto }> {
+    const application = await this.applicationService.getApplicationById(
+      parseInt(id),
       req.user.id,
     );
 
     return {
       statusCode: HttpStatus.OK,
-      data: stats,
+      data: application,
     };
   }
 
@@ -234,6 +234,27 @@ export class ApplicationController {
    */
   @Patch(':id/accept')
   async acceptApplication(
+    @Param('id') id: string,
+    @Req() req: any,
+  ): Promise<{ statusCode: number; data: ApplicationResponseDto }> {
+    const application = await this.applicationService.acceptApplication(
+      parseInt(id),
+      req.user.id,
+    );
+
+    return {
+      statusCode: HttpStatus.OK,
+      data: application,
+    };
+  }
+
+  /**
+   * PATCH /applications/:id/offer
+   * Alias endpoint for extending offer (same as /accept)
+   * Supports frontend naming convention
+   */
+  @Patch(':id/offer')
+  async extendOffer(
     @Param('id') id: string,
     @Req() req: any,
   ): Promise<{ statusCode: number; data: ApplicationResponseDto }> {

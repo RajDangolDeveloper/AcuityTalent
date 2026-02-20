@@ -14,5 +14,5 @@ export class UpdatePasswordDto {
   @IsString()
   @MinLength(6)
   @IsStrongPassword()
-  passwordHash: string;
+  password: string;
 }

@@ -8,6 +8,9 @@ import { EmailService } from './config/email.service';
 import { ResumeModule } from './modules/resumes/resume.module';
 import { JobModule } from './modules/jobs/job.module';
 import { ApplicationModule } from './modules/applications/applications.module';
+import { CompanyModule } from './modules/companies/company.module';
+import { CandidateModule } from './modules/candidates/candidate.module';
+import { SavedJobModule } from './modules/saved-jobs/saved-job.module';
 
 @Module({
   imports: [
@@ -20,6 +23,9 @@ import { ApplicationModule } from './modules/applications/applications.module';
     JobModule,
     ResumeModule,
     ApplicationModule,
+    CompanyModule,
+    CandidateModule,
+    SavedJobModule,
   ],
   controllers: [AppController],
   providers: [AppService, PrismaService, EmailService],

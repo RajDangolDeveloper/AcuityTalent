@@ -22,18 +22,29 @@ export default function ResetPage() {
     setLoading(true);
     setError("");
 
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      setError("Please enter a valid email address");
+      setLoading(false);
+      return;
+    }
+
     try {
       const response = await apiClient.post("auth/forget-password", {
         email: email,
       });
 
-      if (response.status) {
+      if (response.status === 200 || response.status === 201) {
         router.push(`forget-password/verify-otp/${encodeURIComponent(email)}`);
       } else {
-        setError("Failed to send reset email");
+        setError("Failed to send reset email. Please try again.");
       }
-    } catch (err) {
-      setError("Network error. Please try again.");
+    } catch (err: any) {
+      const errorMsg =
+        err.response?.data?.message ||
+        "Failed to send reset email. Please check your email and try again.";
+      setError(errorMsg);
     } finally {
       setLoading(false);
     }

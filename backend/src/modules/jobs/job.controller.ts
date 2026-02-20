@@ -25,7 +25,6 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
  * Maps to sequence diagram steps 5-9
  */
 @Controller('jobs')
-@UseGuards(JwtAuthGuard)
 export class JobController {
   constructor(private jobService: JobService) {}
 
@@ -35,6 +34,7 @@ export class JobController {
    * Creates a new job posting (initially in DRAFT status)
    */
   @Post()
+  @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.CREATED)
   async createJob(
     @Body() createJobDto: CreateJobDto,
@@ -81,6 +81,7 @@ export class JobController {
    * Can edit, delete, or update status to ACTIVE
    */
   @Get('recruiter/my-jobs')
+  @UseGuards(JwtAuthGuard)
   async getRecruiterJobs(
     @Query() query: GetJobsQueryDto,
     @Req() req: any,
@@ -100,6 +101,35 @@ export class JobController {
         page,
         limit: pageSize,
       },
+    };
+  }
+
+  /**
+   * GET /jobs/:id/stats
+   * Get statistics for a job
+   * Recruiter only (must own the job)
+   * IMPORTANT: Must come before @Get(':id') to avoid route conflict
+   */
+  @Get(':id/stats')
+  @UseGuards(JwtAuthGuard)
+  async getJobStats(
+    @Param('id') id: string,
+    @Req() req: any,
+  ): Promise<{
+    statusCode: number;
+    data: {
+      viewsCount: number;
+      totalApplications: number;
+      applicationsByStatus: any;
+      postedDate: Date | null;
+      applicationDeadline: Date | null;
+    };
+  }> {
+    const stats = await this.jobService.getJobStats(parseInt(id), req.user.id);
+
+    return {
+      statusCode: HttpStatus.OK,
+      data: stats,
     };
   }
 
@@ -127,6 +157,7 @@ export class JobController {
    * Can update status from DRAFT to ACTIVE
    */
   @Patch(':id')
+  @UseGuards(JwtAuthGuard)
   async updateJob(
     @Param('id') id: string,
     @Body() updateJobDto: UpdateJobDto,
@@ -150,35 +181,9 @@ export class JobController {
    * Can only delete if no applications exist
    */
   @Delete(':id')
+  @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteJob(@Param('id') id: string, @Req() req: any): Promise<void> {
     await this.jobService.deleteJob(parseInt(id), req.user.id);
-  }
-
-  /**
-   * GET /jobs/:id/stats
-   * Get statistics for a job
-   * Recruiter only (must own the job)
-   */
-  @Get(':id/stats')
-  async getJobStats(
-    @Param('id') id: string,
-    @Req() req: any,
-  ): Promise<{
-    statusCode: number;
-    data: {
-      viewsCount: number;
-      totalApplications: number;
-      applicationsByStatus: any;
-      postedDate: Date | null;
-      applicationDeadline: Date | null;
-    };
-  }> {
-    const stats = await this.jobService.getJobStats(parseInt(id), req.user.id);
-
-    return {
-      statusCode: HttpStatus.OK,
-      data: stats,
-    };
   }
 }

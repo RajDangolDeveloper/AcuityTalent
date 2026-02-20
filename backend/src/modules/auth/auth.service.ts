@@ -57,7 +57,7 @@ export class AuthService {
       }
 
       const { passwordHash, ...userWithoutPassword } = user;
-      
+
       // Generate JWT token
       const accessToken = this.jwtService.sign({
         sub: user.id,
@@ -101,7 +101,7 @@ export class AuthService {
     });
 
     const { passwordHash: _, ...userWithoutPassword } = result;
-    
+
     // Generate JWT token for new user
     const accessToken = this.jwtService.sign({
       sub: result.id,
@@ -156,14 +156,14 @@ export class AuthService {
   async updatePassword(updatePasswordDto: UpdatePasswordDto) {
     const findUser = await this.findUser(updatePasswordDto.email);
 
-    const updatePassword = await this.passwordService.hashPassword(
-      updatePasswordDto.passwordHash,
+    const hashedPassword = await this.passwordService.hashPassword(
+      updatePasswordDto.password,
     );
 
     const updatedUser = await this.prisma.user.update({
       where: { email: findUser.email },
       data: {
-        passwordHash: updatePassword,
+        passwordHash: hashedPassword,
       },
       select: {
         email: true,

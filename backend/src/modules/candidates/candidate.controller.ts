@@ -1,0 +1,272 @@
+import {
+  Controller,
+  Post,
+  Get,
+  Patch,
+  Delete,
+  Body,
+  Param,
+  HttpStatus,
+  HttpCode,
+  UseGuards,
+  Req,
+} from '@nestjs/common';
+import { CandidateService } from './candidate.service';
+import { CreateCandidateProfileDto } from './dto/create-candidate-profile.dto';
+import { UpdateCandidateProfileDto } from './dto/update-candidate-profile.dto';
+import { CandidateProfileResponseDto } from './dto/candidate-profile-response.dto';
+import { CreateWorkExperienceDto } from './dto/create-work-experience.dto';
+import { UpdateWorkExperienceDto } from './dto/update-work-experience.dto';
+import { WorkExperienceResponseDto } from './dto/work-experience-response.dto';
+import { CreateEducationDto } from './dto/create-education.dto';
+import { UpdateEducationDto } from './dto/update-education.dto';
+import { EducationResponseDto } from './dto/education-response.dto';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+
+/**
+ * CandidateController - RESTful API endpoints for candidate management
+ */
+@Controller('candidates')
+@UseGuards(JwtAuthGuard)
+export class CandidateController {
+  constructor(private candidateService: CandidateService) {}
+
+  // Profile endpoints
+  /**
+   * POST /candidates/profile
+   * Creates a candidate profile
+   */
+  @Post('profile')
+  @HttpCode(HttpStatus.CREATED)
+  async createProfile(
+    @Body() createDto: CreateCandidateProfileDto,
+    @Req() req: any,
+  ): Promise<{ statusCode: number; data: CandidateProfileResponseDto }> {
+    const profile = await this.candidateService.createCandidateProfile(
+      req.user.id,
+      createDto,
+    );
+
+    return {
+      statusCode: HttpStatus.CREATED,
+      data: profile,
+    };
+  }
+
+  /**
+   * GET /candidates/profile
+   * Get candidate profile (authenticated user)
+   */
+  @Get('profile')
+  async getProfile(
+    @Req() req: any,
+  ): Promise<{ statusCode: number; data: CandidateProfileResponseDto }> {
+    const profile = await this.candidateService.getCandidateProfile(
+      req.user.id,
+    );
+
+    return {
+      statusCode: HttpStatus.OK,
+      data: profile,
+    };
+  }
+
+  /**
+   * GET /candidates/:id
+   * Get specific candidate profile (for recruiters viewing candidates)
+   * Returns public candidate information
+   */
+  @Get(':id')
+  async getCandidateById(
+    @Param('id') id: string,
+    @Req() req: any,
+  ): Promise<{ statusCode: number; data: CandidateProfileResponseDto }> {
+    const profile = await this.candidateService.getCandidateProfileById(
+      parseInt(id),
+      req.user.id,
+    );
+
+    return {
+      statusCode: HttpStatus.OK,
+      data: profile,
+    };
+  }
+
+  /**
+   * PATCH /candidates/profile
+   * Update candidate profile
+   */
+  @Patch('profile')
+  async updateProfile(
+    @Body() updateDto: UpdateCandidateProfileDto,
+    @Req() req: any,
+  ): Promise<{ statusCode: number; data: CandidateProfileResponseDto }> {
+    const profile = await this.candidateService.updateCandidateProfile(
+      req.user.id,
+      updateDto,
+    );
+
+    return {
+      statusCode: HttpStatus.OK,
+      data: profile,
+    };
+  }
+
+  /**
+   * DELETE /candidates/profile
+   * Delete candidate profile
+   */
+  @Delete('profile')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async deleteProfile(@Req() req: any): Promise<void> {
+    await this.candidateService.deleteCandidateProfile(req.user.id);
+  }
+
+  // Work Experience endpoints
+  /**
+   * POST /candidates/work-experience
+   * Creates work experience
+   */
+  @Post('work-experience')
+  @HttpCode(HttpStatus.CREATED)
+  async createWorkExperience(
+    @Body() createDto: CreateWorkExperienceDto,
+    @Req() req: any,
+  ): Promise<{ statusCode: number; data: WorkExperienceResponseDto }> {
+    const workExp = await this.candidateService.createWorkExperience(
+      req.user.id,
+      createDto,
+    );
+
+    return {
+      statusCode: HttpStatus.CREATED,
+      data: workExp,
+    };
+  }
+
+  /**
+   * GET /candidates/work-experience
+   * Get all work experiences
+   */
+  @Get('work-experience')
+  async getWorkExperiences(
+    @Req() req: any,
+  ): Promise<{ statusCode: number; data: WorkExperienceResponseDto[] }> {
+    const experiences = await this.candidateService.getWorkExperiences(
+      req.user.id,
+    );
+
+    return {
+      statusCode: HttpStatus.OK,
+      data: experiences,
+    };
+  }
+
+  /**
+   * PATCH /candidates/work-experience/:id
+   * Update work experience
+   */
+  @Patch('work-experience/:id')
+  async updateWorkExperience(
+    @Param('id') id: string,
+    @Body() updateDto: UpdateWorkExperienceDto,
+    @Req() req: any,
+  ): Promise<{ statusCode: number; data: WorkExperienceResponseDto }> {
+    const experience = await this.candidateService.updateWorkExperience(
+      req.user.id,
+      parseInt(id),
+      updateDto,
+    );
+
+    return {
+      statusCode: HttpStatus.OK,
+      data: experience,
+    };
+  }
+
+  /**
+   * DELETE /candidates/work-experience/:id
+   * Delete work experience
+   */
+  @Delete('work-experience/:id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async deleteWorkExperience(
+    @Param('id') id: string,
+    @Req() req: any,
+  ): Promise<void> {
+    await this.candidateService.deleteWorkExperience(req.user.id, parseInt(id));
+  }
+
+  // Education endpoints
+  /**
+   * POST /candidates/education
+   * Creates education
+   */
+  @Post('education')
+  @HttpCode(HttpStatus.CREATED)
+  async createEducation(
+    @Body() createDto: CreateEducationDto,
+    @Req() req: any,
+  ): Promise<{ statusCode: number; data: EducationResponseDto }> {
+    const education = await this.candidateService.createEducation(
+      req.user.id,
+      createDto,
+    );
+
+    return {
+      statusCode: HttpStatus.CREATED,
+      data: education,
+    };
+  }
+
+  /**
+   * GET /candidates/education
+   * Get all educations
+   */
+  @Get('education')
+  async getEducations(
+    @Req() req: any,
+  ): Promise<{ statusCode: number; data: EducationResponseDto[] }> {
+    const educations = await this.candidateService.getEducations(req.user.id);
+
+    return {
+      statusCode: HttpStatus.OK,
+      data: educations,
+    };
+  }
+
+  /**
+   * PATCH /candidates/education/:id
+   * Update education
+   */
+  @Patch('education/:id')
+  async updateEducation(
+    @Param('id') id: string,
+    @Body() updateDto: UpdateEducationDto,
+    @Req() req: any,
+  ): Promise<{ statusCode: number; data: EducationResponseDto }> {
+    const education = await this.candidateService.updateEducation(
+      req.user.id,
+      parseInt(id),
+      updateDto,
+    );
+
+    return {
+      statusCode: HttpStatus.OK,
+      data: education,
+    };
+  }
+
+  /**
+   * DELETE /candidates/education/:id
+   * Delete education
+   */
+  @Delete('education/:id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async deleteEducation(
+    @Param('id') id: string,
+    @Req() req: any,
+  ): Promise<void> {
+    await this.candidateService.deleteEducation(req.user.id, parseInt(id));
+  }
+}
