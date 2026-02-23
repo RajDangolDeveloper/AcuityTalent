@@ -30,9 +30,9 @@ export default function CustomInput({
         {...props}
         type={inputType}
         className={`
-          border border-gray-600 p-2 w-sm rounded-md bg-transparent
+          border border-gray-600 p-2 min-w-sm w-fit rounded-md bg-transparent
           focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent
-          transition-all
+          transition-all 
           ${leftIcon ? "pl-10" : "pl-3"} 
           ${rightIcon ? "pr-10" : "pr-3"}
           ${className}

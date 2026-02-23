@@ -20,7 +20,7 @@ export default function CustomButton({
   };
   return (
     <button
-      className={`${colorVariants[color]} ${className} font-semibold py-2 px-4 rounded-md transition duration-300 ease-in-out`}
+      className={`${colorVariants[color]} ${className} w-full font-semibold py-2 px-4 rounded-md transition duration-300 ease-in-out`}
     >
       {children}
     </button>

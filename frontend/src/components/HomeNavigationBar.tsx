@@ -2,9 +2,11 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useSession } from "next-auth/react";
 
 export const HomeNavigationBar = () => {
   const pathname = usePathname();
+  const { data: session } = useSession();
 
   const links = [
     { name: "Home", href: "/" },
@@ -35,6 +37,14 @@ export const HomeNavigationBar = () => {
             </li>
           );
         })}
+        {!session && (
+          <Link
+            href="/candidate/login"
+            className="px-6 text-xl text-gray-200 rounded-md decoration-2"
+          >
+            Login
+          </Link>
+        )}
       </ul>
     </nav>
   );
