@@ -17,21 +17,11 @@ import { UpdateResumeDto } from './dto/update-resume.dto';
 import { ResumeResponseDto } from './dto/resume-response.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
-/**
- * ResumeController - RESTful API endpoints for resume management
- * Handles all resume-related HTTP requests
- * Maps to sequence diagram steps 1-4
- */
 @Controller('resumes')
 @UseGuards(JwtAuthGuard)
 export class ResumeController {
   constructor(private resumeService: ResumeService) {}
 
-  /**
-   * POST /resumes
-   * Step 2: Candidate creates resume & fills up details
-   * Uploads resume file and stores metadata
-   */
   @Post()
   @HttpCode(HttpStatus.CREATED)
   async createResume(
@@ -49,12 +39,6 @@ export class ResumeController {
     };
   }
 
-  /**
-   * GET /resumes
-   * Step 1, 3: Candidate logs in & selects "Resumes"
-   * Step 3: Candidate sees resume list and preview
-   * Retrieves all resumes for the candidate
-   */
   @Get()
   async getResumes(@Req() req: any): Promise<{
     statusCode: number;
@@ -70,11 +54,6 @@ export class ResumeController {
     };
   }
 
-  /**
-   * GET /resumes/:id
-   * Step 3: Candidate previews a resume
-   * Get single resume details
-   */
   @Get(':id')
   async getResume(
     @Param('id') id: string,
@@ -91,11 +70,6 @@ export class ResumeController {
     };
   }
 
-  /**
-   * GET /resumes/:id/download
-   * Step 4: Candidate selects options (export pdf)
-   * Returns resume file details for download
-   */
   @Get(':id/download')
   async downloadResume(
     @Param('id') id: string,
@@ -115,10 +89,6 @@ export class ResumeController {
     };
   }
 
-  /**
-   * PATCH /resumes/:id
-   * Update resume metadata
-   */
   @Patch(':id')
   async updateResume(
     @Param('id') id: string,
@@ -137,11 +107,6 @@ export class ResumeController {
     };
   }
 
-  /**
-   * DELETE /resumes/:id
-   * Delete a resume
-   * Cannot delete if used in active applications
-   */
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteResume(@Param('id') id: string, @Req() req: any): Promise<void> {

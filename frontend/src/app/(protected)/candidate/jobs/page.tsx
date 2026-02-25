@@ -1,17 +1,9 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import { Search, Briefcase, Bookmark, MoveUpRight } from "lucide-react";
 import {
-  Search,
-  MapPin,
-  Briefcase,
-  Clock,
-  DollarSign,
-  Bookmark,
-  Send,
-} from "lucide-react";
-import {
-  useCandidateJobs,
+  getAllJobs,
   useJobDetails,
   useCandidateApplications,
   useCandidateSavedJobs,
@@ -22,6 +14,7 @@ import {
 } from "@/src/hooks/useCandidateApi";
 import { Job, EmploymentType, ExperienceLevel } from "@/src/types/candidate";
 import Notification from "@/src/element/Notification";
+import Markdown from "react-markdown";
 
 export default function CandidateJobsPage() {
   const [page, setPage] = useState(1);
@@ -41,14 +34,10 @@ export default function CandidateJobsPage() {
   });
 
   // Queries
-  const { data: jobsData, isLoading: jobsLoading } = useCandidateJobs(
-    page,
-    limit,
-    {
-      ...filters,
-      search: searchTerm,
-    },
-  );
+  const { data: jobsData, isLoading: jobsLoading } = getAllJobs(page, limit, {
+    ...filters,
+    search: searchTerm,
+  });
 
   const { data: savedJobsData } = useCandidateSavedJobs(1, 100);
   const { data: applicationsData } = useCandidateApplications(1, 100);
@@ -56,7 +45,6 @@ export default function CandidateJobsPage() {
     useJobDetails(selectedJobId);
   const { data: resumes = [] } = useCandidateResumes();
 
-  // Mutations
   const createApplicationMutation = useCreateApplication();
   const saveJobMutation = useSaveJob();
   const removeSavedJobMutation = useRemoveSavedJob();
@@ -157,7 +145,8 @@ export default function CandidateJobsPage() {
                   experienceLevel: e.target.value as ExperienceLevel | "",
                 })
               }
-              className="px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm"
+              className="px-3 py-2 border form-select appearance-none pr-8 pl-4 bg-no-repeat border-gray-400 rounded focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm font-medium"
+              font-medium
             >
               <option value="">Experience</option>
               <option value="ENTRY">Entry Level</option>
@@ -175,7 +164,8 @@ export default function CandidateJobsPage() {
                   remoteOnly: e.target.value === "remote",
                 })
               }
-              className="px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm"
+              className="px-3 py-2 border form-select appearance-none pr-8 pl-4 bg-no-repeat border-gray-400 rounded focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm font-medium"
+              font-medium
             >
               <option value="">Remote</option>
               <option value="remote">Remote Only</option>
@@ -190,7 +180,8 @@ export default function CandidateJobsPage() {
                   employmentType: e.target.value as EmploymentType | "",
                 })
               }
-              className="px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm"
+              className="px-3 py-2 border form-select appearance-none pr-8 pl-4 bg-no-repeat border-gray-400 rounded focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm font-medium"
+              font-medium
             >
               <option value="">Job Types</option>
               <option value="FULL_TIME">Full Time</option>
@@ -207,7 +198,7 @@ export default function CandidateJobsPage() {
               onChange={(e) =>
                 setFilters({ ...filters, location: e.target.value })
               }
-              className="px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm"
+              className="px-3 py-2 border form-select appearance-none pr-8 pl-4 bg-no-repeat border-gray-400 rounded focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm font-medium "
             >
               <option value="">Categories</option>
               <option value="San Francisco, CA">San Francisco, CA</option>
@@ -221,24 +212,18 @@ export default function CandidateJobsPage() {
           {/* Right: Search Bar */}
           <form onSubmit={handleSearch} className="flex gap-2 w-80">
             <div className="flex-1 relative">
-              <Search
-                className="absolute left-3 top-2.5 text-gray-400"
-                size={18}
-              />
               <input
                 type="text"
                 placeholder="Search for jobs"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm"
+                className="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm font-medium"
+              />
+              <Search
+                className="absolute right-3 top-2.5 text-gray-700"
+                size={18}
               />
             </div>
-            <button
-              type="submit"
-              className="px-4 py-2 bg-primary-500 text-white rounded hover:bg-primary-600 transition"
-            >
-              <Search size={18} />
-            </button>
           </form>
         </div>
       </div>
@@ -265,17 +250,17 @@ export default function CandidateJobsPage() {
                     setSelectedJobId(job.id);
                     setShowApplyForm(false);
                   }}
-                  className={`p-4 cursor-pointer hover:bg-gray-50 transition border-l-4 ${
+                  className={`p-4 cursor-pointer hover:bg-gray-50 transition ${
                     selectedJobId === job.id
-                      ? "bg-blue-50 border-l-primary-500"
+                      ? "bg-blue-50"
                       : "border-l-transparent"
                   }`}
                 >
                   <div className="flex gap-3">
                     {/* Company Logo Placeholder */}
-                    <div className="w-12 h-12 bg-gray-300 rounded flex-shrink-0"></div>
-                    <div className="flex-1 min-w-0">
-                      <h3 className="font-semibold text-gray-900 truncate">
+                    <div className="w-14 h-14 bg-gray-300 rounded shrink-0"></div>
+                    <div className="flex flex-col items-start justify-center min-w-0">
+                      <h3 className="font-semibold text-primary-500 truncate">
                         {job.title}
                       </h3>
                       <p className="text-xs text-gray-600 truncate">
@@ -335,6 +320,16 @@ export default function CandidateJobsPage() {
                           {selectedJob.experienceLevel}
                         </span>
                       )}
+                      {selectedJob.salaryRange && (
+                        <span className="px-3 py-1 border border-gray-300 rounded text-sm text-gray-700 font-medium">
+                          {selectedJob.salaryRange}
+                        </span>
+                      )}
+                      {selectedJob.location && (
+                        <span className="px-3 py-1 border border-gray-300 rounded text-sm text-gray-700 font-medium">
+                          {selectedJob.location}
+                        </span>
+                      )}
                     </div>
 
                     {/* Apply and Save Buttons */}
@@ -350,9 +345,9 @@ export default function CandidateJobsPage() {
                         !showApplyForm && (
                           <button
                             onClick={() => setShowApplyForm(true)}
-                            className="px-4 py-2 bg-primary-500 text-white rounded font-semibold hover:bg-primary-600 transition"
+                            className="px-4 py-2 bg-primary-500 text-white rounded font-semibold hover:bg-primary-600 transition flex justify-center items-center gap-2"
                           >
-                            Apply ↗
+                            Apply <MoveUpRight className="h-5 w-5" />
                           </button>
                         )
                       )}
@@ -375,47 +370,21 @@ export default function CandidateJobsPage() {
               <div className="flex-1 overflow-y-auto px-8 py-6">
                 {/* About the Job */}
                 <div className="mb-8">
-                  <h2 className="text-xl font-bold text-gray-900 mb-4">
+                  <h2 className="text-xl font-semibold text-black mb-4">
                     About the job
                   </h2>
-                  <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">
-                    {selectedJob.description}
-                  </p>
+                  <Markdown>{selectedJob.description}</Markdown>
                 </div>
 
                 {/* Key Responsibilities */}
                 {selectedJob.requirements && (
                   <div className="mb-8">
-                    <h2 className="text-xl font-bold text-gray-900 mb-4">
+                    <h2 className="text-xl font-semibold text-gray-900 mb-4">
                       Qualifications & Soft Skills
                     </h2>
-                    <div className="text-gray-700 space-y-2 whitespace-pre-wrap">
-                      {selectedJob.requirements}
-                    </div>
+                    <Markdown>{selectedJob.requirements}</Markdown>
                   </div>
                 )}
-
-                {/* Meta Info Cards */}
-                <div className="grid grid-cols-2 gap-4 mt-8">
-                  {selectedJob.salaryRange && (
-                    <div className="bg-gray-50 p-4 rounded">
-                      <p className="text-xs text-gray-600 font-semibold mb-1">
-                        Salary
-                      </p>
-                      <p className="text-lg font-bold text-gray-900">
-                        {selectedJob.salaryRange}
-                      </p>
-                    </div>
-                  )}
-                  <div className="bg-gray-50 p-4 rounded">
-                    <p className="text-xs text-gray-600 font-semibold mb-1">
-                      Location
-                    </p>
-                    <p className="text-lg font-bold text-gray-900">
-                      {selectedJob.location}
-                    </p>
-                  </div>
-                </div>
               </div>
 
               {/* Apply Form at Bottom */}
@@ -442,7 +411,7 @@ export default function CandidateJobsPage() {
                             e.target.value ? parseInt(e.target.value) : null,
                           )
                         }
-                        className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm"
+                        className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm font-medium"
                       >
                         <option value="">Choose a resume...</option>
                         {resumes.map((resume) => (
@@ -463,7 +432,7 @@ export default function CandidateJobsPage() {
                       value={coverLetter}
                       onChange={(e) => setCoverLetter(e.target.value)}
                       placeholder="Tell us why you're interested in this role..."
-                      className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm"
+                      className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm font-medium"
                       rows={3}
                     />
                   </div>

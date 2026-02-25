@@ -17,6 +17,7 @@ interface SidebarSectionProps {
 
 interface CustomSidebarProps {
   variant?: "primary" | "secondary";
+  className?: string;
   children: ReactNode;
 }
 
@@ -46,7 +47,7 @@ export const SidebarItem = ({
 };
 
 export const TopItems = ({ children }: SidebarSectionProps) => (
-  <div className="flex flex-col pt-8 flex-grow">{children}</div>
+  <div className="flex flex-col pt-8 grow">{children}</div>
 );
 
 export const BottomItems = ({ children }: SidebarSectionProps) => (
@@ -55,6 +56,7 @@ export const BottomItems = ({ children }: SidebarSectionProps) => (
 
 export default function CustomSidebar({
   variant = "primary",
+  className,
   children,
 }: CustomSidebarProps) {
   // Map variants to specific purple shades from your image
@@ -65,7 +67,7 @@ export default function CustomSidebar({
     <aside
       className={`
         ${variantClasses} 
-        h-screen w-64 flex flex-col 
+        h-screen w-80 flex flex-col 
         ${variant === "secondary" ? "overflow-y-auto scrollbar-hide" : ""}
       `}
     >

@@ -12,7 +12,7 @@ import {
 } from "@/src/types/candidate";
 
 // Get all active jobs with filters
-export const useCandidateJobs = (
+export const getAllJobs = (
   page: number = 1,
   limit: number = 10,
   filters?: {
@@ -26,7 +26,7 @@ export const useCandidateJobs = (
   return useQuery({
     queryKey: ["candidate-jobs", page, limit, filters],
     queryFn: async () => {
-      console.log("[useCandidateJobs] Fetching jobs", { page, limit, filters });
+      console.log("[getAllJobs] Fetching jobs", { page, limit, filters });
       const params = new URLSearchParams();
       params.append("page", page.toString());
       params.append("limit", limit.toString());
@@ -43,10 +43,10 @@ export const useCandidateJobs = (
         const response = await apiClient.get<PaginatedResponse<Job>>(
           `/jobs?${params.toString()}`,
         );
-        console.log("[useCandidateJobs] Success:", response.data);
+        console.log("[getAllJobs] Success:", response.data);
         return response.data;
       } catch (error) {
-        console.error("[useCandidateJobs] Error:", error);
+        console.error("[getAllJobs] Error:", error);
         throw error;
       }
     },

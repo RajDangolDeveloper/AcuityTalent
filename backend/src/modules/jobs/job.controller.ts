@@ -19,20 +19,10 @@ import { GetJobsQueryDto } from './dto/get-jobs-query.dto';
 import { JobResponseDto } from './dto/job-response.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
-/**
- * JobController - RESTful API endpoints for job management
- * Handles all job-related HTTP requests
- * Maps to sequence diagram steps 5-9
- */
 @Controller('jobs')
 export class JobController {
   constructor(private jobService: JobService) {}
 
-  /**
-   * POST /jobs
-   * Step 6: Recruiter creates job
-   * Creates a new job posting (initially in DRAFT status)
-   */
   @Post()
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.CREATED)
@@ -48,12 +38,6 @@ export class JobController {
     };
   }
 
-  /**
-   * GET /jobs
-   * Steps 8-9: Candidate goes to "Job search page" and selects a job
-   * Get all active jobs with filters and search
-   * Public endpoint (but requires auth via guard)
-   */
   @Get()
   async getAllJobs(@Query() query: GetJobsQueryDto): Promise<{
     statusCode: number;
@@ -74,12 +58,6 @@ export class JobController {
     };
   }
 
-  /**
-   * GET /jobs/recruiter/my-jobs
-   * Step 7: Recruiter sees job in list
-   * Get recruiter's own jobs with status filtering
-   * Can edit, delete, or update status to ACTIVE
-   */
   @Get('recruiter/my-jobs')
   @UseGuards(JwtAuthGuard)
   async getRecruiterJobs(
@@ -104,12 +82,6 @@ export class JobController {
     };
   }
 
-  /**
-   * GET /jobs/:id/stats
-   * Get statistics for a job
-   * Recruiter only (must own the job)
-   * IMPORTANT: Must come before @Get(':id') to avoid route conflict
-   */
   @Get(':id/stats')
   @UseGuards(JwtAuthGuard)
   async getJobStats(
@@ -133,11 +105,6 @@ export class JobController {
     };
   }
 
-  /**
-   * GET /jobs/:id
-   * Get single job details
-   * Increments view count on access
-   */
   @Get(':id')
   async getJobById(
     @Param('id') id: string,
@@ -150,12 +117,6 @@ export class JobController {
     };
   }
 
-  /**
-   * PATCH /jobs/:id
-   * Update job details
-   * Recruiter can edit their own jobs
-   * Can update status from DRAFT to ACTIVE
-   */
   @Patch(':id')
   @UseGuards(JwtAuthGuard)
   async updateJob(
@@ -175,11 +136,6 @@ export class JobController {
     };
   }
 
-  /**
-   * DELETE /jobs/:id
-   * Delete a job posting
-   * Can only delete if no applications exist
-   */
   @Delete(':id')
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.NO_CONTENT)

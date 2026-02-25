@@ -9,19 +9,10 @@ import { CreateResumeDto } from './dto/create-resume.dto';
 import { UpdateResumeDto } from './dto/update-resume.dto';
 import { ResumeResponseDto } from './dto/resume-response.dto';
 
-/**
- * ResumeService - Handles all resume-related business logic
- * Covers: Resume upload, management, retrieval
- * Maps to sequence diagram steps: 1-4
- */
 @Injectable()
 export class ResumeService {
   constructor(private prisma: PrismaService) {}
 
-  /**
-   * Step 2: Candidate creates resume & fills up details
-   * Uploads resume file and stores metadata
-   */
   async createResume(
     createResumeDto: CreateResumeDto,
     userId: number,
@@ -53,14 +44,10 @@ export class ResumeService {
     return this.formatResumeResponse(resume);
   }
 
-  /**
-   * Step 3: Candidate sees resume list and preview
-   * Retrieves all resumes for a candidate
-   */
-  async getResumesByCandidate(userId: number): Promise<ResumeResponseDto[]> {
+  async getResumesByCandidate(id: number): Promise<ResumeResponseDto[]> {
     // Verify user is a candidate
     const candidate = await this.prisma.candidateProfile.findUnique({
-      where: { userId },
+      where: { userId: id },
     });
 
     if (!candidate) {
@@ -75,10 +62,6 @@ export class ResumeService {
     return resumes.map((resume) => this.formatResumeResponse(resume));
   }
 
-  /**
-   * Get a single resume by ID
-   * Verifies ownership before returning
-   */
   async getResumeById(
     resumeId: number,
     userId: number,
@@ -102,10 +85,6 @@ export class ResumeService {
     return this.formatResumeResponse(resume);
   }
 
-  /**
-   * Step 4: Candidate selects options (export pdf, etc)
-   * Updates resume metadata (e.g., adding extracted text)
-   */
   async updateResume(
     resumeId: number,
     updateResumeDto: UpdateResumeDto,
@@ -133,10 +112,6 @@ export class ResumeService {
     return this.formatResumeResponse(updatedResume);
   }
 
-  /**
-   * Delete a resume
-   * Cascades to all applications using this resume
-   */
   async deleteResume(resumeId: number, userId: number): Promise<void> {
     const resume = await this.prisma.resume.findUnique({
       where: { id: resumeId },
@@ -173,10 +148,6 @@ export class ResumeService {
     });
   }
 
-  /**
-   * Get resume file for download/preview
-   * Returns resume details including file path for frontend to fetch
-   */
   async downloadResume(
     resumeId: number,
     userId: number,
@@ -204,9 +175,6 @@ export class ResumeService {
     };
   }
 
-  /**
-   * Get resume count for candidate
-   */
   async getResumeCount(userId: number): Promise<number> {
     const candidate = await this.prisma.candidateProfile.findUnique({
       where: { userId },
@@ -221,9 +189,6 @@ export class ResumeService {
     });
   }
 
-  /**
-   * Format resume for API response
-   */
   private formatResumeResponse(resume: any): ResumeResponseDto {
     return {
       id: resume.id,

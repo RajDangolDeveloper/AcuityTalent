@@ -13,19 +13,12 @@ import {
   NotepadText,
   Settings,
 } from "lucide-react";
-import { authOptions } from "../../api/auth/[...nextauth]/route";
 
 export default async function ProtectedLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const session = await getServerSession(authOptions);
-
-  if (!session) {
-    redirect("/recruiter/login");
-  }
-
   return (
     <div className="flex">
       <CustomSidebar variant="primary">
@@ -54,6 +47,11 @@ export default async function ProtectedLayout({
             icon={<Settings size={20} />}
           />
         </BottomItems>
+        <SidebarItem
+          href="/logout"
+          label="Log out"
+          icon={<LogOut size={20} />}
+        />
       </CustomSidebar>
       <div className="w-[1664px]">{children}</div>
     </div>
