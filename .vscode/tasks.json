@@ -2,7 +2,7 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "npm: backend",
+      "label": "npm: frontend",
       "type": "shell",
       "command": "npm run frontend",
       "problemMatcher": [],
@@ -11,9 +11,18 @@
       }
     },
     {
-      "label": "npm: frontend",
+      "label": "npm: backend",
       "type": "shell",
       "command": "npm run backend",
+      "problemMatcher": [],
+      "presentation": {
+        "group": "server-group"
+      }
+    },
+    {
+      "label": "npm: python",
+      "type": "shell",
+      "command": "npm run python",
       "problemMatcher": [],
       "presentation": {
         "group": "server-group"

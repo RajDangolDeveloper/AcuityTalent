@@ -118,18 +118,6 @@ export const useUpdateApplicationStatus = () => {
   });
 };
 
-// Download resume
-export const useDownloadResume = (resumeId: number) => {
-  return useQuery({
-    queryKey: ["resume-download", resumeId],
-    queryFn: async () => {
-      const response = await apiClient.get(`/resumes/${resumeId}/download`);
-      console.log(response);
-      return response.data;
-    },
-    enabled: false, // Only run when explicitly triggered
-  });
-};
 
 // Create job
 export const useCreateJob = () => {

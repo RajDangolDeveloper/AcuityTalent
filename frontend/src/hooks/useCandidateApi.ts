@@ -9,6 +9,7 @@ import {
   SavedJob,
   CandidateProfile,
   Resume,
+  EmploymentType,
 } from "@/src/types/candidate";
 
 // Get all active jobs with filters
@@ -103,6 +104,75 @@ export const useCandidateApplications = (
         console.error("[useCandidateApplications] Error:", error);
         throw error;
       }
+    },
+  });
+};
+
+export const useCreateCandidateProfile = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      headline,
+      currentPosition,
+      currentCompanyId,
+      experienceYears,
+      highestDegree,
+      skills,
+      preferredLocation,
+      preferredJobType,
+      expectedSalary,
+      linkedinUrl,
+      githubUrl,
+      phone,
+      location,
+      summary,
+    }: {
+      headline?: string;
+      currentPosition?: string;
+      currentCompanyId?: number;
+      experienceYears?: number;
+      highestDegree?: string;
+      skills?: string[];
+      preferredLocation?: string;
+      preferredJobType?: EmploymentType;
+      expectedSalary?: number;
+      linkedinUrl?: string;
+      githubUrl?: string;
+      phone?: string;
+      location?: string;
+      summary?: string;
+    }) => {
+      try {
+        const response = await apiClient.post<SingleResponse<CandidateProfile>>(
+          "/candidate/profile",
+          {
+            headline,
+            currentPosition,
+            currentCompanyId,
+            experienceYears,
+            highestDegree,
+            skills,
+            preferredLocation,
+            preferredJobType,
+            expectedSalary,
+            linkedinUrl,
+            githubUrl,
+            phone,
+            location,
+            summary,
+          },
+        );
+        return response.data.data;
+      } catch (error) {
+        console.error("[useCreateProfile] Error:", error);
+        throw error;
+      }
+    },
+    onSuccess: () => {
+      console.log("[useCreateProfile] Invalidating related queries");
+      // Invalidate related queries
+      queryClient.invalidateQueries({ queryKey: ["candidate-profile"] });
     },
   });
 };

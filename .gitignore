@@ -1,5 +1,11 @@
 node_modules/
 
+venv/
+.venv/
+env/
+bin/
+lib/
+include/
 generated/
 dist/
 .next/
@@ -11,3 +17,4 @@ backend/node_modules
 backend/dist
 backend/dist/src/app.module.js
 frontend/.next/
+__pycache__/

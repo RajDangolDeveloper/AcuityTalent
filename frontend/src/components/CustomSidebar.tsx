@@ -51,7 +51,7 @@ export const TopItems = ({ children }: SidebarSectionProps) => (
 );
 
 export const BottomItems = ({ children }: SidebarSectionProps) => (
-  <div className="flex flex-col pb-8">{children}</div>
+  <div className="flex flex-col">{children}</div>
 );
 
 export default function CustomSidebar({
@@ -67,6 +67,7 @@ export default function CustomSidebar({
     <aside
       className={`
         ${variantClasses} 
+        ${className}
         h-screen w-80 flex flex-col 
         ${variant === "secondary" ? "overflow-y-auto scrollbar-hide" : ""}
       `}

@@ -8,6 +8,7 @@ import CustomSidebar, {
 } from "@/src/components/CustomSidebar";
 import {
   BriefcaseBusiness,
+  Home,
   LayoutDashboard,
   LogOut,
   NotepadText,
@@ -23,6 +24,7 @@ export default async function ProtectedLayout({
     <div className="flex">
       <CustomSidebar variant="primary">
         <TopItems>
+          <SidebarItem href="/" label="Home" icon={<Home size={20} />} />
           <SidebarItem
             href="/candidate/dashboard"
             label="Dashboard"

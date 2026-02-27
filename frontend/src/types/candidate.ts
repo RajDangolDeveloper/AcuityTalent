@@ -68,6 +68,7 @@ export interface Resume {
   id: number;
   fileName: string;
   fileType: "PDF" | "DOCX" | "DOC" | "TXT";
+  textContent: string;
   uploadedAt: string;
 }
 

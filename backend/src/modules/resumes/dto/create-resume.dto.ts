@@ -26,6 +26,9 @@ export class CreateResumeDto {
   @IsInt()
   fileSize: number; // in bytes
 
+  @IsInt()
+  aiScore: number; // in percentage
+
   @IsOptional()
   @IsString()
   textContent?: string; // Extracted text for search

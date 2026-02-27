@@ -1,7 +1,9 @@
-import fastapi
+from fastapi import FastAPI
 
-app = fastapi.FastAPI()
+# import the router defined in our API endpoints
+from api.endpoints import router as matching_router
 
-@app.get("/")
-def root() :
-    return {"Hello" : "World"}
+app = FastAPI(title="AcuityTalent AI API")
+
+# mount the matching router under /api
+app.include_router(matching_router, prefix="/api", tags=["Matching"])

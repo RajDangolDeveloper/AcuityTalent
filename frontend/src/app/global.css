@@ -1,14 +1,6 @@
-@import url("https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400..700;1,400..700&display=swap");
 
 @import "tailwindcss";
-
-@font-face {
-  font-family: "Open Sans";
-  font-style: normal;
-  font-weight: 400 700; /* Defines weight range */
-  font-display: swap;
-  src: url("/fonts/OpenSans-VariableFont.woff2") format("woff2");
-}
 
 @theme {
   --color-primary-50: #edecf1;
@@ -45,8 +37,7 @@
   --color-warning: #f59e0b;
   --color-info: #7348ea;
 
-  --font-roboto: "Roboto", sans-serif;
-  --font-opensans: "Open Sans", sans-serif;
+  --font-instrument-sans: "Instrument Sans", sans-serif;
 }
 
 .form-select {
