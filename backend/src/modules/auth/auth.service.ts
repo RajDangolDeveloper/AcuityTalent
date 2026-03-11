@@ -17,6 +17,7 @@ import { User } from '@prisma/client';
 import { EmailService } from 'src/config/email.service';
 import { SendOtp } from './dto/sendOtp.dto';
 import { VerifyOtpDto } from './dto/verifyOtp.dto';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class AuthService {
@@ -24,6 +25,7 @@ export class AuthService {
     private prisma: PrismaService,
     private passwordService: PasswordService,
     private emailService: EmailService,
+    private jwtService: JwtService,
   ) {}
 
   async validateUser(loginDto: LoginDto): Promise<any> {
@@ -55,7 +57,18 @@ export class AuthService {
       }
 
       const { passwordHash, ...userWithoutPassword } = user;
-      return userWithoutPassword;
+
+      // Generate JWT token
+      const accessToken = this.jwtService.sign({
+        sub: user.id,
+        email: user.email,
+        role: user.role,
+      });
+
+      return {
+        ...userWithoutPassword,
+        access_token: accessToken,
+      };
     } catch (error) {
       console.log(error);
       throw new UnauthorizedException('Authenticated Failed');
@@ -88,7 +101,18 @@ export class AuthService {
     });
 
     const { passwordHash: _, ...userWithoutPassword } = result;
-    return userWithoutPassword;
+
+    // Generate JWT token for new user
+    const accessToken = this.jwtService.sign({
+      sub: result.id,
+      email: result.email,
+      role: result.role,
+    });
+
+    return {
+      ...userWithoutPassword,
+      access_token: accessToken,
+    };
   }
 
   async findUser(findUser: string): Promise<User> {
@@ -99,6 +123,12 @@ export class AuthService {
         email: true,
         passwordHash: true,
         role: true,
+        createdAt: true,
+        updatedAt: true,
+        firstName: true,
+        lastName: true,
+        contactPhone: true,
+        contactEmail: true,
       },
     });
 
@@ -126,14 +156,14 @@ export class AuthService {
   async updatePassword(updatePasswordDto: UpdatePasswordDto) {
     const findUser = await this.findUser(updatePasswordDto.email);
 
-    const updatePassword = await this.passwordService.hashPassword(
-      updatePasswordDto.passwordHash,
+    const hashedPassword = await this.passwordService.hashPassword(
+      updatePasswordDto.password,
     );
 
     const updatedUser = await this.prisma.user.update({
       where: { email: findUser.email },
       data: {
-        passwordHash: updatePassword,
+        passwordHash: hashedPassword,
       },
       select: {
         email: true,

@@ -9,9 +9,11 @@ declare module "next-auth" {
       id: string;
       role: string;
     } & DefaultSession["user"];
+    accessToken?: string;
   }
   interface User {
     role: string;
+    access_token?: string;
   }
 }
 
@@ -39,25 +41,23 @@ export const authOptions: NextAuthOptions = {
         };
 
         try {
-          const response = apiClient.post("/auth/login", user);
+          const response = await apiClient.post("/auth/login", user);
 
-          if (
-            (await response).status !== 200 &&
-            (await response).status !== 201
-          ) {
+          if (response.status !== 200 && response.status !== 201) {
             console.warn(
               "Login API returned non-success status:",
-              (await response).status
+              response.status,
             );
             return null;
           }
 
-          const userData = (await response).data;
+          const userData = response.data;
 
           return {
             id: userData.id,
             email: userData.email,
             role: userData.role,
+            access_token: userData.access_token,
           };
         } catch (error) {
           console.error("Login API failed:", error);
@@ -66,6 +66,23 @@ export const authOptions: NextAuthOptions = {
       },
     }),
   ],
+  callbacks: {
+    async jwt({ token, user }) {
+      if (user) {
+        token.accessToken = user.access_token;
+        token.role = user.role;
+      }
+      return token;
+    },
+    async session({ session, token }) {
+      if (session.user) {
+        session.user.id = token.sub || "";
+        session.user.role = token.role as string;
+        session.accessToken = token.accessToken as string;
+      }
+      return session;
+    },
+  },
   session: {
     strategy: "jwt",
     maxAge: 24 * 60 * 60,

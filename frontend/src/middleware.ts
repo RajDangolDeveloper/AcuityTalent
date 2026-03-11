@@ -6,16 +6,35 @@ export default withAuth(
     const { nextUrl } = request;
     const token = request.nextauth.token;
     const userRole = token?.role as string;
-
-    const isOnDashboard = nextUrl.pathname.startsWith("/dashboard");
     const isOnAdmin = nextUrl.pathname.startsWith("/admin");
-    const isOnLogin = nextUrl.pathname.startsWith("/login");
+    const isOnCandidate = nextUrl.pathname.startsWith("/candidate");
+    const isOnRecruiter = nextUrl.pathname.startsWith("/recruiter");
+    const isOnLogin = nextUrl.pathname.includes("/login");
+    const isOnRegister = nextUrl.pathname.includes("/register");
 
     if (isOnLogin && token) {
-      return NextResponse.redirect(new URL("/dashboard", nextUrl));
+      return NextResponse.redirect(
+        new URL("/" + userRole.toLowerCase() + "/dashboard", nextUrl),
+      );
+    }
+
+    if (isOnRegister && token) {
+      return NextResponse.redirect(
+        new URL("/" + userRole.toLowerCase() + "/dashboard", nextUrl),
+      );
     }
 
     if (isOnAdmin && userRole !== "admin") {
+      return NextResponse.redirect(new URL("/unauthorized", nextUrl));
+    }
+
+    // Candidate routes: allow `candidate` and `admin`
+    if (isOnCandidate && userRole !== "CANDIDATE" && userRole !== "admin") {
+      return NextResponse.redirect(new URL("/unauthorized", nextUrl));
+    }
+
+    // Recruiter routes: allow `recruiter` and `admin`
+    if (isOnRecruiter && userRole !== "RECRUITER" && userRole !== "admin") {
       return NextResponse.redirect(new URL("/unauthorized", nextUrl));
     }
 
@@ -39,6 +58,8 @@ export default withAuth(
         if (
           pathname.startsWith("/dashboard") ||
           pathname.startsWith("/admin") ||
+          pathname.startsWith("/candidate") ||
+          pathname.startsWith("/recruiter") ||
           pathname.startsWith("/profile") ||
           pathname.startsWith("/settings")
         ) {
@@ -50,9 +71,9 @@ export default withAuth(
       },
     },
     pages: {
-      signIn: "/login",
+      signIn: "/recruiter/login",
     },
-  }
+  },
 );
 
 export const config = {

@@ -8,27 +8,368 @@ datasource db {
   provider = "postgresql"
 }
 
+// User Role Enum
+enum Role {
+  CANDIDATE 
+  RECRUITER
+  ADMIN
+}
+
+// Company Size Enum
+enum CompanySize {
+  ONE_TO_TEN        // "1-10"
+  ELEVEN_TO_FIFTY   // "11-50"
+  FIFTY_ONE_TO_TWO_HUNDRED      // "51-200"
+  TWO_HUNDRED_ONE_TO_FIVE_HUNDRED // "201-500"
+  FIVE_HUNDRED_ONE_TO_THOUSAND // "501-1000"
+  THOUSAND_PLUS     // "1000+"
+}
+
+// Industry Enum (common industries)
+enum Industry {
+  TECHNOLOGY
+  HEALTHCARE
+  FINANCE
+  EDUCATION
+  RETAIL
+  MANUFACTURING
+  CONSULTING
+  REAL_ESTATE
+  ENTERTAINMENT
+  HOSPITALITY
+  CONSTRUCTION
+  TRANSPORTATION
+  ENERGY
+  TELECOMMUNICATIONS
+  MARKETING
+  NON_PROFIT
+  GOVERNMENT
+  OTHER
+}
+
+// Employment Type Enum
+enum EmploymentType {
+  FULL_TIME
+  PART_TIME
+  CONTRACT
+  INTERNSHIP
+  TEMPORARY
+  FREELANCE
+}
+
+// Experience Level Enum
+enum ExperienceLevel {
+  ENTRY
+  MID
+  SENIOR
+  EXECUTIVE
+}
+
+// Job Status Enum
+enum JobStatus {
+  DRAFT
+  ACTIVE
+  CLOSED
+  ARCHIVED
+}
+
+// Application Status Enum
+enum ApplicationStatus {
+  APPLIED
+  REVIEWED
+  SHORTLISTED
+  INTERVIEWING
+  REJECTED
+  OFFER_EXTENDED
+  ACCEPTED
+  WITHDRAWN
+}
+
+// Education Level Enum
+enum EducationLevel {
+  HIGH_SCHOOL
+  ASSOCIATE
+  BACHELOR
+  MASTER
+  DOCTORATE
+  DIPLOMA
+  CERTIFICATION
+  OTHER
+}
+
+// Resume File Type Enum
+enum FileType {
+  PDF
+  DOCX
+  DOC
+  TXT
+}
+
 model User {
-  id Int @id @default(autoincrement())
-  email String @unique
-  passwordHash String 
-  role Role
-  otps  Otp[]
+  id           Int              @id @default(autoincrement())
+  email        String           @unique
+  passwordHash String
+  firstName    String?
+  lastName     String?
+  contactPhone String?
+  contactEmail String?          // Can be different from login email
+  role         Role
+  isOnboarded  Boolean          @default(false)
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @default(now())   @updatedAt
+  
+  // Relationships
+  otps         Otp[]
+  recruiter    RecruiterProfile?
+  candidate    CandidateProfile?
 }
 
 model Otp {
   id        Int      @id @default(autoincrement())
   code      Int
-  email     String   
-  user      User     @relation(fields: [email], references: [email])
+  email     String
   expiresAt DateTime
   createdAt DateTime @default(now())
-
+  
+  // Relationships
+  user      User     @relation(fields: [email], references: [email], onDelete: Cascade)
+  
   @@index([email])
 }
 
-enum Role {
-  CANDIDATE 
-  RECRUITER
-  ADMIN
+model Company {
+  id            Int               @id @default(autoincrement())
+  name          String
+  description   String?
+  logoUrl       String?
+  websiteUrl    String?
+  companySize   CompanySize?
+  industry      Industry?
+  officeAddress String?
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @default(now())   @updatedAt
+  
+  // Relationships
+  recruiters    RecruiterProfile[]
+  employees     CandidateProfile[]  // Candidates currently working at this company
+  jobs          Job[]               // Jobs posted by this company
+  
+  @@index([name])
+  @@index([industry])
+  @@index([companySize])
+}
+
+model RecruiterProfile {
+  id           Int      @id @default(autoincrement())
+  userId       Int      @unique
+  companyId    Int
+  positionTitle String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  
+  // Relationships
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  company      Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  jobs         Job[]
+  
+  @@index([userId])
+  @@index([companyId])
+}
+
+model CandidateProfile {
+  id                Int           @id @default(autoincrement())
+  userId            Int           @unique
+  headline          String?
+  currentPosition   String?
+  currentCompanyId  Int?
+  experienceYears   Int?
+  highestDegree    EducationLevel?
+  skills            String[]      // Changed to array type
+  preferredLocation String?
+  preferredJobType  EmploymentType?
+  expectedSalary    Float?
+  embedding         CandidateProfileEmbedding?
+  linkedinUrl       String?
+  githubUrl         String?
+  phone             String?       // Candidate contact phone
+  location          String?       // Current location
+  summary           String?       // Professional summary
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+  
+  // Relationships
+  user              User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  currentCompany    Company?      @relation(fields: [currentCompanyId], references: [id], onDelete: SetNull)
+  resumes           Resume[]
+  applications      Application[]
+  workHistory       WorkExperience[]
+  education         Education[]
+  savedJobs         SavedJob[]
+  
+  @@index([userId])
+  @@index([skills])  // PostgreSQL supports GIN indexes on arrays
+  @@index([experienceYears])
+  @@index([highestDegree])
+}
+
+model CandidateProfileEmbedding {
+  id              Int      @id @default(autoincrement())
+  candidateProfileId Int @unique
+  candidateProfile   CandidateProfile @relation(fields: [candidateProfileId], references: [id], onDelete: Cascade)
+  
+  embedding       Float[]
+  model           String   @default("all-mpnet-base-v2")
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  @@index([candidateProfileId])
+}
+
+model WorkExperience {
+  id              Int      @id @default(autoincrement())
+  candidateId     Int
+  company         String
+  position        String
+  startDate       DateTime
+  endDate         DateTime?
+  isCurrent       Boolean  @default(false)
+  description     String?
+  createdAt       DateTime @default(now())
+  
+  // Relationships
+  candidate       CandidateProfile @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  
+  @@index([candidateId])
+}
+
+model Education {
+  id              Int           @id @default(autoincrement())
+  candidateId     Int
+  institution     String
+  degree          EducationLevel
+  fieldOfStudy    String?
+  startDate       DateTime
+  endDate         DateTime?
+  gpa             Float?
+  description     String?
+  createdAt       DateTime      @default(now())
+  
+  // Relationships
+  candidate       CandidateProfile @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  
+  @@index([candidateId])
+}
+
+model Job {
+  id                  Int            @id @default(autoincrement())
+  companyId           Int            // Direct company reference
+  recruiterId         Int            // Recruiter who posted the job
+  title               String
+  description         String
+  requirements        String?
+  employmentType      EmploymentType
+  experienceLevel     ExperienceLevel?
+  salaryRange         String?
+  location            String
+  remoteAvailable     Boolean        @default(false)
+  status              JobStatus      @default(DRAFT)
+  postedDate          DateTime?
+  applicationDeadline DateTime?
+  embedding           JobEmbedding?
+  viewsCount          Int            @default(0)
+  createdAt           DateTime       @default(now())
+  updatedAt           DateTime       @updatedAt
+  
+  // Relationships
+  company             Company        @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  recruiter           RecruiterProfile @relation(fields: [recruiterId], references: [id], onDelete: Cascade)
+  applications        Application[]
+  savedBy             SavedJob[]
+  
+  @@index([companyId])
+  @@index([recruiterId])
+  @@index([status])
+  @@index([location])
+  @@index([postedDate])
+  @@index([employmentType])
+  @@index([experienceLevel])
+}
+
+model JobEmbedding {
+  id              Int      @id @default(autoincrement())
+  jobId           Int      @unique
+  job             Job      @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  
+  embedding       Float[]
+  model           String   @default("all-mpnet-base-v2")
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  @@index([jobId])
+}
+
+
+
+model Resume {
+  id          Int       @id @default(autoincrement())
+  candidateId Int
+  filePath    String    // S3 URL or local path
+  fileName    String
+  fileType    FileType
+  fileSize    Int       // in bytes
+  aiScore     Int       // in percentage
+  textContent String?   // Extracted text for search
+  uploadedAt  DateTime? @default(now())
+  createdAt   DateTime  @default(now())
+  
+  // Relationships
+  candidate   CandidateProfile @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  applications Application[]
+  
+  @@index([candidateId])
+  @@index([createdAt])
+}
+
+
+
+model Application {
+  id          Int               @id @default(autoincrement())
+  candidateId Int
+  jobId       Int
+  resumeId    Int
+  coverLetter String?
+  status      ApplicationStatus @default(APPLIED)
+  matchScore  Float?            // AI matching score (0-100)
+  appliedAt   DateTime          @default(now())
+  reviewedAt  DateTime?
+  updatedAt   DateTime          @updatedAt
+  
+  // Relationships
+  candidate   CandidateProfile @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  job         Job              @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  resume      Resume           @relation(fields: [resumeId], references: [id], onDelete: Cascade)
+  
+  @@unique([candidateId, jobId])
+  @@index([candidateId])
+  @@index([jobId])
+  @@index([status])
+  @@index([appliedAt])
+  @@index([matchScore])
+}
+
+model SavedJob {
+  id          Int      @id @default(autoincrement())
+  candidateId Int
+  jobId       Int
+  createdAt   DateTime @default(now())
+  
+  // Relationships
+  candidate   CandidateProfile @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  job         Job              @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  
+  @@unique([candidateId, jobId])
+  @@index([candidateId])
+  @@index([jobId])
 }

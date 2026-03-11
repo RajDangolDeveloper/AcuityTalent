@@ -1,0 +1,22 @@
+import { EmploymentType, EducationLevel } from '@prisma/client';
+
+/**
+ * DTO for candidate profile response
+ */
+export class CandidateProfileResponseDto {
+  id: number;
+  userId: number;
+  headline?: string | null;
+  currentPosition?: string | null;
+  currentCompanyId?: number | null;
+  experienceYears?: number | null;
+  highestDegree?: EducationLevel | null;
+  skills: string[];
+  preferredLocation?: string | null;
+  preferredJobType?: EmploymentType | null;
+  expectedSalary?: number | null;
+  linkedinUrl?: string | null;
+  githubUrl?: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
