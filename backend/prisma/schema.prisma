@@ -271,7 +271,7 @@ model Job {
   employmentType      EmploymentType
   experienceLevel     ExperienceLevel?
   salaryRange         String?
-  location            String
+  location            String       
   remoteAvailable     Boolean        @default(false)
   status              JobStatus      @default(DRAFT)
   postedDate          DateTime?

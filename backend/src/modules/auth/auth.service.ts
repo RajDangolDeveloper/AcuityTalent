@@ -60,7 +60,7 @@ export class AuthService {
 
       // Generate JWT token
       const accessToken = this.jwtService.sign({
-        sub: user.id,
+        id: user.id,
         email: user.email,
         role: user.role,
       });

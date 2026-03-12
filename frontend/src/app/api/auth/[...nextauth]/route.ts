@@ -72,6 +72,7 @@ export const authOptions: NextAuthOptions = {
         token.accessToken = user.access_token;
         token.role = user.role;
       }
+
       return token;
     },
     async session({ session, token }) {

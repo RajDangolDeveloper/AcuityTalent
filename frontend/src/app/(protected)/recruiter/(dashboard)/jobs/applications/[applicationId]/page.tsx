@@ -14,7 +14,7 @@ import {
 import {
   useApplicationDetail,
   useUpdateApplicationStatus,
-  useRecruiterJobs,
+  useGetRecruiterJobs,
 } from "@/src/hooks/useRecruiterApi";
 
 export default function ApplicationDetailPage() {
@@ -26,7 +26,7 @@ export default function ApplicationDetailPage() {
   const { data: application, isLoading } = useApplicationDetail(
     applicationId || 0,
   );
-  const { data: jobsData } = useRecruiterJobs(1, 50);
+  const { data: jobsData } = useGetRecruiterJobs(1, 50);
   const updateStatus = useUpdateApplicationStatus();
 
   const handleStatusUpdate = async (status: string) => {

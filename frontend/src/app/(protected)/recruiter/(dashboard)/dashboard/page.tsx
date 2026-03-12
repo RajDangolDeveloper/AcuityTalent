@@ -2,10 +2,10 @@
 
 import Link from "next/link";
 import { Briefcase, Users, Calendar, TrendingUp, Plus } from "lucide-react";
-import { useRecruiterJobs } from "@/src/hooks/useRecruiterApi";
+import { useGetRecruiterJobs } from "@/src/hooks/useRecruiterApi";
 
 export default function RecruiterDashboard() {
-  const { data: jobsData, isLoading } = useRecruiterJobs(1, 10);
+  const { data: jobsData, isLoading } = useGetRecruiterJobs(1, 10);
   const jobs = jobsData?.data || [];
 
   const stats = [

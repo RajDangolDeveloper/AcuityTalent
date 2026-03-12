@@ -30,7 +30,8 @@
     },
     {
       "label": "Run Project",
-      "dependsOn": ["npm: backend", "npm: frontend"],
+      "dependsOn": ["npm: backend", "npm: frontend", "npm: python"],
+      "dependsOrder": "parallel", // This is the crucial fix
       "runOptions": {
         "runOn": "folderOpen"
       },

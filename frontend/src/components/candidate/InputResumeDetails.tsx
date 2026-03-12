@@ -1,7 +1,7 @@
 import React from "react";
 
 export interface ResumeData {
-  firstName?: string;
+  fullName?: string;
   email?: string;
   phone?: string;
   city?: string;
@@ -28,6 +28,8 @@ export interface ResumeData {
   }>;
   skills?: Array<{ skill: string; level: number }>;
 }
+
+export type ResumeTemplate = React.FC<{ data: ResumeData }>;
 
 interface ResumeDetailsProps {
   resume: ResumeData;
@@ -61,7 +63,7 @@ const ResumeDetails: React.FC<ResumeDetailsProps> = ({ resume, onChange }) => {
 
     // Personal details (8 fields)
     const personalFields = [
-      "firstName",
+      "fullName",
       "email",
       "phone",
       "city",
@@ -125,9 +127,9 @@ const ResumeDetails: React.FC<ResumeDetailsProps> = ({ resume, onChange }) => {
         <h3 className="text-xl font-semibold mb-4">Personal Details</h3>
         <div className="grid grid-cols-2 gap-4">
           <input
-            placeholder="First Name"
-            value={resume.firstName || ""}
-            onChange={(e) => update({ firstName: e.target.value })}
+            placeholder="Full Name"
+            value={resume.fullName || ""}
+            onChange={(e) => update({ fullName: e.target.value })}
             className="border border-gray-300 drop-shadow-xs p-2 rounded-sm"
           />
           <input
@@ -359,18 +361,6 @@ const ResumeDetails: React.FC<ResumeDetailsProps> = ({ resume, onChange }) => {
                 updateArrayItem("skills", idx, { skill: e.target.value })
               }
               className="border p-2 flex-1"
-            />
-            <input
-              type="range"
-              min={0}
-              max={5}
-              value={skill.level}
-              onChange={(e) =>
-                updateArrayItem("skills", idx, {
-                  level: Number(e.target.value),
-                })
-              }
-              className="w-32"
             />
           </div>
         ))}

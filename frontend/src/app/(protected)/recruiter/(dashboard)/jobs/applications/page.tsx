@@ -6,9 +6,17 @@ import React from "react";
 import Link from "next/link";
 import CandidateCard from "@/src/components/recruiter/CandidateCard";
 import JobCard from "@/src/components/recruiter/JobCard";
-import { Mail, MapPin, Briefcase, Calendar, X } from "lucide-react";
 import {
-  useRecruiterJobs,
+  Mail,
+  MapPin,
+  Briefcase,
+  Calendar,
+  X,
+  ChevronDown,
+  ChevronRight,
+} from "lucide-react";
+import {
+  useGetRecruiterJobs,
   useJobApplications,
 } from "@/src/hooks/useRecruiterApi";
 
@@ -19,14 +27,42 @@ export default function JobsPage() {
     null,
   );
   const [page, setPage] = useState(1);
+  const statusOrder = ["ACTIVE", "DRAFT", "CLOSED", "ARCHIVED"];
 
-  const { data: jobsData, isLoading: jobsLoading } = useRecruiterJobs(1, 50);
+  const { data: jobsData, isLoading: jobsLoading } = useGetRecruiterJobs(1, 50);
   const { data: candidatesData, isLoading: candidatesLoading } =
     useJobApplications(selectedJobId || 0, page);
 
   const jobs = jobsData?.data || [];
   const candidates = candidatesData?.data || [];
   const selectedJob = jobs.find((j) => j.id === selectedJobId);
+
+  const groupedJobs = jobs.reduce(
+    (acc, job) => {
+      const status = job.status; // e.g., 'ACTIVE'
+      if (!acc[status]) acc[status] = [];
+      acc[status].push(job);
+      return acc;
+    },
+    {} as Record<string, typeof jobs>,
+  );
+
+  const statusLabels: Record<string, string> = {
+    ACTIVE: "Active Jobs",
+    DRAFT: "Draft Jobs",
+    CLOSED: "Closed Jobs",
+    ARCHIVED: "Archived Jobs",
+  };
+
+  const [expandedStatuses, setExpandedStatuses] = useState<
+    Record<string, boolean>
+  >(() => ({
+    ACTIVE: true, // expand Active by default
+  }));
+
+  const toggleStatus = (status: string) => {
+    setExpandedStatuses((prev) => ({ ...prev, [status]: !prev[status] }));
+  };
 
   const handleSelectCandidateFromModal = (candidateId: number) => {
     setSelectedCandidateId(candidateId);
@@ -49,7 +85,6 @@ export default function JobsPage() {
   return (
     <div className="flex h-screen bg-white">
       <div className="flex-1 flex">
-        {/* Jobs List Panel */}
         <div className="w-96 border-r border-gray-300 flex flex-col">
           <div className="p-6 border-b border-gray-300">
             <h2 className="text-2xl font-bold text-gray-900">Jobs</h2>
@@ -57,21 +92,47 @@ export default function JobsPage() {
 
           <div className="flex-1 overflow-y-auto">
             {jobs.length === 0 ? (
-              <div className="p-6 text-center text-gray-500">
-                <p>No jobs found</p>
-              </div>
+              <div className="p-6 text-center text-gray-500">No jobs found</div>
             ) : (
-              jobs.map((job) => (
-                <JobCard
-                  key={job.id}
-                  job={job}
-                  isSelected={selectedJobId === job.id}
-                  onClick={() => {
-                    setSelectedJobId(job.id);
-                    setPage(1);
-                  }}
-                />
-              ))
+              statusOrder.map((status) => {
+                const statusJobs = groupedJobs[status];
+                if (!statusJobs || statusJobs.length === 0) return null; // skip empty statuses
+
+                const isExpanded = expandedStatuses[status] || false;
+                const label = statusLabels[status] || status;
+
+                return (
+                  <div key={status} className="mb-4 rounded">
+                    <div
+                      className="flex items-center justify-between px-6 py-3 bg-gray-100 cursor-pointer hover:bg-gray-200"
+                      onClick={() => toggleStatus(status)}
+                    >
+                      <span className="font-medium">
+                        {label} ({statusJobs.length})
+                      </span>
+                      <span className="text-xl">
+                        {isExpanded ? <ChevronRight /> : <ChevronDown />}
+                      </span>
+                    </div>
+
+                    {isExpanded && (
+                      <div className="p-2 space-y-2">
+                        {statusJobs.map((job) => (
+                          <JobCard
+                            key={job.id}
+                            job={job}
+                            isSelected={selectedJobId === job.id}
+                            onClick={() => {
+                              setSelectedJobId(job.id);
+                              setPage(1);
+                            }}
+                          />
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                );
+              })
             )}
           </div>
         </div>
@@ -110,12 +171,11 @@ export default function JobsPage() {
                 )}
 
                 {/* salaryRange */}
-                {selectedJob.salaryMin !== undefined &&
-                  selectedJob.salaryMax !== undefined && (
-                    <span className="flex items-center gap-2 bg-gray-100 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium">
-                      ${selectedJob.salaryMin}k - ${selectedJob.salaryMax}k
-                    </span>
-                  )}
+                {selectedJob.salaryRange !== undefined && (
+                  <span className="flex items-center gap-2 bg-gray-100 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium">
+                    ${selectedJob.salaryRange}
+                  </span>
+                )}
 
                 {/* experience level placeholder */}
                 <span className="flex items-center gap-2 bg-gray-100 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium">

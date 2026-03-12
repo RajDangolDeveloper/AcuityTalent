@@ -34,14 +34,53 @@ class MatchResponse(BaseModel):
             }
         }
 
+class CategorisationRequest(BaseModel):
+    resume_text: str = Field(
+        ..., 
+        description="The full text extracted from the candidate's resume",
+        min_length=10
+    )
+    job_description: str = Field(
+        ..., 
+        description="The full text of the job posting",
+        min_length=10
+    )
+
+    @validator('resume_text', 'job_description')
+    def text_must_not_be_empty(cls, v):
+        if not v.strip():
+            raise ValueError('Text content cannot be just whitespace')
+        return v
+
+class CategorisationResponse(BaseModel):
+    similarity_score: float = Field(
+        ...,
+        description="Similarity percentage between 0 and 100",
+        example=82.45,
+    )
+    status: str = Field(default="success")
+
+    class Config:
+        schema_extra = {
+            "example": {
+                "similarity_score": 82.45,
+                "status": "success"
+            }
+        }
+
 class ScoreRequest(BaseModel):
     resume_text: str = Field(
         ..., 
         description="The full text extracted from the candidate's resume",
         min_length=10
     )
-        
-    @validator('resume_text')
+    job_description: str = Field(
+        ..., 
+        description="The full text of the job posting",
+        min_length=10
+    )
+
+    @validator('resume_text', 'job_description')
     def text_must_not_be_empty(cls, v):
         if not v.strip():
             raise ValueError('Text content cannot be just whitespace')
@@ -111,3 +150,56 @@ class ReviewResponse(BaseModel):
                 "status": "success"
             }
         }
+
+
+class CoverLetterRequest(BaseModel):
+    resume_text: str = Field(
+        ...,
+        description="The full text extracted from the candidate's resume",
+        min_length=10,
+    )
+    job_description: str = Field(
+        ...,
+        description="The full text of the job posting",
+        min_length=10,
+    )
+
+    @validator("resume_text", "job_description")
+    def cover_letter_text_must_not_be_empty(cls, v: str) -> str:
+        if not v.strip():
+            raise ValueError("Text content cannot be just whitespace")
+        return v
+
+
+class CoverLetterResponse(BaseModel):
+    cover_letter: str = Field(
+        ...,
+        description="The generated professional cover letter text",
+    )
+    status: str = Field(default="success")
+
+
+class RewriteRequest(BaseModel):
+    text: str = Field(
+        ...,
+        description="The original text to be improved",
+        min_length=5,
+    )
+    topic: str | None = Field(
+        default=None,
+        description="Optional topic or role context to guide the rewrite",
+    )
+
+    @validator("text")
+    def rewrite_text_must_not_be_empty(cls, v: str) -> str:
+        if not v.strip():
+            raise ValueError("Text content cannot be just whitespace")
+        return v
+
+
+class RewriteResponse(BaseModel):
+    improved_text: str = Field(
+        ...,
+        description="The improved version of the original text",
+    )
+    status: str = Field(default="success")

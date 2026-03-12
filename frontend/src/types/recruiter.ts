@@ -16,23 +16,32 @@ export type EmploymentType =
   | "CONTRACT"
   | "INTERNSHIP";
 
+export type ExperienceLevel = "ENTRY" | "MID" | "SENIOR" | "EXECUTIVE";
+
 export type JobStatus = "ACTIVE" | "CLOSED" | "DRAFT";
 
-// Job listing (Group 69)
 export interface Job {
   id: number;
   title: string;
-  companyName: string;
-  location: string;
-  employmentType: EmploymentType;
-  salaryMin?: number;
-  salaryMax?: number;
   description: string;
-  requirements?: string[];
-  applicationCount: number;
+  requirements?: string | null;
+  employmentType: EmploymentType;
+  experienceLevel?: ExperienceLevel | null;
+  salaryRange?: string | null;
+  location: string;
+  remoteAvailable: boolean;
   status: JobStatus;
-  createdAt: string;
-  updatedAt: string;
+  postedDate?: Date | null;
+  applicationDeadline?: Date | null;
+  viewsCount: number;
+  createdAt: Date;
+  updatedAt: Date;
+
+  // Populated relationships
+  recruiterName?: string;
+  recruiterEmail?: string;
+  companyName?: string;
+  applicationCount?: number;
 }
 
 // Candidate application (Group 69 - candidate card in list)

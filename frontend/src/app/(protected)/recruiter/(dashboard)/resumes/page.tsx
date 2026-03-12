@@ -1,6 +1,4 @@
 "use client";
-
-import RecruiterSidebar from "@/src/components/recruiter/RecruiterSidebar";
 import { Download, FileText } from "lucide-react";
 
 export default function ResumesPage() {

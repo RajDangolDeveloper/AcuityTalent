@@ -30,7 +30,7 @@ export default async function AdminLayout({
   }
 
   return (
-    <div className="flex">
+    <div className="flex min-w-dvw">
       <CustomSidebar variant="primary">
         <TopItems>
           <SidebarItem
@@ -63,7 +63,7 @@ export default async function AdminLayout({
           />
         </BottomItems>
       </CustomSidebar>
-      {children}
+      <div className="flex-1 overflow-auto">{children}</div>
     </div>
   );
 }

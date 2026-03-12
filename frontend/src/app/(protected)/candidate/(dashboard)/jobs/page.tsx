@@ -131,12 +131,9 @@ export default function CandidateJobsPage() {
 
   return (
     <div className="flex h-screen flex-col bg-gray-50">
-      {/* Top Header with Filters Left and Search Right */}
       <div className="bg-white border-b border-gray-200 px-6 py-4">
         <div className="flex gap-3 items-center">
-          {/* Left: Filters */}
           <div className="flex gap-2 flex-1 items-center">
-            {/* Experience Filter */}
             <select
               value={filters.experienceLevel}
               onChange={(e) =>
@@ -171,7 +168,6 @@ export default function CandidateJobsPage() {
               <option value="remote">Remote Only</option>
             </select>
 
-            {/* Job Types Filter */}
             <select
               value={filters.employmentType}
               onChange={(e) =>

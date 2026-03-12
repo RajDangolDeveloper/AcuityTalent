@@ -15,7 +15,7 @@ import {
 } from "../types/recruiter";
 
 // Get recruiter's jobs
-export const useRecruiterJobs = (
+export const useGetRecruiterJobs = (
   page: number = 1,
   limit: number = 10,
   status: string = "ACTIVE",
@@ -117,7 +117,6 @@ export const useUpdateApplicationStatus = () => {
     },
   });
 };
-
 
 // Create job
 export const useCreateJob = () => {

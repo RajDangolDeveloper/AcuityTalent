@@ -12,6 +12,12 @@ export default withAuth(
     const isOnLogin = nextUrl.pathname.includes("/login");
     const isOnRegister = nextUrl.pathname.includes("/register");
 
+    if (token?.error === "RefreshAccessTokenError") {
+      return NextResponse.redirect(
+        new URL("/candidate/login?error=SessionExpired", request.url),
+      );
+    }
+
     if (isOnLogin && token) {
       return NextResponse.redirect(
         new URL("/" + userRole.toLowerCase() + "/dashboard", nextUrl),
@@ -24,17 +30,25 @@ export default withAuth(
       );
     }
 
-    if (isOnAdmin && userRole !== "admin") {
+    if (isOnAdmin && userRole !== "ADMIN") {
       return NextResponse.redirect(new URL("/unauthorized", nextUrl));
     }
 
-    // Candidate routes: allow `candidate` and `admin`
-    if (isOnCandidate && userRole !== "CANDIDATE" && userRole !== "admin") {
+    if (
+      isOnCandidate &&
+      !isOnLogin &&
+      userRole !== "CANDIDATE" &&
+      userRole !== "ADMIN"
+    ) {
       return NextResponse.redirect(new URL("/unauthorized", nextUrl));
     }
 
-    // Recruiter routes: allow `recruiter` and `admin`
-    if (isOnRecruiter && userRole !== "RECRUITER" && userRole !== "admin") {
+    if (
+      isOnRecruiter &&
+      !isOnLogin &&
+      userRole !== "RECRUITER" &&
+      userRole !== "ADMIN"
+    ) {
       return NextResponse.redirect(new URL("/unauthorized", nextUrl));
     }
 
@@ -47,7 +61,7 @@ export default withAuth(
 
         // Public routes (no token required)
         if (
-          pathname.startsWith("/login") ||
+          pathname.includes("/login") ||
           pathname === "/" ||
           pathname.startsWith("/api/auth") // Important: allow NextAuth API routes
         ) {
@@ -72,6 +86,7 @@ export default withAuth(
     },
     pages: {
       signIn: "/recruiter/login",
+      signOut: "/logout",
     },
   },
 );
