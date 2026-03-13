@@ -9,8 +9,10 @@ import {
   BriefcaseBusiness,
   LayoutDashboard,
   LogOut,
+  MessagesSquare,
   NotepadText,
   Settings,
+  User,
 } from "lucide-react";
 
 export default async function ProtectedLayout({
@@ -30,17 +32,22 @@ export default async function ProtectedLayout({
           <SidebarItem
             href="/recruiter/jobs/applications"
             label="Applications"
-            icon={<BriefcaseBusiness size={20} />}
+            icon={<NotepadText size={20} />}
           />
           <SidebarItem
             href="/recruiter/jobs"
             label="Jobs"
-            icon={<NotepadText size={20} />}
+            icon={<BriefcaseBusiness size={20} />}
           />
           <SidebarItem
             href="/recruiter/interview"
             label="Interviews"
-            icon={<NotepadText size={20} />}
+            icon={<MessagesSquare size={20} />}
+          />
+          <SidebarItem
+            href="/recruiter/profile"
+            label="Profile"
+            icon={<User size={20} />}
           />
         </TopItems>
 

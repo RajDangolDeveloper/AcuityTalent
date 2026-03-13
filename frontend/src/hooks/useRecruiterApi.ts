@@ -2,6 +2,7 @@ import {
   useQuery,
   UseMutationResult,
   useMutation,
+  useQueryClient,
 } from "@tanstack/react-query";
 import apiClient from "@/src/app/api/api-client";
 import {
@@ -13,6 +14,7 @@ import {
   CandidateProfile,
   ApplicationStatus,
 } from "../types/recruiter";
+import Notification from "../element/Notification";
 
 // Get recruiter's jobs
 export const useGetRecruiterJobs = (
@@ -149,6 +151,30 @@ export const useRecruiterCompanies = () => {
       const response = await apiClient.get<SingleResponse<any>>("/companies");
       console.log(response);
       return response.data.data;
+    },
+  });
+};
+
+export const useDeleteJob = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (jobId: number) => {
+      const response = await apiClient.delete(`jobs/${jobId}`);
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["recruiter-jobs"] });
+      Notification({
+        toastMessage: "Job Deleted Successfully",
+        toastStatus: "success",
+      });
+    },
+    onError: (error) => {
+      Notification({
+        toastMessage: "Job Deleted UnSuccessfully",
+        toastStatus: "error",
+      });
     },
   });
 };

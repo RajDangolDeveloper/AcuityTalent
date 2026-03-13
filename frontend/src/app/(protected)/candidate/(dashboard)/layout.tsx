@@ -50,6 +50,11 @@ export default async function ProtectedLayout({
             label="Interviews"
             icon={<NotepadText size={20} />}
           />
+          <SidebarItem
+            href="/candidate/profile"
+            label="Profile"
+            icon={<NotepadText size={20} />}
+          />
         </TopItems>
 
         <BottomItems>

@@ -47,6 +47,12 @@ enum Industry {
   OTHER
 }
 
+enum LocationType {
+  HYBRID
+  REMOTE
+  ONSITE
+}
+
 // Employment Type Enum
 enum EmploymentType {
   FULL_TIME
@@ -271,7 +277,8 @@ model Job {
   employmentType      EmploymentType
   experienceLevel     ExperienceLevel?
   salaryRange         String?
-  location            String       
+  location            String   
+  locationType        LocationType    
   remoteAvailable     Boolean        @default(false)
   status              JobStatus      @default(DRAFT)
   postedDate          DateTime?

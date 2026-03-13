@@ -10,6 +10,8 @@ import {
   CandidateProfile,
   Resume,
   EmploymentType,
+  WorkExperience,
+  Education,
 } from "@/src/types/candidate";
 
 // Get all active jobs with filters
@@ -145,7 +147,7 @@ export const useCreateCandidateProfile = () => {
     }) => {
       try {
         const response = await apiClient.post<SingleResponse<CandidateProfile>>(
-          "/candidate/profile",
+          "/candidates/profile",
           {
             headline,
             currentPosition,
@@ -300,7 +302,7 @@ export const useCandidateProfile = () => {
       try {
         const response =
           await apiClient.get<SingleResponse<CandidateProfile>>(
-            "/candidates/me",
+            "/candidates/profile",
           );
         console.log("[useCandidateProfile] Success:", response.data.data);
         return response.data.data;
@@ -308,6 +310,42 @@ export const useCandidateProfile = () => {
         console.error("[useCandidateProfile] Error:", error);
         throw error;
       }
+    },
+  });
+};
+
+export const useUpdateCandidateProfile = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (
+      payload: Partial<{
+        headline: string;
+        currentPosition: string;
+        currentCompanyId: number;
+        experienceYears: number;
+        highestDegree: string;
+        skills: string[];
+        preferredLocation: string;
+        preferredJobType: EmploymentType;
+        expectedSalary: number;
+        linkedinUrl: string;
+        githubUrl: string;
+      }>,
+    ) => {
+      try {
+        const response = await apiClient.patch<SingleResponse<CandidateProfile>>(
+          "/candidates/profile",
+          payload,
+        );
+        return response.data.data;
+      } catch (error) {
+        console.error("[useUpdateCandidateProfile] Error:", error);
+        throw error;
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["candidate-profile"] });
     },
   });
 };
@@ -326,6 +364,210 @@ export const useCandidateResumes = () => {
         console.error("[useCandidateResumes] Error:", error);
         throw error;
       }
+    },
+  });
+};
+
+// Work experience CRUD
+export const useCandidateWorkExperiences = () => {
+  return useQuery({
+    queryKey: ["candidate-work-experiences"],
+    queryFn: async () => {
+      console.log("[useCandidateWorkExperiences] Fetching work experiences");
+      try {
+        const response = await apiClient.get<
+          SingleResponse<WorkExperience[]>
+        >("/candidates/work-experience");
+        return response.data.data;
+      } catch (error) {
+        console.error("[useCandidateWorkExperiences] Error:", error);
+        throw error;
+      }
+    },
+  });
+};
+
+export const useCreateWorkExperience = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (payload: {
+      company: string;
+      position: string;
+      startDate: string;
+      endDate?: string;
+      isCurrent?: boolean;
+      description?: string;
+    }) => {
+      try {
+        const response = await apiClient.post<
+          SingleResponse<WorkExperience>
+        >("/candidates/work-experience", payload);
+        return response.data.data;
+      } catch (error) {
+        console.error("[useCreateWorkExperience] Error:", error);
+        throw error;
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["candidate-work-experiences"],
+      });
+    },
+  });
+};
+
+export const useUpdateWorkExperience = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      id,
+      ...payload
+    }: {
+      id: number;
+      company?: string;
+      position?: string;
+      startDate?: string;
+      endDate?: string | null;
+      isCurrent?: boolean;
+      description?: string;
+    }) => {
+      try {
+        const response = await apiClient.patch<
+          SingleResponse<WorkExperience>
+        >(`/candidates/work-experience/${id}`, payload);
+        return response.data.data;
+      } catch (error) {
+        console.error("[useUpdateWorkExperience] Error:", error);
+        throw error;
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["candidate-work-experiences"],
+      });
+    },
+  });
+};
+
+export const useDeleteWorkExperience = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (id: number) => {
+      try {
+        await apiClient.delete(`/candidates/work-experience/${id}`);
+      } catch (error) {
+        console.error("[useDeleteWorkExperience] Error:", error);
+        throw error;
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["candidate-work-experiences"],
+      });
+    },
+  });
+};
+
+// Education CRUD
+export const useCandidateEducations = () => {
+  return useQuery({
+    queryKey: ["candidate-educations"],
+    queryFn: async () => {
+      console.log("[useCandidateEducations] Fetching educations");
+      try {
+        const response = await apiClient.get<SingleResponse<Education[]>>(
+          "/candidates/education",
+        );
+        return response.data.data;
+      } catch (error) {
+        console.error("[useCandidateEducations] Error:", error);
+        throw error;
+      }
+    },
+  });
+};
+
+export const useCreateEducation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (payload: {
+      institution: string;
+      degree: string;
+      fieldOfStudy?: string;
+      startDate: string;
+      endDate?: string;
+      gpa?: number;
+      description?: string;
+    }) => {
+      try {
+        const response = await apiClient.post<SingleResponse<Education>>(
+          "/candidates/education",
+          payload,
+        );
+        return response.data.data;
+      } catch (error) {
+        console.error("[useCreateEducation] Error:", error);
+        throw error;
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["candidate-educations"] });
+    },
+  });
+};
+
+export const useUpdateEducation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      id,
+      ...payload
+    }: {
+      id: number;
+      institution?: string;
+      degree?: string;
+      fieldOfStudy?: string;
+      startDate?: string;
+      endDate?: string | null;
+      gpa?: number;
+      description?: string;
+    }) => {
+      try {
+        const response = await apiClient.patch<SingleResponse<Education>>(
+          `/candidates/education/${id}`,
+          payload,
+        );
+        return response.data.data;
+      } catch (error) {
+        console.error("[useUpdateEducation] Error:", error);
+        throw error;
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["candidate-educations"] });
+    },
+  });
+};
+
+export const useDeleteEducation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (id: number) => {
+      try {
+        await apiClient.delete(`/candidates/education/${id}`);
+      } catch (error) {
+        console.error("[useDeleteEducation] Error:", error);
+        throw error;
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["candidate-educations"] });
     },
   });
 };

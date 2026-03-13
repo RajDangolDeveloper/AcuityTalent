@@ -7,6 +7,7 @@ import Link from "next/link";
 import CandidateCard from "@/src/components/recruiter/CandidateCard";
 import JobCard from "@/src/components/recruiter/JobCard";
 import {
+  useDeleteJob,
   useGetRecruiterJobs,
   useJobApplications,
 } from "@/src/hooks/useRecruiterApi";
@@ -75,6 +76,13 @@ export default function JobsPage() {
 
   const handleSelectCandidateFromModal = (candidateId: number) => {
     setSelectedCandidateId(candidateId);
+  };
+
+  const { mutate: deleteJob, isPending } = useDeleteJob();
+  const handleJobDelete = () => {
+    if (selectedJobId) {
+      deleteJob(selectedJobId);
+    }
   };
 
   if (selectedCandidateId) {
@@ -198,12 +206,26 @@ export default function JobsPage() {
                 </div>
               </div>
               <div className="">
-                <button className="border border-red-500 text-red-500 font-bold h-16 px-8 py-4 rounded-xl hover:bg-red-50 transition-colors text-lg">
+                <button
+                  onClick={() => {
+                    handleJobDelete();
+                  }}
+                  className="border border-red-500 text-red-500 font-bold h-16 px-8 py-4 rounded-xl hover:bg-red-50 transition-colors text-lg"
+                >
                   Close Job
                 </button>
               </div>
             </div>
-            <Markdown>{selectedJob.description}</Markdown>
+            <div className="max-w-7xl px-12 py-8 overflow-clip">
+              <div className="pb-12">
+                <div className="text-2xl font-semibold">Description</div>
+                <Markdown>{selectedJob.description}</Markdown>
+              </div>
+              <div className="pb-12">
+                <div className="text-2xl font-semibold">Requirements</div>
+                <Markdown>{selectedJob.requirements}</Markdown>
+              </div>
+            </div>
           </div>
         ) : (
           <div className="flex-1 w-full flex items-center justify-center">

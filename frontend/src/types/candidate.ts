@@ -103,6 +103,31 @@ export interface CandidateProfile {
   updatedAt: string;
 }
 
+export interface WorkExperience {
+  id: number;
+  candidateId: number;
+  company: string;
+  position: string;
+  startDate: string;
+  endDate?: string | null;
+  isCurrent: boolean;
+  description?: string | null;
+  createdAt: string;
+}
+
+export interface Education {
+  id: number;
+  candidateId: number;
+  institution: string;
+  degree: string;
+  fieldOfStudy?: string | null;
+  startDate: string;
+  endDate?: string | null;
+  gpa?: number | null;
+  description?: string | null;
+  createdAt: string;
+}
+
 // Pagination
 export interface PaginationMeta {
   page: number;
