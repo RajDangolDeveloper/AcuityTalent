@@ -129,6 +129,7 @@ export class AuthService {
         lastName: true,
         contactPhone: true,
         contactEmail: true,
+        isOnboarded: true,
       },
     });
 

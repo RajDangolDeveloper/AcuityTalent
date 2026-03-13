@@ -3,7 +3,7 @@ import { CreateJobDto } from './dto/create-job.dto';
 import { UpdateJobDto } from './dto/update-job.dto';
 import { JobResponseDto } from './dto/job-response.dto';
 import { GetJobsQueryDto } from './dto/get-jobs-query.dto';
-import { JobStatus } from '@prisma/client';
+import { JobStatus, LocationType } from '@prisma/client';
 import {
   Injectable,
   BadRequestException,
@@ -30,6 +30,9 @@ export class JobService {
     const job = await this.prisma.job.create({
       data: {
         ...createJobDto,
+        locationType: createJobDto.remoteAvailable
+          ? LocationType.REMOTE
+          : LocationType.ONSITE,
         companyId: recruiter.companyId,
         recruiterId: recruiter.id,
         status: JobStatus.DRAFT,
