@@ -23,19 +23,11 @@ import { UpdateEducationDto } from './dto/update-education.dto';
 import { EducationResponseDto } from './dto/education-response.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
-/**
- * CandidateController - RESTful API endpoints for candidate management
- */
 @Controller('candidates')
 @UseGuards(JwtAuthGuard)
 export class CandidateController {
   constructor(private candidateService: CandidateService) {}
 
-  // Profile endpoints
-  /**
-   * POST /candidates/profile
-   * Creates a candidate profile
-   */
   @Post('profile')
   @HttpCode(HttpStatus.CREATED)
   async createProfile(
@@ -53,10 +45,6 @@ export class CandidateController {
     };
   }
 
-  /**
-   * GET /candidates/profile
-   * Get candidate profile (authenticated user)
-   */
   @Get('profile')
   async getProfile(
     @Req() req: any,
@@ -71,11 +59,6 @@ export class CandidateController {
     };
   }
 
-  /**
-   * GET /candidates/:id
-   * Get specific candidate profile (for recruiters viewing candidates)
-   * Returns public candidate information
-   */
   @Get(':id')
   async getCandidateById(
     @Param('id') id: string,
@@ -92,10 +75,22 @@ export class CandidateController {
     };
   }
 
-  /**
-   * PATCH /candidates/profile
-   * Update candidate profile
-   */
+  @Get('user/:id')
+  async getCandidateByUserId(
+    @Param('id') id: string,
+    @Req() req: any,
+  ): Promise<{ statusCode: number; data: CandidateProfileResponseDto }> {
+    const profile = await this.candidateService.getCandidateProfileById(
+      parseInt(id),
+      req.user.id,
+    );
+
+    return {
+      statusCode: HttpStatus.OK,
+      data: profile,
+    };
+  }
+
   @Patch('profile')
   async updateProfile(
     @Body() updateDto: UpdateCandidateProfileDto,
@@ -112,21 +107,12 @@ export class CandidateController {
     };
   }
 
-  /**
-   * DELETE /candidates/profile
-   * Delete candidate profile
-   */
   @Delete('profile')
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteProfile(@Req() req: any): Promise<void> {
     await this.candidateService.deleteCandidateProfile(req.user.id);
   }
 
-  // Work Experience endpoints
-  /**
-   * POST /candidates/work-experience
-   * Creates work experience
-   */
   @Post('work-experience')
   @HttpCode(HttpStatus.CREATED)
   async createWorkExperience(
@@ -144,10 +130,6 @@ export class CandidateController {
     };
   }
 
-  /**
-   * GET /candidates/work-experience
-   * Get all work experiences
-   */
   @Get('work-experience')
   async getWorkExperiences(
     @Req() req: any,
@@ -162,10 +144,6 @@ export class CandidateController {
     };
   }
 
-  /**
-   * PATCH /candidates/work-experience/:id
-   * Update work experience
-   */
   @Patch('work-experience/:id')
   async updateWorkExperience(
     @Param('id') id: string,
@@ -184,10 +162,6 @@ export class CandidateController {
     };
   }
 
-  /**
-   * DELETE /candidates/work-experience/:id
-   * Delete work experience
-   */
   @Delete('work-experience/:id')
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteWorkExperience(
@@ -197,11 +171,6 @@ export class CandidateController {
     await this.candidateService.deleteWorkExperience(req.user.id, parseInt(id));
   }
 
-  // Education endpoints
-  /**
-   * POST /candidates/education
-   * Creates education
-   */
   @Post('education')
   @HttpCode(HttpStatus.CREATED)
   async createEducation(
@@ -219,10 +188,6 @@ export class CandidateController {
     };
   }
 
-  /**
-   * GET /candidates/education
-   * Get all educations
-   */
   @Get('education')
   async getEducations(
     @Req() req: any,
@@ -235,10 +200,6 @@ export class CandidateController {
     };
   }
 
-  /**
-   * PATCH /candidates/education/:id
-   * Update education
-   */
   @Patch('education/:id')
   async updateEducation(
     @Param('id') id: string,
@@ -257,10 +218,6 @@ export class CandidateController {
     };
   }
 
-  /**
-   * DELETE /candidates/education/:id
-   * Delete education
-   */
   @Delete('education/:id')
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteEducation(

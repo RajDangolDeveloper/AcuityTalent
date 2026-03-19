@@ -8,22 +8,31 @@ import InputResumeDetails, {
 import ResumePreview from "@/src/components/candidate/ResumePreview";
 import TemplateSelector from "@/src/components/candidate/TemplateSelector";
 import { templates } from "@/src/components/templates";
-import { PDFDownloadLink } from "@react-pdf/renderer";
+import { pdf, PDFDownloadLink } from "@react-pdf/renderer";
+import { useUploadResume } from "@/src/hooks/useResumeApi";
 import { ClassicPDFTemplate } from "@/src/components/templatePdf/ClassicTemplatePdf";
 import { CleanPDFTemplate } from "@/src/components/templatePdf/CleanTemplatePdf";
 import { ModernPDFTemplate } from "@/src/components/templatePdf/ModernTemplatePdf";
 import { PrimeATSPDFTemplate } from "@/src/components/templatePdf/PrimeATSTemplatePdf";
-import { SpecialistPDFTemplate } from "@/src/components/templatePdf/SpecialistTemplate";
 import { ProfessionalPDFTemplate } from "@/src/components/templatePdf/ProfessionalTemplatePdf";
+import { SpecialistPDFTemplate } from "@/src/components/templatePdf/SpecialistTemplate";
+import { TemplateKey } from "@/src/types/resume";
+import SaveResumeButton from "@/src/components/candidate/SaveResumeButton";
+import { useSession } from "next-auth/react";
 
 export default function CreateResumePage() {
+  const session = useSession();
   const [activeTab, setActiveTab] = useState<"edit" | "customize" | "ai">(
     "edit",
   );
   const [selectedTemplate, setSelectedTemplate] =
     useState<keyof typeof templates>("modern");
 
-  type TemplateKey = keyof typeof templates;
+  const [resumeData, setResumeData] = useState<ResumeData>({
+    experience: [],
+    education: [],
+    skills: [],
+  });
 
   const pdfTemplates: Record<TemplateKey, React.FC<{ data: ResumeData }>> = {
     modern: ModernPDFTemplate,
@@ -34,13 +43,10 @@ export default function CreateResumePage() {
     specialist: SpecialistPDFTemplate,
   };
 
-  const [resumeData, setResumeData] = useState<ResumeData>({
-    experience: [],
-    education: [],
-    skills: [],
-  });
-
   const PDFComponent = pdfTemplates[selectedTemplate];
+
+  const uploadResume = useUploadResume();
+
   return (
     <div className="flex flex-col h-screen min-w-full justify-center items-center">
       {/* top bar */}
@@ -77,12 +83,11 @@ export default function CreateResumePage() {
             AI Review
           </button>
         </div>
-        <button
-          onClick={() => {}}
-          className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white text-primary-600 px-4 py-2 rounded-md shadow hover:bg-gray-100 transition"
-        >
-          Save Resume
-        </button>
+        <SaveResumeButton
+          resumeData={resumeData}
+          selectedTemplate={selectedTemplate}
+          userId={Number(session.data?.user.id)}
+        />
       </div>
       {/* main content */}
       <div className="flex flex-1 overflow-hidden w-full">
@@ -91,13 +96,21 @@ export default function CreateResumePage() {
             <InputResumeDetails resume={resumeData} onChange={setResumeData} />
           )}
           {activeTab === "customize" && (
-            <TemplateSelector
-              selectedTemplate={selectedTemplate}
-              onSelect={setSelectedTemplate}
-            />
+            <div>
+              <TemplateSelector
+                selectedTemplate={selectedTemplate}
+                onSelect={setSelectedTemplate}
+              />
+            </div>
           )}
         </div>
         <div className="w-1/2 overflow-y-clip relative">
+          {activeTab === "customize" && (
+            <ResumePreview
+              resumeData={resumeData}
+              template={selectedTemplate}
+            />
+          )}
           {activeTab === "edit" && (
             <div className="">
               <ResumePreview

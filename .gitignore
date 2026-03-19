@@ -1,20 +1,31 @@
+# --- Dependencies ---
 node_modules/
-
 venv/
 .venv/
 env/
-bin/
 lib/
 include/
-generated/
+
+# --- Build & Output ---
 dist/
 .next/
-migrations/
-frontend/.env/
-backend/.env/
-frontend/node_modules
-backend/node_modules
-backend/dist
-backend/dist/src/app.module.js
-frontend/.next/
+bin/
+generated/
 __pycache__/
+
+# --- Specific Sub-projects ---
+# This ensures nested build files are caught
+frontend/node_modules/
+backend/node_modules/
+backend/dist/
+frontend/.next/
+
+# --- Environment Secrets ---
+# Using a wildcard to catch any .env folder or file
+**/.env/
+.env
+
+# --- Databases / Migrations ---
+# Careful here: usually you WANT to commit migrations, 
+# but if they contain sensitive local data, ignore them:
+migrations/

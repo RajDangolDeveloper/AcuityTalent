@@ -145,13 +145,16 @@ model Otp {
 
 model Company {
   id            Int               @id @default(autoincrement())
+  ownerId       Int
   name          String
   description   String?
   logoUrl       String?
+  backgroundImgUrl String?
   websiteUrl    String?
   companySize   CompanySize?
   industry      Industry?
   officeAddress String?
+  isVerified    Boolean           @default(false)
   createdAt     DateTime          @default(now())
   updatedAt     DateTime          @default(now())   @updatedAt
   

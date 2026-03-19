@@ -5,17 +5,18 @@ import {
   IsUrl,
   MinLength,
   MaxLength,
+  IsNumber,
 } from 'class-validator';
 import { CompanySize, Industry } from '@prisma/client';
 
-/**
- * DTO for creating a new company
- */
 export class CreateCompanyDto {
   @IsString()
   @MinLength(2)
   @MaxLength(255)
   name: string;
+
+  @IsNumber()
+  ownerId: number;
 
   @IsOptional()
   @IsString()

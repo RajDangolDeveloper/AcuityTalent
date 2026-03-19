@@ -8,12 +8,15 @@ import {
   BadRequestException,
   NotFoundException,
 } from '@nestjs/common';
+import { CompanyNameResponseDto } from './dto/company-name-response.dto';
 
 @Injectable()
 export class CompanyService {
   constructor(private prisma: PrismaService) {}
 
-  async createCompany(createCompanyDto: CreateCompanyDto): Promise<CompanyResponseDto> {
+  async createCompany(
+    createCompanyDto: CreateCompanyDto,
+  ): Promise<CompanyResponseDto> {
     try {
       const company = await this.prisma.company.create({
         data: createCompanyDto,
@@ -25,6 +28,51 @@ export class CompanyService {
       }
       throw error;
     }
+  }
+
+  async getAllCompaniesNames(query: GetCompaniesQueryDto): Promise<{
+    data: CompanyNameResponseDto[];
+    total: number;
+    page: number;
+    pageSize: number;
+  }> {
+    const { page = 1, limit = 10 } = query;
+    const skip = (page - 1) * limit;
+
+    const where: any = {};
+
+    const [companies, total] = await Promise.all([
+      this.prisma.company.findMany({
+        where,
+        skip,
+        take: limit,
+        orderBy: { createdAt: 'desc' },
+        select: {
+          id: true,
+          name: true,
+        },
+      }),
+      this.prisma.company.count({ where }),
+    ]);
+
+    return {
+      data: companies,
+      total,
+      page,
+      pageSize: limit,
+    };
+  }
+
+  async getCompanyByUserId(query): Promise<{
+    data: CompanyResponseDto;
+  }> {
+    const company = await this.prisma.company.findFirstOrThrow({
+      where: { ownerId: query.id }, // replace ownerIdValue with actual variable
+    });
+
+    return {
+      data: company,
+    };
   }
 
   async getAllCompanies(query: GetCompaniesQueryDto): Promise<{

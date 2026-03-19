@@ -16,19 +16,14 @@ import {
 } from "../types/recruiter";
 import Notification from "../element/Notification";
 
-// Get recruiter's jobs
-export const useGetRecruiterJobs = (
-  page: number = 1,
-  limit: number = 10,
-  status: string = "ACTIVE",
-) => {
+export const useGetRecruiterJobs = (page: number = 1, limit: number = 10) => {
   return useQuery({
-    queryKey: ["recruiter-jobs", page, limit, status],
+    queryKey: ["recruiter-jobs", page, limit],
     queryFn: async () => {
       const response = await apiClient.get<PaginatedResponse<Job>>(
         "/jobs/recruiter/my-jobs",
         {
-          params: { page, limit, status },
+          params: { page, limit },
         },
       );
       console.log(response);

@@ -7,6 +7,7 @@ import CustomSidebar, {
 } from "@/src/components/CustomSidebar";
 import {
   BriefcaseBusiness,
+  Building2,
   LayoutDashboard,
   LogOut,
   MessagesSquare,
@@ -45,6 +46,11 @@ export default async function ProtectedLayout({
             icon={<MessagesSquare size={20} />}
           />
           <SidebarItem
+            href="/recruiter/company"
+            label="Company"
+            icon={<Building2 size={20} />}
+          />
+          <SidebarItem
             href="/recruiter/profile"
             label="Profile"
             icon={<User size={20} />}
@@ -64,7 +70,7 @@ export default async function ProtectedLayout({
           />
         </BottomItems>
       </CustomSidebar>
-      <div className="flex-1">{children}</div>
+      <div className="flex-1 max-h-screen overflow-y-auto">{children}</div>
     </div>
   );
 }

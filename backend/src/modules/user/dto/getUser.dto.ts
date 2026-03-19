@@ -1,7 +1,7 @@
 import { IsEmail } from 'class-validator';
 import { Transform } from 'class-transformer';
 
-export class FindUser {
+export class GetUser {
   @IsEmail()
   @Transform(({ value }) => value?.toLowerCase())
   email: string;

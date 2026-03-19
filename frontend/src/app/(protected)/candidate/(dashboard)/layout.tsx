@@ -11,8 +11,11 @@ import {
   Home,
   LayoutDashboard,
   LogOut,
+  MessagesSquare,
+  NotebookPen,
   NotepadText,
   Settings,
+  User,
 } from "lucide-react";
 
 export default async function ProtectedLayout({
@@ -43,17 +46,17 @@ export default async function ProtectedLayout({
           <SidebarItem
             href="/candidate/applications"
             label="Applications"
-            icon={<NotepadText size={20} />}
+            icon={<NotebookPen size={20} />}
           />
           <SidebarItem
             href="/candidate/interviews"
             label="Interviews"
-            icon={<NotepadText size={20} />}
+            icon={<MessagesSquare size={20} />}
           />
           <SidebarItem
             href="/candidate/profile"
             label="Profile"
-            icon={<NotepadText size={20} />}
+            icon={<User size={20} />}
           />
         </TopItems>
 

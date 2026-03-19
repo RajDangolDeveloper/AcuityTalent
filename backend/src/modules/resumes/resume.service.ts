@@ -8,6 +8,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateResumeDto } from './dto/create-resume.dto';
 import { UpdateResumeDto } from './dto/update-resume.dto';
 import { ResumeResponseDto } from './dto/resume-response.dto';
+import { FileType } from '@prisma/client';
 
 @Injectable()
 export class ResumeService {
@@ -17,7 +18,6 @@ export class ResumeService {
     createResumeDto: CreateResumeDto,
     userId: number,
   ): Promise<ResumeResponseDto> {
-    // Verify user is a candidate
     const candidate = await this.prisma.candidateProfile.findUnique({
       where: { userId },
     });
@@ -26,13 +26,11 @@ export class ResumeService {
       throw new ForbiddenException('Only candidates can create resumes');
     }
 
-    // Validate file size (max 5MB)
-    const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+    const MAX_FILE_SIZE = 10 * 1024 * 1024; // 5MB
     if (createResumeDto.fileSize > MAX_FILE_SIZE) {
-      throw new BadRequestException('Resume file size exceeds 5MB limit');
+      throw new BadRequestException('Resume file size exceeds 10MB limit');
     }
 
-    // Create resume record
     const resume = await this.prisma.resume.create({
       data: {
         candidateId: candidate.id,
@@ -45,7 +43,6 @@ export class ResumeService {
   }
 
   async getResumesByCandidate(id: number): Promise<ResumeResponseDto[]> {
-    // Verify user is a candidate
     const candidate = await this.prisma.candidateProfile.findUnique({
       where: { userId: id },
     });
@@ -75,7 +72,6 @@ export class ResumeService {
       throw new NotFoundException('Resume not found');
     }
 
-    // Verify ownership - candidate can only view their own resumes
     if (resume.candidate.userId !== userId) {
       throw new ForbiddenException(
         'You do not have permission to view this resume',
@@ -122,12 +118,10 @@ export class ResumeService {
       throw new NotFoundException('Resume not found');
     }
 
-    // Verify ownership
     if (resume.candidate.userId !== userId) {
       throw new ForbiddenException('You can only delete your own resumes');
     }
 
-    // Check if resume is used in active applications
     const activeApplications = await this.prisma.application.count({
       where: {
         resumeId: resumeId,
@@ -161,7 +155,6 @@ export class ResumeService {
       throw new NotFoundException('Resume not found');
     }
 
-    // Verify ownership
     if (resume.candidate.userId !== userId) {
       throw new ForbiddenException(
         'You do not have permission to download this resume',
@@ -187,6 +180,48 @@ export class ResumeService {
     return this.prisma.resume.count({
       where: { candidateId: candidate.id },
     });
+  }
+
+  async createFromLocalFile(
+    file: Express.Multer.File,
+    userId: number,
+    textContent: string,
+  ) {
+    console.log('Sending userId:', userId);
+    const candidateProfile = await this.prisma.candidateProfile.findUnique({
+      where: { userId },
+    });
+
+    if (!candidateProfile) {
+      throw new NotFoundException('Candidate profile not found for this user');
+    }
+    const fileType = this.mapMimeToFileType(file.mimetype);
+    const filePath = file.path;
+
+    const resume = await this.prisma.resume.create({
+      data: {
+        candidateId: candidateProfile.id,
+        filePath,
+        fileName: file.originalname,
+        fileType,
+        fileSize: file.size,
+        aiScore: 0,
+        textContent: textContent,
+        uploadedAt: new Date(),
+      },
+    });
+    return resume;
+  }
+
+  private mapMimeToFileType(mime: string): FileType {
+    if (mime === 'application/pdf') return 'PDF';
+    if (mime === 'application/msword') return 'DOC';
+    if (
+      mime ===
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+    )
+      return 'DOCX';
+    return 'PDF'; // fallback
   }
 
   private formatResumeResponse(resume: any): ResumeResponseDto {

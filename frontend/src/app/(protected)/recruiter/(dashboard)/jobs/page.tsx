@@ -40,7 +40,7 @@ export default function JobsPage() {
 
   const groupedJobs = jobs.reduce(
     (acc, job) => {
-      const status = job.status; // e.g., 'ACTIVE'
+      const status = job.status;
       if (!acc[status]) acc[status] = [];
       acc[status].push(job);
       return acc;
@@ -65,7 +65,9 @@ export default function JobsPage() {
   const [expandedStatuses, setExpandedStatuses] = useState<
     Record<string, boolean>
   >(() => ({
-    ACTIVE: true, // expand Active by default
+    ACTIVE: true,
+    DRAFT: true,
+    CLOSED: true,
   }));
 
   const toggleStatus = (status: string) => {
@@ -113,7 +115,7 @@ export default function JobsPage() {
             ) : (
               statusOrder.map((status) => {
                 const statusJobs = groupedJobs[status];
-                if (!statusJobs || statusJobs.length === 0) return null; // skip empty statuses
+                if (!statusJobs || statusJobs.length === 0) return null;
 
                 const isExpanded = expandedStatuses[status] || false;
                 const label = statusLabels[status] || status;

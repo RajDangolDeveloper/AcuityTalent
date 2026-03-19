@@ -1,7 +1,8 @@
-from typing import Optional
+from dotenv import load_dotenv
+load_dotenv()
 
-from qwen_api.client import Qwen
-from qwen_api.types.chat import ChatMessage
+from typing import Optional
+from qwen_api.client import ChatMessage, Qwen
 
 
 class CoverLetterService:

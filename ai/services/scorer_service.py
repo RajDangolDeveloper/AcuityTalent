@@ -1,3 +1,6 @@
+from dotenv import load_dotenv
+load_dotenv()
+
 import spacy
 from spacy.matcher import PhraseMatcher
 from sentence_transformers import SentenceTransformer, util
@@ -6,6 +9,8 @@ class ResumeScorer:
     def __init__(self):
         self.nlp = spacy.load("en_core_web_md")
         self.similarity_model = SentenceTransformer('all-MiniLM-L6-v2')
+
+
         
     def score_resume(self, resume_text: str, jd_text: str):
     

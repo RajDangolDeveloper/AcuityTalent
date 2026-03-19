@@ -5,4 +5,5 @@ sentence-transformers
 spacy
 qwen-api
 dashscope
-qwen-api
+python-dotenv
+pydantic-settings

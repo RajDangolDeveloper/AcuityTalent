@@ -3,10 +3,9 @@ import { ResumeData } from "../candidate/InputResumeDetails";
 
 export const ModernTemplate: React.FC<{ data: ResumeData }> = ({ data }) => {
   return (
-    <div className="max-w-4xl  min-h-screen mx-auto bg-white rounded-lg shadow-lg overflow-hidden">
+    <div className="max-w-4xl min-h-screen mx-auto bg-white rounded-lg shadow-lg overflow-hidden">
       <div className="grid grid-cols-3 gap-0">
-        {/* Sidebar */}
-        <div className="col-span-1 bg-indigo-700 text-white p-6">
+        <div className="col-span-1 min-h-screen bg-indigo-700 text-white p-6">
           <h1 className="text-2xl font-bold">{data.fullName}</h1>
           <div className="mt-6 space-y-3 text-sm">
             {data.email && <div>📧 {data.email}</div>}

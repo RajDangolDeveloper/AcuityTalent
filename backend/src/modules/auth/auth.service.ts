@@ -58,7 +58,6 @@ export class AuthService {
 
       const { passwordHash, ...userWithoutPassword } = user;
 
-      // Generate JWT token
       const accessToken = this.jwtService.sign({
         id: user.id,
         email: user.email,

@@ -11,6 +11,8 @@ import { ApplicationModule } from './modules/applications/applications.module';
 import { CompanyModule } from './modules/companies/company.module';
 import { CandidateModule } from './modules/candidates/candidate.module';
 import { SavedJobModule } from './modules/saved-jobs/saved-job.module';
+import { RecruiterModule } from './modules/recruiters/recruiter.module';
+import { UserModule } from './modules/user/user.module';
 
 @Module({
   imports: [
@@ -25,6 +27,8 @@ import { SavedJobModule } from './modules/saved-jobs/saved-job.module';
     ApplicationModule,
     CompanyModule,
     CandidateModule,
+    RecruiterModule,
+    UserModule,
     SavedJobModule,
   ],
   controllers: [AppController],

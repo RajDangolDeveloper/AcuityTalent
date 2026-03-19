@@ -23,13 +23,11 @@ export default function ResumesPage() {
   };
 
   const handleDelete = (resumeId: number) => {
-    // TODO: Implement delete logic
     useDeleteResume(resumeId);
   };
   return (
     <div className="relative h-dvh w-full flex">
-      {/* This is the secondary sidebar for the list of resumes available */}
-      <div className="min-h-dvh w-full max-w-96 border-r flex justify-center items-center">
+      <div className="min-h-dvh w-full  max-w-80 flex justify-center items-center">
         {isLoading && (
           <div className="font-medium text-lg">Loading Resumes...</div>
         )}
@@ -42,7 +40,11 @@ export default function ResumesPage() {
         )}
 
         {resume && resume.length > 0 && (
-          <CustomSidebar className="border-r" variant="secondary">
+          <CustomSidebar
+            className="border-r"
+            variant="secondary"
+            defaultCollapsed={false}
+          >
             {resume?.map((resume, id) => (
               <div
                 className="border border-l-0 border-r-0 border-solid border-gray-800 flex justify-between py-3 px-4 cursor-pointer hover:bg-gray-100"
@@ -82,7 +84,6 @@ export default function ResumesPage() {
           No Resume selected
         </div>
       )}
-      {/* This is the Detailed View of said resume */}
       {selectedResumeID !== 0 && resume && (
         <div className="h-full w-full overflow-auto p-4">
           <Markdown>
@@ -90,7 +91,6 @@ export default function ResumesPage() {
           </Markdown>
         </div>
       )}
-      {/* This is the button for creating a resume*/}
       <Link href="/candidate/resumes/create">
         <button className="absolute bottom-2 right-2 p-4 rounded-md bg-primary-500 text-gray-100 font-semibold">
           Create Resume

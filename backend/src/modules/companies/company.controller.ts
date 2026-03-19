@@ -9,24 +9,22 @@ import {
   Query,
   HttpStatus,
   HttpCode,
+  UseGuards,
 } from '@nestjs/common';
 import { CompanyService } from './company.service';
 import { CreateCompanyDto } from './dto/create-company.dto';
 import { UpdateCompanyDto } from './dto/update-company.dto';
 import { GetCompaniesQueryDto } from './dto/get-companies-query.dto';
 import { CompanyResponseDto } from './dto/company-response.dto';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { CompanyNameResponseDto } from './dto/company-name-response.dto';
+import { UserService } from '../user/user.service';
 
-/**
- * CompanyController - RESTful API endpoints for company management
- */
 @Controller('companies')
+@UseGuards(JwtAuthGuard)
 export class CompanyController {
   constructor(private companyService: CompanyService) {}
 
-  /**
-   * POST /companies
-   * Creates a new company
-   */
   @Post()
   @HttpCode(HttpStatus.CREATED)
   async createCompany(
@@ -40,10 +38,19 @@ export class CompanyController {
     };
   }
 
-  /**
-   * GET /companies
-   * Get all companies with filters and pagination
-   */
+  @Get('names')
+  async getAllCompaniesNames(@Query() query: GetCompaniesQueryDto): Promise<{
+    statusCode: number;
+    data: CompanyNameResponseDto[];
+  }> {
+    const { data } = await this.companyService.getAllCompaniesNames(query);
+
+    return {
+      statusCode: HttpStatus.OK,
+      data,
+    };
+  }
+
   @Get()
   async getAllCompanies(@Query() query: GetCompaniesQueryDto): Promise<{
     statusCode: number;
@@ -64,10 +71,6 @@ export class CompanyController {
     };
   }
 
-  /**
-   * GET /companies/:id
-   * Get single company details
-   */
   @Get(':id')
   async getCompanyById(
     @Param('id') id: string,
@@ -80,10 +83,18 @@ export class CompanyController {
     };
   }
 
-  /**
-   * PATCH /companies/:id
-   * Update company details
-   */
+  @Get('user/:id')
+  async getCompanyByUserId(
+    @Param('id') id: string,
+  ): Promise<{ statusCode: number; data: CompanyResponseDto }> {
+    const company = await this.companyService.getCompanyByUserId(parseInt(id));
+
+    return {
+      statusCode: HttpStatus.OK,
+      data: company.data,
+    };
+  }
+
   @Patch(':id')
   async updateCompany(
     @Param('id') id: string,
@@ -100,10 +111,6 @@ export class CompanyController {
     };
   }
 
-  /**
-   * DELETE /companies/:id
-   * Delete a company
-   */
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteCompany(@Param('id') id: string): Promise<void> {

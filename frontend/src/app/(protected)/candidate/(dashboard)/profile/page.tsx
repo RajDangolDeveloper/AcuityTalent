@@ -14,10 +14,16 @@ import {
   useDeleteEducation,
 } from "@/src/hooks/useCandidateApi";
 import { useRecruiterCompanies } from "@/src/hooks/useRecruiterApi";
-import { CandidateProfile, WorkExperience, Education } from "@/src/types/candidate";
+import {
+  CandidateProfile,
+  WorkExperience,
+  Education,
+} from "@/src/types/candidate";
+import { useGetUser } from "@/src/hooks/useUserApi";
 
 export default function CandidateProfilePage() {
   const { data: profile } = useCandidateProfile();
+  const { data: user } = useGetUser();
   const { data: experiences } = useCandidateWorkExperiences();
   const { data: educations } = useCandidateEducations();
   const { data: companies } = useRecruiterCompanies();
@@ -58,9 +64,8 @@ export default function CandidateProfilePage() {
 
   const [newSkill, setNewSkill] = useState("");
 
-  const [editingExperience, setEditingExperience] = useState<WorkExperience | null>(
-    null,
-  );
+  const [editingExperience, setEditingExperience] =
+    useState<WorkExperience | null>(null);
   const [experienceForm, setExperienceForm] = useState({
     company: "",
     position: "",
@@ -70,7 +75,9 @@ export default function CandidateProfilePage() {
     description: "",
   });
 
-  const [editingEducation, setEditingEducation] = useState<Education | null>(null);
+  const [editingEducation, setEditingEducation] = useState<Education | null>(
+    null,
+  );
   const [educationForm, setEducationForm] = useState({
     institution: "",
     degree: "",
@@ -175,7 +182,9 @@ export default function CandidateProfilePage() {
             <div className="flex items-center gap-6 mb-6">
               <div className="w-24 h-24 rounded-full bg-gray-200 border-4 border-white shadow" />
               <div>
-                <h1 className="text-xl font-semibold text-gray-900">Raj Dangol</h1>
+                <h1 className="text-xl font-semibold text-gray-900">
+                  Raj Dangol
+                </h1>
               </div>
             </div>
 
@@ -228,7 +237,7 @@ export default function CandidateProfilePage() {
                   <input
                     className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#433875]"
                     type="email"
-                    defaultValue={profile?.userEmail ?? ""}
+                    defaultValue={user?.contactEmail ?? ""}
                   />
                 </div>
                 <div>
@@ -240,7 +249,10 @@ export default function CandidateProfilePage() {
                     type="text"
                     value={profileForm.headline ?? ""}
                     onChange={(e) =>
-                      setProfileForm((prev) => ({ ...prev, headline: e.target.value }))
+                      setProfileForm((prev) => ({
+                        ...prev,
+                        headline: e.target.value,
+                      }))
                     }
                   />
                 </div>
@@ -414,7 +426,9 @@ export default function CandidateProfilePage() {
 
             {/* Experience */}
             <div className="mt-8 bg-white rounded-xl border border-gray-200 p-6 space-y-4">
-              <h2 className="text-lg font-semibold text-gray-900">Experience</h2>
+              <h2 className="text-lg font-semibold text-gray-900">
+                Experience
+              </h2>
               <div className="space-y-3">
                 {experiences?.map((exp) => (
                   <div
@@ -432,7 +446,9 @@ export default function CandidateProfilePage() {
                           : exp.endDate?.toString().slice(0, 10) || "N/A"}
                       </p>
                       {exp.description && (
-                        <p className="mt-1 text-xs text-gray-700">{exp.description}</p>
+                        <p className="mt-1 text-xs text-gray-700">
+                          {exp.description}
+                        </p>
                       )}
                     </div>
                     <div className="flex gap-2">
@@ -597,7 +613,9 @@ export default function CandidateProfilePage() {
                         {edu.endDate?.toString().slice(0, 10) || "Present"}
                       </p>
                       {edu.fieldOfStudy && (
-                        <p className="text-xs text-gray-700">{edu.fieldOfStudy}</p>
+                        <p className="text-xs text-gray-700">
+                          {edu.fieldOfStudy}
+                        </p>
                       )}
                     </div>
                     <div className="flex gap-2">
@@ -611,7 +629,9 @@ export default function CandidateProfilePage() {
                             degree: edu.degree,
                             fieldOfStudy: edu.fieldOfStudy || "",
                             startDate: edu.startDate.slice(0, 10),
-                            endDate: edu.endDate ? edu.endDate.slice(0, 10) : "",
+                            endDate: edu.endDate
+                              ? edu.endDate.slice(0, 10)
+                              : "",
                             gpa: edu.gpa?.toString() || "",
                             description: edu.description || "",
                           });
@@ -772,4 +792,3 @@ export default function CandidateProfilePage() {
     </div>
   );
 }
-

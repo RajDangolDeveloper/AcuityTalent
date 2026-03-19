@@ -45,6 +45,14 @@ export const HomeNavigationBar = () => {
             Login
           </Link>
         )}
+        {session && (
+          <Link
+            href={`/${session.user.role.toLowerCase()}/dashboard`}
+            className="px-6 text-xl text-gray-200 rounded-md decoration-2"
+          >
+            Dashboard
+          </Link>
+        )}
       </ul>
     </nav>
   );
