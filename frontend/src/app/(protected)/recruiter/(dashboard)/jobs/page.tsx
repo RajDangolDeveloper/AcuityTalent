@@ -10,6 +10,7 @@ import {
   useDeleteJob,
   useGetRecruiterJobs,
   useJobApplications,
+  useUpdateJobStatus,
 } from "@/src/hooks/useRecruiterApi";
 import {
   Briefcase,
@@ -81,6 +82,14 @@ export default function JobsPage() {
   };
 
   const { mutate: deleteJob, isPending } = useDeleteJob();
+  const { mutate: updateJobStatus } = useUpdateJobStatus();
+
+  const handleJobStatusUpdate = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    if (selectedJobId) {
+      updateJobStatus({ id: selectedJobId, status: e.target.value });
+    }
+  };
+
   const handleJobDelete = () => {
     if (selectedJobId) {
       deleteJob(selectedJobId);
@@ -207,14 +216,26 @@ export default function JobsPage() {
                   )}
                 </div>
               </div>
-              <div className="">
+              <div className="flex gap-4">
+                <select
+                  className="rounded-md border text-center"
+                  defaultValue={selectedJob.status}
+                  name="jobStatus"
+                  onChange={handleJobStatusUpdate}
+                >
+                  {statusOrder.map((status) => (
+                    <option key={status} value={status}>
+                      {status}
+                    </option>
+                  ))}
+                </select>
                 <button
                   onClick={() => {
                     handleJobDelete();
                   }}
                   className="border border-red-500 text-red-500 font-bold h-16 px-8 py-4 rounded-xl hover:bg-red-50 transition-colors text-lg"
                 >
-                  Close Job
+                  Delete Job
                 </button>
               </div>
             </div>

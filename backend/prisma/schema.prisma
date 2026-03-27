@@ -151,6 +151,7 @@ model Company {
   logoUrl       String?
   backgroundImgUrl String?
   websiteUrl    String?
+  companyEmail  String
   companySize   CompanySize?
   industry      Industry?
   officeAddress String?

@@ -147,7 +147,7 @@ export const useCreateCandidateProfile = () => {
     }) => {
       try {
         const response = await apiClient.post<SingleResponse<CandidateProfile>>(
-          "/candidates/profile",
+          "/candidates/profile/create",
           {
             headline,
             currentPosition,
@@ -300,10 +300,9 @@ export const useCandidateProfile = () => {
     queryFn: async () => {
       console.log("[useCandidateProfile] Fetching candidate profile");
       try {
-        const response =
-          await apiClient.get<SingleResponse<CandidateProfile>>(
-            "/candidates/profile",
-          );
+        const response = await apiClient.get<SingleResponse<CandidateProfile>>(
+          "/candidates/profile",
+        );
         console.log("[useCandidateProfile] Success:", response.data.data);
         return response.data.data;
       } catch (error) {
@@ -327,6 +326,9 @@ export const useUpdateCandidateProfile = () => {
         highestDegree: string;
         skills: string[];
         preferredLocation: string;
+        summary: string;
+        phone: string;
+        location: string;
         preferredJobType: EmploymentType;
         expectedSalary: number;
         linkedinUrl: string;
@@ -334,10 +336,9 @@ export const useUpdateCandidateProfile = () => {
       }>,
     ) => {
       try {
-        const response = await apiClient.patch<SingleResponse<CandidateProfile>>(
-          "/candidates/profile",
-          payload,
-        );
+        const response = await apiClient.patch<
+          SingleResponse<CandidateProfile>
+        >("/candidates/profile", payload);
         return response.data.data;
       } catch (error) {
         console.error("[useUpdateCandidateProfile] Error:", error);
@@ -375,9 +376,9 @@ export const useCandidateWorkExperiences = () => {
     queryFn: async () => {
       console.log("[useCandidateWorkExperiences] Fetching work experiences");
       try {
-        const response = await apiClient.get<
-          SingleResponse<WorkExperience[]>
-        >("/candidates/work-experience");
+        const response = await apiClient.get<SingleResponse<WorkExperience[]>>(
+          "/candidates/work-experience",
+        );
         return response.data.data;
       } catch (error) {
         console.error("[useCandidateWorkExperiences] Error:", error);
@@ -400,9 +401,10 @@ export const useCreateWorkExperience = () => {
       description?: string;
     }) => {
       try {
-        const response = await apiClient.post<
-          SingleResponse<WorkExperience>
-        >("/candidates/work-experience", payload);
+        const response = await apiClient.post<SingleResponse<WorkExperience>>(
+          "/candidates/work-experience",
+          payload,
+        );
         return response.data.data;
       } catch (error) {
         console.error("[useCreateWorkExperience] Error:", error);
@@ -434,9 +436,10 @@ export const useUpdateWorkExperience = () => {
       description?: string;
     }) => {
       try {
-        const response = await apiClient.patch<
-          SingleResponse<WorkExperience>
-        >(`/candidates/work-experience/${id}`, payload);
+        const response = await apiClient.patch<SingleResponse<WorkExperience>>(
+          `/candidates/work-experience/${id}`,
+          payload,
+        );
         return response.data.data;
       } catch (error) {
         console.error("[useUpdateWorkExperience] Error:", error);

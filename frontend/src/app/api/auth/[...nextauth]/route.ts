@@ -8,12 +8,14 @@ declare module "next-auth" {
     user: {
       id: string;
       role: string;
+      isOnboarded: boolean;
     } & DefaultSession["user"];
     accessToken?: string;
   }
   interface User {
     role: string;
     access_token?: string;
+    isOnboarded: boolean;
   }
 }
 
@@ -57,6 +59,7 @@ export const authOptions: NextAuthOptions = {
             id: userData.id,
             email: userData.email,
             role: userData.role,
+            isOnboarded: userData.isOnboarded,
             access_token: userData.access_token,
           };
         } catch (error) {
@@ -67,10 +70,28 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger }) {
       if (user) {
         token.accessToken = user.access_token;
         token.role = user.role;
+        token.isOnboarded = user.isOnboarded;
+      }
+
+      console.log("jwt callback", { trigger, tokenId: token.id });
+
+      if (trigger === "update" && token.id) {
+        try {
+          const response = await apiClient.get("/users/current");
+          const freshUser = response.data;
+          if (freshUser) {
+            token.isOnboarded = freshUser.isOnboarded;
+          }
+        } catch (error) {
+          console.error(
+            "Failed to fetch fresh user data for session update:",
+            error,
+          );
+        }
       }
 
       return token;
@@ -80,13 +101,14 @@ export const authOptions: NextAuthOptions = {
         session.user.id = token.sub || "";
         session.user.role = token.role as string;
         session.accessToken = token.accessToken as string;
+        session.user.isOnboarded = token.isOnboarded as boolean;
       }
       return session;
     },
   },
   session: {
     strategy: "jwt",
-    maxAge: 24 * 60 * 60,
+    maxAge: 23 * 60 * 60,
   },
 };
 

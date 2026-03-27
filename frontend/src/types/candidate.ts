@@ -47,20 +47,24 @@ export interface JobDetails extends Job {
   recruiterEmail?: string;
 }
 
-// Candidate's application
+// Candidate's application (matches backend ApplicationResponseDto)
 export interface CandidateApplication {
   id: number;
+  candidateId: number;
   jobId: number;
-  jobTitle: string;
-  companyName: string;
-  location: string;
-  employmentType: EmploymentType;
+  resumeId: number;
   status: ApplicationStatus;
+  coverLetter?: string;
   matchScore?: number;
   appliedAt: string;
-  resumeFileName?: string;
-  coverLetter?: string;
   reviewedAt?: string;
+  updatedAt: string;
+  // Joined fields
+  candidateName?: string;
+  candidateEmail?: string;
+  jobTitle?: string;
+  companyName?: string;
+  resumeFileName?: string;
 }
 
 // Resume info for application

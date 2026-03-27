@@ -19,7 +19,6 @@ export class JobService {
     createJobDto: CreateJobDto,
     recruiterId: number,
   ): Promise<JobResponseDto> {
-    // Check if recruiter exists and get their company
     const recruiter = await this.prisma.recruiterProfile.findUnique({
       where: { userId: recruiterId },
     });
@@ -248,6 +247,13 @@ export class JobService {
 
     await this.prisma.job.delete({
       where: { id },
+    });
+  }
+
+  async updateJobStatus(id: number, status: JobStatus) {
+    return this.prisma.job.update({
+      where: { id: id },
+      data: { status: status },
     });
   }
 

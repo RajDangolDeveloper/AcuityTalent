@@ -4,13 +4,10 @@ import {
   MinLength,
   MaxLength,
   IsEnum,
+  IsNumber,
 } from 'class-validator';
-import { EmploymentType, ExperienceLevel } from '@prisma/client';
+import { EmploymentType, ExperienceLevel, LocationType } from '@prisma/client';
 
-/**
- * DTO for creating a new job
- * Maps to: Step 6 in sequence diagram - Recruiter creates job
- */
 export class CreateJobDto {
   @IsString()
   @MinLength(5)
@@ -39,6 +36,9 @@ export class CreateJobDto {
   @IsString()
   @MinLength(3)
   location: string;
+
+  @IsEnum(LocationType)
+  locationType;
 
   @IsOptional()
   remoteAvailable?: boolean;

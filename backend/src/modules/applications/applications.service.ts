@@ -13,11 +13,6 @@ import { GetApplicationsQueryDto } from './dto/get-applications-query.dto';
 import { ApplicationResponseDto } from './dto/application-response.dto';
 import { ApplicationStatus, Role, JobStatus } from '@prisma/client';
 
-/**
- * ApplicationService - Handles all application-related business logic
- * Covers: Application creation, status updates, querying, and notifications
- * Maps to sequence diagram steps: 11, 13-31
- */
 @Injectable()
 export class ApplicationService {
   constructor(
@@ -25,10 +20,6 @@ export class ApplicationService {
     private emailService: EmailService,
   ) {}
 
-  /**
-   * Step 11: Candidate submits job application
-   * Creates a new application record and checks for duplicates
-   */
   async createApplication(
     createApplicationDto: CreateApplicationDto,
     userId: number,
@@ -43,13 +34,10 @@ export class ApplicationService {
       throw new ForbiddenException('Only candidates can apply for jobs');
     }
 
-    // Verify job exists and is active
     const job = await this.prisma.job.findUnique({
       where: { id: createApplicationDto.jobId },
       include: { recruiter: { include: { company: true, user: true } } },
     });
-
-    console.log(job);
 
     if (!job) {
       throw new NotFoundException('Job not found');
@@ -61,7 +49,6 @@ export class ApplicationService {
       );
     }
 
-    // Verify resume exists and belongs to candidate
     const resume = await this.prisma.resume.findUnique({
       where: { id: createApplicationDto.resumeId },
     });
@@ -70,7 +57,6 @@ export class ApplicationService {
       throw new NotFoundException('Resume not found or does not belong to you');
     }
 
-    // Check for duplicate application
     const existingApplication = await this.prisma.application.findUnique({
       where: {
         candidateId_jobId: {
@@ -84,7 +70,6 @@ export class ApplicationService {
       throw new ConflictException('You have already applied for this job');
     }
 
-    // Create application
     const application = await this.prisma.application.create({
       data: {
         candidateId: candidate.id,
@@ -101,8 +86,6 @@ export class ApplicationService {
       },
     });
 
-    // Step 12: Notification - New applicant notifies recruiter
-    // Send email to recruiter about new application
     await this.sendApplicationNotificationEmail(
       application,
       job.recruiter.user.email,
@@ -111,15 +94,10 @@ export class ApplicationService {
     return this.formatApplicationResponse(application);
   }
 
-  /**
-   * Step 13-14: Recruiter retrieves all applications for their jobs
-   * With filtering, pagination, and sorting
-   */
   async getApplicationsForRecruiter(
     userId: number,
     query: GetApplicationsQueryDto,
   ): Promise<{ data: ApplicationResponseDto[]; total: number }> {
-    // Verify recruiter
     const recruiter = await this.prisma.recruiterProfile.findUnique({
       where: { userId },
     });
@@ -143,10 +121,8 @@ export class ApplicationService {
       where.jobId = query.jobId;
     }
 
-    // Get total count
     const total = await this.prisma.application.count({ where });
 
-    // Get paginated results
     const applications = await this.prisma.application.findMany({
       where,
       include: {
@@ -165,15 +141,10 @@ export class ApplicationService {
     };
   }
 
-  /**
-   * Step 8-12: Candidate retrieves their own applications
-   * Shows job search page and their application history
-   */
   async getApplicationsForCandidate(
     userId: number,
     query: GetApplicationsQueryDto,
   ): Promise<{ data: ApplicationResponseDto[]; total: number }> {
-    // Verify candidate
     const candidate = await this.prisma.candidateProfile.findUnique({
       where: { userId },
     });
@@ -184,7 +155,6 @@ export class ApplicationService {
       );
     }
 
-    // Build filter
     const where: any = {
       candidateId: candidate.id,
     };
@@ -193,10 +163,8 @@ export class ApplicationService {
       where.status = query.status;
     }
 
-    // Get total count
     const total = await this.prisma.application.count({ where });
 
-    // Get paginated results
     const applications = await this.prisma.application.findMany({
       where,
       include: {
@@ -215,10 +183,6 @@ export class ApplicationService {
     };
   }
 
-  /**
-   * Get single application details
-   * Used by both recruiter and candidate
-   */
   async getApplicationById(
     applicationId: number,
     userId: number,
@@ -236,7 +200,6 @@ export class ApplicationService {
       throw new NotFoundException('Application not found');
     }
 
-    // Verify authorization - candidate or recruiter of the job
     const recruiter = await this.prisma.recruiterProfile.findUnique({
       where: { userId },
     });
@@ -258,10 +221,6 @@ export class ApplicationService {
     return this.formatApplicationResponse(application);
   }
 
-  /**
-   * Step 16: Recruiter shortlists candidate
-   * Updates application status and sends shortlist email
-   */
   async shortlistApplication(
     applicationId: number,
     userId: number,
@@ -273,10 +232,6 @@ export class ApplicationService {
     );
   }
 
-  /**
-   * Step 20-21: Interview process
-   * Updates application to interviewing status
-   */
   async updateToInterviewing(
     applicationId: number,
     userId: number,
@@ -288,10 +243,6 @@ export class ApplicationService {
     );
   }
 
-  /**
-   * Step 22: Accept candidate (Offer extended)
-   * Updates application status and sends offer email
-   */
   async acceptApplication(
     applicationId: number,
     userId: number,
@@ -303,10 +254,6 @@ export class ApplicationService {
     );
   }
 
-  /**
-   * Step 25 & 28: Reject candidate
-   * Updates application status and sends rejection email
-   */
   async rejectApplication(
     applicationId: number,
     userId: number,
@@ -318,10 +265,6 @@ export class ApplicationService {
     );
   }
 
-  /**
-   * Candidate accepts offer
-   * Updates application status to accepted
-   */
   async acceptOffer(
     applicationId: number,
     userId: number,
@@ -333,10 +276,6 @@ export class ApplicationService {
     );
   }
 
-  /**
-   * Candidate withdraws application
-   * Can only withdraw before accepted
-   */
   async withdrawApplication(
     applicationId: number,
     userId: number,
@@ -367,9 +306,6 @@ export class ApplicationService {
     );
   }
 
-  /**
-   * Internal: Update application status with validation
-   */
   private async updateApplicationStatus(
     applicationId: number,
     newStatus: ApplicationStatus,
@@ -390,7 +326,6 @@ export class ApplicationService {
       throw new NotFoundException('Application not found');
     }
 
-    // Verify authorization
     const recruiter = await this.prisma.recruiterProfile.findUnique({
       where: { userId },
     });
@@ -409,10 +344,8 @@ export class ApplicationService {
       );
     }
 
-    // Validate status transitions
     this.validateStatusTransition(application.status, newStatus, isRecruiter);
 
-    // Update application
     const updatedApplication = await this.prisma.application.update({
       where: { id: applicationId },
       data: {
@@ -430,15 +363,11 @@ export class ApplicationService {
       },
     });
 
-    // Send notification emails based on status change
     await this.handleStatusChangeNotifications(updatedApplication, newStatus);
 
     return this.formatApplicationResponse(updatedApplication);
   }
 
-  /**
-   * Validate status transitions (FSM)
-   */
   private validateStatusTransition(
     currentStatus: ApplicationStatus,
     newStatus: ApplicationStatus,
@@ -465,9 +394,6 @@ export class ApplicationService {
     }
   }
 
-  /**
-   * Send appropriate email notifications based on status
-   */
   private async handleStatusChangeNotifications(
     application: any,
     newStatus: ApplicationStatus,
@@ -479,7 +405,6 @@ export class ApplicationService {
     try {
       switch (newStatus) {
         case ApplicationStatus.SHORTLISTED:
-          // Step 18: Send shortlist email
           await this.emailService.sendShortlistEmail({
             email: candidateEmail,
             jobTitle,
@@ -488,7 +413,6 @@ export class ApplicationService {
           break;
 
         case ApplicationStatus.OFFER_EXTENDED:
-          // Step 23: Send hiring email
           await this.emailService.sendOfferEmail({
             email: candidateEmail,
             jobTitle,
@@ -497,7 +421,6 @@ export class ApplicationService {
           break;
 
         case ApplicationStatus.REJECTED:
-          // Steps 26, 30: Send rejection email
           await this.emailService.sendRejectionEmail({
             email: candidateEmail,
             jobTitle,
@@ -506,14 +429,10 @@ export class ApplicationService {
           break;
       }
     } catch (error) {
-      // Log error but don't fail the request
       console.error('Failed to send notification email:', error);
     }
   }
 
-  /**
-   * Send notification to recruiter about new application
-   */
   private async sendApplicationNotificationEmail(
     application: any,
     recruiterEmail: string,
@@ -530,9 +449,6 @@ export class ApplicationService {
     }
   }
 
-  /**
-   * Format application for API response
-   */
   private formatApplicationResponse(application: any): ApplicationResponseDto {
     return {
       id: application.id,
@@ -553,9 +469,6 @@ export class ApplicationService {
     };
   }
 
-  /**
-   * Get application statistics for recruiter dashboard
-   */
   async getApplicationStats(userId: number): Promise<any> {
     const recruiter = await this.prisma.recruiterProfile.findUnique({
       where: { userId },
@@ -581,9 +494,6 @@ export class ApplicationService {
     }, {});
   }
 
-  /**
-   * Get candidates for a specific job (recruiter view)
-   */
   async getCandidatesForJob(
     jobId: number,
     userId: number,

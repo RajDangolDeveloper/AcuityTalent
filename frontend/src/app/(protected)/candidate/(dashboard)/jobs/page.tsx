@@ -39,8 +39,8 @@ export default function CandidateJobsPage() {
     search: searchTerm,
   });
 
-  const { data: savedJobsData } = useCandidateSavedJobs(1, 100);
-  const { data: applicationsData } = useCandidateApplications(1, 100);
+  const { data: savedJobsData } = useCandidateSavedJobs(1, 50);
+  const { data: applicationsData } = useCandidateApplications(1, 50);
   const { data: selectedJob, isLoading: selectedJobLoading } =
     useJobDetails(selectedJobId);
   const { data: resumes = [] } = useCandidateResumes();

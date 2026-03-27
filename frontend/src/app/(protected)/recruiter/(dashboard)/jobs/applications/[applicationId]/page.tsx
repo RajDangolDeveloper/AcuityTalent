@@ -92,7 +92,7 @@ export default function ApplicationDetailPage() {
             <div className="flex items-start justify-between mb-4">
               <div>
                 <h2 className="text-3xl font-bold text-gray-900">
-                  {candidate.name}
+                  {candidate?.name || ""}
                 </h2>
               </div>
               {application.matchScore && (
@@ -106,41 +106,41 @@ export default function ApplicationDetailPage() {
             <div className="space-y-2 text-sm text-gray-600">
               <div className="flex items-center gap-2">
                 <Mail className="w-4 h-4" />
-                <span>{candidate.email}</span>
+                <span>{candidate?.email || ""}</span>
               </div>
-              {candidate.phone && (
+              {candidate?.phone && (
                 <div className="flex items-center gap-2">
                   <Phone className="w-4 h-4" />
-                  <span>{candidate.phone}</span>
+                  <span>{candidate?.phone || ""}</span>
                 </div>
               )}
-              {candidate.location && (
+              {candidate?.location && (
                 <div className="flex items-center gap-2">
                   <MapPin className="w-4 h-4" />
-                  <span>{candidate.location}</span>
+                  <span>{candidate?.location || ""}</span>
                 </div>
               )}
             </div>
 
             {/* Summary */}
-            {candidate.summary && (
+            {candidate?.summary && (
               <div className="mt-6">
                 <h3 className="font-semibold text-gray-900 mb-2">Summary</h3>
                 <p className="text-gray-600 text-sm leading-relaxed">
-                  {candidate.summary}
+                  {candidate?.summary || ""}
                 </p>
               </div>
             )}
 
             {/* Experience and Applied */}
             <div className="flex items-center gap-8 mt-6 pt-4 border-t border-gray-200">
-              {candidate.yearsOfExperience !== undefined && (
+              {candidate?.yearsOfExperience !== undefined && (
                 <div>
                   <p className="text-gray-600 text-sm font-medium">
                     Experience
                   </p>
                   <p className="text-lg font-bold text-gray-900">
-                    {candidate.yearsOfExperience} Years
+                    {candidate?.yearsOfExperience || ""} Years
                   </p>
                 </div>
               )}
@@ -159,11 +159,11 @@ export default function ApplicationDetailPage() {
           {/* Content Sections */}
           <div className="p-8 space-y-8">
             {/* Skills */}
-            {candidate.skills && candidate.skills.length > 0 && (
+            {candidate?.skills && candidate?.skills.length > 0 && (
               <section>
                 <h3 className="text-lg font-bold text-gray-900 mb-4">Skills</h3>
                 <div className="flex flex-wrap gap-2">
-                  {candidate.skills.map((skill, index) => (
+                  {candidate?.skills.map((skill, index) => (
                     <span
                       key={index}
                       className="bg-[#483d8b] text-white px-3 py-1.5 rounded-full text-sm font-medium"
@@ -174,16 +174,14 @@ export default function ApplicationDetailPage() {
                 </div>
               </section>
             )}
-
-            {/* Work Experience */}
-            {candidate.workExperience &&
-              candidate.workExperience.length > 0 && (
+            {candidate?.workExperience &&
+              candidate?.workExperience.length > 0 && (
                 <section>
                   <h3 className="text-lg font-bold text-gray-900 mb-4">
                     Work Experience
                   </h3>
                   <div className="space-y-6">
-                    {candidate.workExperience.map((exp) => {
+                    {candidate?.workExperience.map((exp) => {
                       const start = new Date(exp.startDate).getFullYear();
                       const end = exp.currentlyWorking
                         ? "Present"
@@ -208,15 +206,14 @@ export default function ApplicationDetailPage() {
                   </div>
                 </section>
               )}
-
-            {/* Education */}
-            {candidate.education && candidate.education.length > 0 && (
+            =
+            {candidate?.education && candidate?.education.length > 0 && (
               <section>
                 <h3 className="text-lg font-bold text-gray-900 mb-4">
                   Education
                 </h3>
                 <div className="space-y-3">
-                  {candidate.education.map((edu) => (
+                  {candidate?.education.map((edu) => (
                     <div
                       key={edu.id}
                       className="bg-gray-50 p-4 rounded-lg border border-gray-100"

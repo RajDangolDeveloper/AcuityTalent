@@ -9,6 +9,8 @@ import { JwtStrategy } from './strategies/jwt.strategy';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { PasswordService } from 'src/config/password.service';
 import { EmailService } from 'src/config/email.service';
+import { CandidateService } from '../candidates/candidate.service';
+import { RecruiterService } from '../recruiters/recruiter.service';
 
 @Module({
   imports: [
@@ -31,6 +33,8 @@ import { EmailService } from 'src/config/email.service';
     PrismaService,
     PasswordService,
     EmailService,
+    CandidateService,
+    RecruiterService,
     JwtStrategy,
     JwtAuthGuard,
   ],

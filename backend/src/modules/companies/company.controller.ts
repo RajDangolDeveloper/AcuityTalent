@@ -10,6 +10,7 @@ import {
   HttpStatus,
   HttpCode,
   UseGuards,
+  Req,
 } from '@nestjs/common';
 import { CompanyService } from './company.service';
 import { CreateCompanyDto } from './dto/create-company.dto';
@@ -18,7 +19,6 @@ import { GetCompaniesQueryDto } from './dto/get-companies-query.dto';
 import { CompanyResponseDto } from './dto/company-response.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CompanyNameResponseDto } from './dto/company-name-response.dto';
-import { UserService } from '../user/user.service';
 
 @Controller('companies')
 @UseGuards(JwtAuthGuard)
@@ -71,6 +71,18 @@ export class CompanyController {
     };
   }
 
+  @Get('recruiter')
+  async getCompanyByUser(
+    @Req() req,
+  ): Promise<{ statusCode: number; data: CompanyResponseDto }> {
+    const company = await this.companyService.getRecruiterCompany(req.user.id);
+
+    return {
+      statusCode: HttpStatus.OK,
+      data: company,
+    };
+  }
+
   @Get(':id')
   async getCompanyById(
     @Param('id') id: string,
@@ -80,18 +92,6 @@ export class CompanyController {
     return {
       statusCode: HttpStatus.OK,
       data: company,
-    };
-  }
-
-  @Get('user/:id')
-  async getCompanyByUserId(
-    @Param('id') id: string,
-  ): Promise<{ statusCode: number; data: CompanyResponseDto }> {
-    const company = await this.companyService.getCompanyByUserId(parseInt(id));
-
-    return {
-      statusCode: HttpStatus.OK,
-      data: company.data,
     };
   }
 

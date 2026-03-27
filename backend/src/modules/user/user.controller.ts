@@ -7,12 +7,16 @@ import {
   Param,
   Delete,
   ParseIntPipe,
+  UseGuards,
+  Req,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/createUser.dto';
 import { UpdateUserDto } from './dto/updateUser.dto';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @Controller('users')
+@UseGuards(JwtAuthGuard)
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
@@ -21,7 +25,12 @@ export class UserController {
     return this.userService.createUser(createUserDto);
   }
 
-  @Get()
+  @Get('current')
+  async getCurrentUsers(@Req() req) {
+    return this.userService.getCurrentUser(req.user.id);
+  }
+
+  @Get('all')
   async getAllUsers() {
     return this.userService.getAllUsers();
   }

@@ -2,10 +2,6 @@ import { IsEnum, IsOptional, IsInt, Min, Max, IsString } from 'class-validator';
 import { EmploymentType, ExperienceLevel, JobStatus } from '@prisma/client';
 import { Type } from 'class-transformer';
 
-/**
- * DTO for querying jobs with filters
- * Used for job search and listing
- */
 export class GetJobsQueryDto {
   @IsOptional()
   @IsString()

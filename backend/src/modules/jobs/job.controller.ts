@@ -11,6 +11,7 @@ import {
   Req,
   HttpStatus,
   HttpCode,
+  NotFoundException,
 } from '@nestjs/common';
 import { JobService } from './job.service';
 import { CreateJobDto } from './dto/create-job.dto';
@@ -18,13 +19,30 @@ import { UpdateJobDto } from './dto/update-job.dto';
 import { GetJobsQueryDto } from './dto/get-jobs-query.dto';
 import { JobResponseDto } from './dto/job-response.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { updateJobStatusDto } from './dto/update-job-status.dto';
 
 @Controller('jobs')
+@UseGuards(JwtAuthGuard)
 export class JobController {
   constructor(private jobService: JobService) {}
 
+  @Patch('/status')
+  async updateJobStatus(@Body() updateJobStatus: updateJobStatusDto) {
+    const findJob = await this.jobService.getJobById(updateJobStatus.id);
+
+    if (!findJob) {
+      throw new NotFoundException(
+        `Job with ID ${updateJobStatus.id} not found`,
+      );
+    }
+
+    return this.jobService.updateJobStatus(
+      updateJobStatus.id,
+      updateJobStatus.status,
+    );
+  }
+
   @Post()
-  @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.CREATED)
   async createJob(
     @Body() createJobDto: CreateJobDto,

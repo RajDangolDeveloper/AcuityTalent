@@ -69,6 +69,14 @@ export class UserService {
     }
   }
 
+  async getCurrentUser(id: number) {
+    return this.prisma.user.findUnique({
+      where: {
+        id: id,
+      },
+    });
+  }
+
   async getAllUsers() {
     return this.prisma.user.findMany({
       select: userSelectFields,

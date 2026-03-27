@@ -13,13 +13,14 @@ import {
   useUpdateEducation,
   useDeleteEducation,
 } from "@/src/hooks/useCandidateApi";
-import { useRecruiterCompanies } from "@/src/hooks/useRecruiterApi";
+
 import {
   CandidateProfile,
   WorkExperience,
   Education,
 } from "@/src/types/candidate";
 import { useGetUser } from "@/src/hooks/useUserApi";
+import { useRecruiterCompanies } from "@/src/hooks/useCompanyApi";
 
 export default function CandidateProfilePage() {
   const { data: profile } = useCandidateProfile();

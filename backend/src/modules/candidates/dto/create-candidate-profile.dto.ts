@@ -5,16 +5,11 @@ import {
   IsArray,
   IsNumber,
   IsUrl,
-  MinLength,
-  MaxLength,
   Min,
   Max,
 } from 'class-validator';
 import { EmploymentType, EducationLevel } from '@prisma/client';
 
-/**
- * DTO for creating a candidate profile
- */
 export class CreateCandidateProfileDto {
   @IsOptional()
   @IsString()
@@ -63,4 +58,16 @@ export class CreateCandidateProfileDto {
   @IsOptional()
   @IsUrl()
   githubUrl?: string;
+
+  @IsOptional()
+  @IsString()
+  phone?: string;
+
+  @IsOptional()
+  @IsString()
+  location?: string;
+
+  @IsOptional()
+  @IsString()
+  summary?: string;
 }

@@ -72,7 +72,7 @@ export const useUpdateResume = () => {
   });
 };
 
-export const useDeleteResume = (resumeId: number) => {
+export const useDeleteResume = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (resumeId: number) => {

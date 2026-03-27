@@ -12,19 +12,16 @@ import {
   Injectable,
   BadRequestException,
   NotFoundException,
-  ForbiddenException,
 } from '@nestjs/common';
 
 @Injectable()
 export class CandidateService {
   constructor(private prisma: PrismaService) {}
 
-  // Candidate Profile CRUD
   async createCandidateProfile(
     userId: number,
     createDto: CreateCandidateProfileDto,
   ): Promise<CandidateProfileResponseDto> {
-    // Check if profile already exists
     const existing = await this.prisma.candidateProfile.findUnique({
       where: { userId },
     });

@@ -173,3 +173,12 @@ export const useDeleteJob = () => {
     },
   });
 };
+
+export const useUpdateRecruiterProfile = () => {
+  return useMutation({
+    mutationFn: async (data: any) => {
+      const response = await apiClient.patch('/recruiters/profile', data);
+      return response.data;
+    },
+  });
+};

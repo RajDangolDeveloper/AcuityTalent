@@ -39,7 +39,7 @@ export default function JobsPage() {
 
   const groupedJobs = jobs.reduce(
     (acc, job) => {
-      const status = job.status; // e.g., 'ACTIVE'
+      const status = job.status;
       if (!acc[status]) acc[status] = [];
       acc[status].push(job);
       return acc;
@@ -52,6 +52,13 @@ export default function JobsPage() {
     DRAFT: "Draft Jobs",
     CLOSED: "Closed Jobs",
     ARCHIVED: "Archived Jobs",
+  };
+
+  const statusStyles: Record<string, string> = {
+    ACTIVE: "bg-cyan-600 hover:bg-cyan-500",
+    DRAFT: "bg-gray-600 hover:bg-gray-500",
+    CLOSED: "bg-red-600 hover:bg-red-500",
+    ARCHIVED: "bg-yellow-600 hover:bg-yellow-500",
   };
 
   const [expandedStatuses, setExpandedStatuses] = useState<
@@ -104,7 +111,9 @@ export default function JobsPage() {
                 return (
                   <div key={status} className="mb-4 rounded">
                     <div
-                      className="flex items-center justify-between px-6 py-3 bg-gray-100 cursor-pointer hover:bg-gray-200"
+                      className={`flex items-center justify-between px-6 py-3 cursor-pointer text-gray-200 ${
+                        statusStyles[status]
+                      }`}
                       onClick={() => toggleStatus(status)}
                     >
                       <span className="font-medium">

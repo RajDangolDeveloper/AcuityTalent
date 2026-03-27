@@ -63,16 +63,27 @@ export class CompanyService {
     };
   }
 
-  async getCompanyByUserId(query): Promise<{
+  async getCompanyByOwnerId(query): Promise<{
     data: CompanyResponseDto;
   }> {
     const company = await this.prisma.company.findFirstOrThrow({
-      where: { ownerId: query.id }, // replace ownerIdValue with actual variable
+      where: { ownerId: query.id },
     });
 
     return {
       data: company,
     };
+  }
+
+  async getRecruiterCompany(id: number) {
+    const profile = await this.prisma.recruiterProfile.findUnique({
+      where: { userId: id },
+      include: { company: true },
+    });
+
+    if (!profile) throw new NotFoundException();
+
+    return profile.company;
   }
 
   async getAllCompanies(query: GetCompaniesQueryDto): Promise<{

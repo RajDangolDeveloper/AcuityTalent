@@ -6,6 +6,7 @@ import {
   MinLength,
   MaxLength,
   IsNumber,
+  IsEmail,
 } from 'class-validator';
 import { CompanySize, Industry } from '@prisma/client';
 
@@ -29,6 +30,9 @@ export class CreateCompanyDto {
   @IsOptional()
   @IsUrl()
   websiteUrl?: string;
+
+  @IsEmail()
+  companyEmail: string;
 
   @IsOptional()
   @IsEnum(CompanySize)

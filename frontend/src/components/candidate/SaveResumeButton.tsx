@@ -1,6 +1,6 @@
 "use client";
 
-import { pdf } from "@react-pdf/renderer";
+import { Font, pdf } from "@react-pdf/renderer";
 import { ResumeData } from "./InputResumeDetails";
 import { TemplateKey } from "@/src/types/resume";
 import { useState } from "react";
@@ -10,8 +10,12 @@ import { ModernPDFTemplate } from "../templatePdf/ModernTemplatePdf";
 import { PrimeATSPDFTemplate } from "../templatePdf/PrimeATSTemplatePdf";
 import { ProfessionalPDFTemplate } from "../templatePdf/ProfessionalTemplatePdf";
 import { SpecialistPDFTemplate } from "../templatePdf/SpecialistTemplate";
-import axios from "axios";
 import apiClient from "@/src/app/api/api-client";
+
+Font.register({
+  family: "Helvetica-Light",
+  src: "https://fonts.gstatic.com/s/helveticaneue/v70/some-link-to-light-font.ttf", // You can use a local path or URL
+});
 
 const SaveResumeButton = ({
   resumeData,
@@ -48,8 +52,7 @@ const SaveResumeButton = ({
       const formData = new FormData();
       formData.append("file", file);
       formData.append("userId", userId.toString());
-      if (resumeData.summary)
-        formData.append("textContent", resumeData.summary);
+      formData.append("textContent", JSON.stringify(resumeData));
 
       const response = await apiClient.post("/resumes/upload", formData);
 

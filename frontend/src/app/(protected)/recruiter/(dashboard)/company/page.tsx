@@ -1,14 +1,14 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useParams } from "next/navigation"; // or useRouter depending on your setup
-import { useGetCompanyById, useUpdateCompany } from "@/src/hooks/useCompanyApi";
+import { Building2 } from "lucide-react";
+import {
+  useGetRecruiterCompanies,
+  useUpdateCompany,
+} from "@/src/hooks/useCompanyApi";
 
 export default function ViewCompanyPage() {
-  const params = useParams();
-  const companyId = params?.id ? parseInt(params.id as string) : null;
-
-  const { data: company, isLoading, error } = useGetCompanyById(companyId);
+  const { data: company, isLoading, error } = useGetRecruiterCompanies();
   const updateCompany = useUpdateCompany();
 
   const [isEditing, setIsEditing] = useState(false);
@@ -21,7 +21,6 @@ export default function ViewCompanyPage() {
     description: "",
   });
 
-  // Initialize form when company data loads
   useEffect(() => {
     if (company) {
       setFormData({
@@ -44,6 +43,26 @@ export default function ViewCompanyPage() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  const handleSave = async () => {
+    if (!company) return;
+    try {
+      await updateCompany.mutateAsync({
+        id: company.id,
+        data: {
+          name: formData.name,
+          companySize: formData.size as any,
+          industry: formData.industry as any,
+          officeAddress: formData.address,
+          websiteUrl: formData.website,
+          description: formData.description,
+        },
+      });
+      setIsEditing(false);
+    } catch (error) {
+      console.error("Failed to update company:", error);
+    }
+  };
+
   const handleCancel = () => {
     if (company) {
       setFormData({
@@ -58,31 +77,16 @@ export default function ViewCompanyPage() {
     setIsEditing(false);
   };
 
-  const handleSave = async () => {
-    if (!companyId) return;
-    try {
-      await updateCompany.mutateAsync({
-        id: companyId,
-        data: {
-          name: formData.name,
-          companySize: formData.size as any, // you may need to map to enum
-          industry: formData.industry as any,
-          officeAddress: formData.address,
-          websiteUrl: formData.website,
-          description: formData.description,
-        },
-      });
-      setIsEditing(false);
-    } catch (error) {
-      console.error("Failed to update company:", error);
-      // handle error (show toast etc.)
-    }
-  };
-
   if (isLoading) return <div className="p-6">Loading company...</div>;
   if (error)
     return <div className="p-6 text-red-500">Error loading company</div>;
-  if (!company) return <div className="p-6">Company not found</div>;
+  if (!company)
+    return (
+      <div className="p-6 h-full w-full flex flex-row gap-2 justify-center items-center ">
+        <Building2 className="font-semibold" size={48} />
+        <div className="text-xl font-semibold">No Company Found</div>
+      </div>
+    );
 
   return (
     <div className="bg-gray-50 min-h-screen p-6">
@@ -275,17 +279,15 @@ export default function ViewCompanyPage() {
               <div className="flex justify-end gap-4">
                 <button
                   onClick={handleCancel}
-                  disabled={updateCompany.isPending}
                   className="px-6 py-2 bg-white border border-gray-300 text-gray-700 font-semibold rounded hover:bg-gray-50 transition disabled:opacity-50"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleSave}
-                  disabled={updateCompany.isPending}
                   className="px-6 py-2 bg-primary-500 text-white font-semibold rounded hover:bg-primary-600 transition disabled:opacity-50"
                 >
-                  {updateCompany.isPending ? "Saving..." : "Save Changes"}
+                  {"Save Changes"}
                 </button>
               </div>
             </div>

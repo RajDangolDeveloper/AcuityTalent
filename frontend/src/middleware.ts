@@ -6,15 +6,34 @@ export default withAuth(
     const { nextUrl } = request;
     const token = request.nextauth.token;
     const userRole = token?.role as string;
+    const isOnboarded = token?.isOnboarded as boolean;
     const isOnAdmin = nextUrl.pathname.startsWith("/admin");
     const isOnCandidate = nextUrl.pathname.startsWith("/candidate");
     const isOnRecruiter = nextUrl.pathname.startsWith("/recruiter");
     const isOnLogin = nextUrl.pathname.includes("/login");
+    const isOnLogout = nextUrl.pathname.includes("/logout");
     const isOnRegister = nextUrl.pathname.includes("/register");
+    const isOnboardedRoute = nextUrl.pathname.includes("/onboarding");
+
+    if (token?.error === "AccessTokenError") {
+      return NextResponse.redirect(new URL("/logout", request.url));
+    }
 
     if (token?.error === "RefreshAccessTokenError") {
       return NextResponse.redirect(
         new URL("/candidate/login?error=SessionExpired", request.url),
+      );
+    }
+
+    if (
+      !isOnboarded &&
+      token &&
+      !isOnboardedRoute &&
+      !isOnLogin &&
+      !isOnLogout
+    ) {
+      return NextResponse.redirect(
+        new URL("/" + userRole.toLowerCase() + "/onboarding", nextUrl),
       );
     }
 
@@ -36,6 +55,7 @@ export default withAuth(
 
     if (
       isOnCandidate &&
+      !isOnRegister &&
       !isOnLogin &&
       userRole !== "CANDIDATE" &&
       userRole !== "ADMIN"
@@ -45,6 +65,7 @@ export default withAuth(
 
     if (
       isOnRecruiter &&
+      !isOnRegister &&
       !isOnLogin &&
       userRole !== "RECRUITER" &&
       userRole !== "ADMIN"
@@ -58,10 +79,10 @@ export default withAuth(
     callbacks: {
       authorized: ({ token, req }) => {
         const { pathname } = req.nextUrl;
-
         // Public routes (no token required)
         if (
           pathname.includes("/login") ||
+          pathname.includes("/register") ||
           pathname === "/" ||
           pathname.startsWith("/api/auth") // Important: allow NextAuth API routes
         ) {

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Button } from "@/src/components/recruiter/Button";
-import { useRecruiterCompanies } from "@/src/hooks/useRecruiterApi";
+import { useRecruiterCompanies } from "@/src/hooks/useCompanyApi";
 
 export default function ProfilePage() {
   const { data: companies } = useRecruiterCompanies();
@@ -16,7 +16,6 @@ export default function ProfilePage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: wire this up to recruiter profile API when available
   };
 
   return (
@@ -27,7 +26,9 @@ export default function ProfilePage() {
           <div className="px-10 pb-10 -mt-10">
             <div className="flex items-center gap-6 mb-8">
               <div className="w-24 h-24 rounded-full bg-gray-200 border-4 border-white shadow" />
-              <h1 className="text-2xl font-semibold text-gray-900">Raj Dangol</h1>
+              <h1 className="text-2xl font-semibold text-gray-900">
+                Raj Dangol
+              </h1>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-6">

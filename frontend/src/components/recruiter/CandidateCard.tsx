@@ -26,7 +26,7 @@ export default function CandidateCard({
   const content = (
     <div className="flex items-start gap-4">
       {/* Avatar */}
-      <div className="w-16 h-16 rounded-full bg-gray-300 flex-shrink-0"></div>
+      <div className="w-16 h-16 rounded-full bg-gray-300 shrink-0"></div>
 
       {/* Content */}
       <div className="flex-1 min-w-0">
@@ -80,7 +80,7 @@ export default function CandidateCard({
       {showModal && (
         <button
           onClick={handleClose}
-          className="text-gray-400 hover:text-gray-600 flex-shrink-0"
+          className="text-gray-400 hover:text-gray-600 shrink-0"
         >
           ✕
         </button>
@@ -104,7 +104,7 @@ export default function CandidateCard({
       onClick={onClick}
       className={`border-b p-4 cursor-pointer transition-colors ${
         isSelected
-          ? "bg-gray-100 border-l-4 border-blue-500 border-gray-200"
+          ? "bg-gray-100 border-l- border-gray-200"
           : "border-gray-200 hover:bg-gray-50"
       }`}
     >

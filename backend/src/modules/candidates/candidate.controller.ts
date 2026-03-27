@@ -28,7 +28,7 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 export class CandidateController {
   constructor(private candidateService: CandidateService) {}
 
-  @Post('profile')
+  @Post('profile/create')
   @HttpCode(HttpStatus.CREATED)
   async createProfile(
     @Body() createDto: CreateCandidateProfileDto,

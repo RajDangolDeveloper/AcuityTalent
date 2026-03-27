@@ -14,3 +14,12 @@ export const templates: Record<string, ResumeTemplate> = {
   specialist: SpecialistTemplate,
   clean: CleanTemplate,
 };
+
+export const templatePreviews: Record<keyof typeof templates, string> = {
+  modern: "/templates/ModernTemplateExample.png",
+  classic: "/templates/ClassicTemplateExample.png",
+  professional: "/templates/ProfessionalTemplateExample.png",
+  primeats: "/templates/PrimeATSTemplateExample.png",
+  specialist: "/templates/SpecialistTemplateExample.png",
+  clean: "/templates/CleanTemplateExample.png",
+};

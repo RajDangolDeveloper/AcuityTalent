@@ -15,9 +15,6 @@ import { CreateSavedJobDto } from './dto/create-saved-job.dto';
 import { SavedJobResponseDto } from './dto/saved-job-response.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
-/**
- * SavedJobController - RESTful API endpoints for saved jobs management
- */
 @Controller('saved-jobs')
 @UseGuards(JwtAuthGuard)
 export class SavedJobController {

@@ -13,7 +13,9 @@ import {
   BadRequestException,
   UploadedFile,
   UseInterceptors,
+  StreamableFile,
 } from '@nestjs/common';
+import { createReadStream } from 'fs';
 import { ResumeService } from './resume.service';
 import { CreateResumeDto } from './dto/create-resume.dto';
 import { UpdateResumeDto } from './dto/update-resume.dto';
@@ -76,23 +78,39 @@ export class ResumeController {
     };
   }
 
+  /** Streams file bytes as attachment so the browser triggers a Save As dialog */
   @Get(':id/download')
   async downloadResume(
     @Param('id') id: string,
     @Req() req: any,
-  ): Promise<{
-    statusCode: number;
-    data: { filePath: string; fileName: string; fileType: string };
-  }> {
+  ): Promise<StreamableFile> {
     const resumeData = await this.resumeService.downloadResume(
       parseInt(id),
       req.user.id,
     );
+    const file = createReadStream(resumeData.filePath);
+    req.res.set({
+      'Content-Type': 'application/pdf',
+      'Content-Disposition': `attachment; filename="${resumeData.fileName}"`,
+    });
+    return new StreamableFile(file);
+  }
 
-    return {
-      statusCode: HttpStatus.OK,
-      data: resumeData,
-    };
+  @Get(':id/view')
+  async viewResume(
+    @Param('id') id: string,
+    @Req() req: any,
+  ): Promise<StreamableFile> {
+    const resumeData = await this.resumeService.downloadResume(
+      parseInt(id),
+      req.user.id,
+    );
+    const file = createReadStream(resumeData.filePath);
+    req.res.set({
+      'Content-Type': 'application/pdf',
+      'Content-Disposition': `inline; filename="${resumeData.fileName}"`,
+    });
+    return new StreamableFile(file);
   }
 
   @Patch(':id')

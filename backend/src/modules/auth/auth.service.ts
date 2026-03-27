@@ -4,7 +4,6 @@ import {
   Injectable,
   UnauthorizedException,
   BadRequestException,
-  InternalServerErrorException,
   ConflictException,
 } from '@nestjs/common';
 import { LoginDto } from './dto/login.dto';
@@ -18,12 +17,18 @@ import { EmailService } from 'src/config/email.service';
 import { SendOtp } from './dto/sendOtp.dto';
 import { VerifyOtpDto } from './dto/verifyOtp.dto';
 import { JwtService } from '@nestjs/jwt';
+import { CandidateService } from '../candidates/candidate.service';
+import { RecruiterService } from '../recruiters/recruiter.service';
+import { CreateCandidateProfileDto } from '../candidates/dto/create-candidate-profile.dto';
+import { CreateRecruiterProfileDto } from '../recruiters/dto/CreateRecruiterProfile.dto';
 
 @Injectable()
 export class AuthService {
   constructor(
     private prisma: PrismaService,
     private passwordService: PasswordService,
+    private candidateService: CandidateService,
+    private recruiterService: RecruiterService,
     private emailService: EmailService,
     private jwtService: JwtService,
   ) {}
@@ -39,6 +44,9 @@ export class AuthService {
           id: true,
           email: true,
           passwordHash: true,
+          isOnboarded: true,
+          firstName: true,
+          lastName: true,
           role: true,
         },
       });
@@ -58,11 +66,17 @@ export class AuthService {
 
       const { passwordHash, ...userWithoutPassword } = user;
 
-      const accessToken = this.jwtService.sign({
-        id: user.id,
-        email: user.email,
-        role: user.role,
-      });
+      const accessToken = this.jwtService.sign(
+        {
+          id: user.id,
+          email: user.email,
+          role: user.role,
+          isOnboarded: user.isOnboarded,
+        },
+        {
+          expiresIn: '24h',
+        },
+      );
 
       return {
         ...userWithoutPassword,
@@ -99,13 +113,25 @@ export class AuthService {
       },
     });
 
+    if (registerDto.role === 'CANDIDATE') {
+      const emptyProfile = new CreateCandidateProfileDto();
+      this.candidateService.createCandidateProfile(result.id, emptyProfile);
+    }
+
+    if (registerDto.role === 'RECRUITER') {
+      const emptyProfile = new CreateRecruiterProfileDto();
+      this.recruiterService.createRecruiterProfile(emptyProfile);
+    }
+
     const { passwordHash: _, ...userWithoutPassword } = result;
 
-    // Generate JWT token for new user
+    console.log();
+
     const accessToken = this.jwtService.sign({
-      sub: result.id,
+      id: result.id,
       email: result.email,
       role: result.role,
+      isOnboarded: result.isOnboarded,
     });
 
     return {

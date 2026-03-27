@@ -12,12 +12,12 @@ export default function CreateJobPage() {
 
   const [formData, setFormData] = useState({
     title: "",
-    company: "",
     salary: "",
     employmentType: "FULL_TIME",
     locationtype: "HYBRID",
     experience: "",
     location: "",
+    locationType: "ONSITE",
     description: "",
   });
 
@@ -28,9 +28,6 @@ export default function CreateJobPage() {
 
     if (!formData.title.trim()) {
       newErrors.title = "Job title is required";
-    }
-    if (!formData.company.trim()) {
-      newErrors.company = "Company is required";
     }
     if (!formData.location.trim()) {
       newErrors.location = "Location is required";
@@ -63,7 +60,8 @@ export default function CreateJobPage() {
         experienceLevel: undefined,
         salaryRange: formData.salary,
         location: formData.location,
-        remoteAvailable: formData.locationtype === "REMOTE",
+        locationType: formData.locationtype,
+        remoteAvailable: formData.locationType === "REMOTE" ? true : false,
       });
 
       Notification({
@@ -146,33 +144,8 @@ export default function CreateJobPage() {
                     <p className="text-red-500 text-sm mt-1">{errors.title}</p>
                   )}
                 </div>
-
-                <div>
-                  <label className="block text-sm font-semibold text-gray-900 mb-2">
-                    Company
-                  </label>
-                  <select
-                    name="company"
-                    value={formData.company}
-                    onChange={handleChange}
-                    className={`w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-primary-500 ${
-                      errors.company ? "border-red-500" : "border-gray-300"
-                    }`}
-                  >
-                    <option value="">e.g. LinkedIn</option>
-                    <option value="company1">Company 1</option>
-                    <option value="company2">Company 2</option>
-                    <option value="company3">Company 3</option>
-                  </select>
-                  {errors.company && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {errors.company}
-                    </p>
-                  )}
-                </div>
               </div>
 
-              {/* Salary, Employment Type, Location Type Row */}
               <div className="grid grid-cols-3 gap-6 mb-6">
                 <div>
                   <label className="block text-sm font-semibold text-gray-900 mb-2">
@@ -219,12 +192,10 @@ export default function CreateJobPage() {
                   >
                     <option value="HYBRID">Hybrid</option>
                     <option value="REMOTE">Remote</option>
-                    <option value="ON_SITE">On-Site</option>
+                    <option value="ONSITE">On-Site</option>
                   </select>
                 </div>
               </div>
-
-              {/* Experience and Location Row */}
               <div className="grid grid-cols-2 gap-6 mb-6">
                 <div>
                   <label className="block text-sm font-semibold text-gray-900 mb-2">

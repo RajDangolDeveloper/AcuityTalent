@@ -1,9 +1,5 @@
 import { JobStatus, EmploymentType, ExperienceLevel } from '@prisma/client';
 
-/**
- * DTO for job response
- * Standardizes data returned to client
- */
 export class JobResponseDto {
   id: number;
   title: string;
@@ -21,7 +17,6 @@ export class JobResponseDto {
   createdAt: Date;
   updatedAt: Date;
 
-  // Populated relationships
   recruiterName?: string;
   recruiterEmail?: string;
   companyName?: string;

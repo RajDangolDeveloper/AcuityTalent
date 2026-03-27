@@ -17,6 +17,9 @@ export class CandidateProfileResponseDto {
   expectedSalary?: number | null;
   linkedinUrl?: string | null;
   githubUrl?: string | null;
+  phone?: string | null;
+  location?: string | null;
+  summary?: string | null;
   createdAt: Date;
   updatedAt: Date;
 }

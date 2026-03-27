@@ -1,9 +1,14 @@
-import { IsString, IsDateString, IsOptional, IsEnum, IsNumber, Min, Max } from 'class-validator';
+import {
+  IsString,
+  IsDateString,
+  IsOptional,
+  IsEnum,
+  IsNumber,
+  Min,
+  Max,
+} from 'class-validator';
 import { EducationLevel } from '@prisma/client';
 
-/**
- * DTO for creating education
- */
 export class CreateEducationDto {
   @IsString()
   institution: string;

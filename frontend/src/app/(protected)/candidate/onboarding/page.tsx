@@ -1,5 +1,15 @@
 "use client";
+
 import { useState } from "react";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import {
+  useCreateCandidateProfile,
+  useUpdateCandidateProfile,
+} from "@/src/hooks/useCandidateApi";
+import { useUpdateUser } from "@/src/hooks/useUserApi";
+import { EmploymentType } from "@/src/types/candidate";
+import { useGetCompanies, useGetCompaniesName } from "@/src/hooks/useCompanyApi";
 
 const STEPS = [
   { id: 1, label: "Personal" },
@@ -7,9 +17,9 @@ const STEPS = [
   { id: 3, label: "Current" },
 ];
 
-// ── Step components ────────────────────────────────────────────────────────────
-function Step1({ data, setData }) {
-  const set = (key) => (e) => setData((d) => ({ ...d, [key]: e.target.value }));
+function Step1({ data, setData }: { data: any; setData: any }) {
+  const set = (key: string) => (e: any) =>
+    setData((d: any) => ({ ...d, [key]: e.target.value }));
 
   return (
     <div>
@@ -80,23 +90,24 @@ function Step1({ data, setData }) {
   );
 }
 
-function Step2({ data, setData }) {
-  const set = (key) => (e) => setData((d) => ({ ...d, [key]: e.target.value }));
+function Step2({ data, setData }: { data: any; setData: any }) {
+  const set = (key: string) => (e: any) =>
+    setData((d: any) => ({ ...d, [key]: e.target.value }));
   const [skillInput, setSkillInput] = useState("");
 
   const addSkill = () => {
     if (!skillInput.trim()) return;
-    setData((d) => ({
+    setData((d: any) => ({
       ...d,
       skills: [...(d.skills || []), skillInput.trim()],
     }));
     setSkillInput("");
   };
 
-  const removeSkill = (skill) =>
-    setData((d) => ({
+  const removeSkill = (skill: string) =>
+    setData((d: any) => ({
       ...d,
-      skills: (d.skills || []).filter((s) => s !== skill),
+      skills: (d.skills || []).filter((s: string) => s !== skill),
     }));
 
   const expOptions = [
@@ -208,7 +219,7 @@ function Step2({ data, setData }) {
           </div>
           {(data.skills || []).length > 0 && (
             <div className="flex flex-wrap gap-1.5 mt-2">
-              {(data.skills || []).map((s) => (
+              {(data.skills || []).map((s: string) => (
                 <span
                   key={s}
                   className="bg-[#ede9fe] text-[#4b3fa0] rounded-full px-2.5 py-1 text-xs flex items-center gap-1"
@@ -334,28 +345,19 @@ function Step2({ data, setData }) {
   );
 }
 
-function Step3({ data, setData }) {
-  const set = (key) => (e) => setData((d) => ({ ...d, [key]: e.target.value }));
-
-  const compOptions = [
-    "Google",
-    "Meta",
-    "Amazon",
-    "Apple",
-    "Microsoft",
-    "Netflix",
-    "Startup",
-    "Other",
-  ];
-  const posOptions = [
-    "Software Engineer",
-    "Product Manager",
-    "Designer",
-    "Data Scientist",
-    "Marketing",
-    "Sales",
-    "Other",
-  ];
+function Step3({
+  data,
+  setData,
+  companies,
+  companiesLoading,
+}: {
+  data: any;
+  setData: any;
+  companies: any[];
+  companiesLoading: boolean;
+}) {
+  const set = (key: string) => (e: any) =>
+    setData((d: any) => ({ ...d, [key]: e.target.value }));
 
   return (
     <div>
@@ -371,23 +373,24 @@ function Step3({ data, setData }) {
           Company
         </label>
         <div className="relative w-full">
-          <select
+          <input
+            type="text"
+            list="companies-list"
             value={data.company}
             onChange={set("company")}
-            className={`w-full pl-4 pr-10 py-3.5 border-[1.5px] border-[#e2e2e2] rounded-xl text-sm bg-white outline-none appearance-none cursor-pointer transition-colors focus:border-[#4b3fa0] ${data.company ? "text-gray-900" : "text-gray-400"}`}
-          >
-            <option value="" disabled hidden>
-              Select your company
-            </option>
-            {compOptions.map((o) => (
-              <option key={o} value={o} className="text-gray-900">
-                {o}
-              </option>
+            placeholder={
+              companiesLoading
+                ? "Loading companies..."
+                : "Type to search or select a company"
+            }
+            className={`w-full px-4 py-3.5 border-[1.5px] border-[#e2e2e2] rounded-xl text-sm bg-white outline-none transition-colors focus:border-[#4b3fa0] ${data.company ? "text-gray-900" : "text-gray-400"}`}
+            disabled={companiesLoading}
+          />
+          <datalist id="companies-list">
+            {companies.map((c: any) => (
+              <option key={c.id} value={c.name} />
             ))}
-          </select>
-          <span className="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-gray-500 text-xs">
-            ▾
-          </span>
+          </datalist>
         </div>
       </div>
       <div className="mb-6">
@@ -395,20 +398,11 @@ function Step3({ data, setData }) {
           Current Position
         </label>
         <div className="relative w-full">
-          <select
+          <input
             value={data.position}
             onChange={set("position")}
             className={`w-full pl-4 pr-10 py-3.5 border-[1.5px] border-[#e2e2e2] rounded-xl text-sm bg-white outline-none appearance-none cursor-pointer transition-colors focus:border-[#4b3fa0] ${data.position ? "text-gray-900" : "text-gray-400"}`}
-          >
-            <option value="" disabled hidden>
-              Select your position
-            </option>
-            {posOptions.map((o) => (
-              <option key={o} value={o} className="text-gray-900">
-                {o}
-              </option>
-            ))}
-          </select>
+          />
           <span className="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-gray-500 text-xs">
             ▾
           </span>
@@ -442,8 +436,15 @@ function Step3({ data, setData }) {
   );
 }
 
-// ── Main component ─────────────────────────────────────────────────────────────
 export default function Onboarding() {
+  const router = useRouter();
+  const { data: session, update } = useSession();
+  const { mutateAsync: updateCandidateProfile, isPending: creatingProfile } =
+    useUpdateCandidateProfile();
+  const { data: companiesResponse, isLoading: companiesLoading } = useGetCompaniesName();
+  const companies = companiesResponse?.data || [];
+  const { mutateAsync: updateUser, isPending: updatingUser } = useUpdateUser();
+
   const [step, setStep] = useState(1);
   const [step1Data, setStep1Data] = useState({
     firstName: "",
@@ -468,13 +469,115 @@ export default function Onboarding() {
     linkedin: "",
   });
 
-  const handleNext = () => {
-    if (step < 3) {
-      setStep((s) => s + 1);
+  const expMap: Record<string, number> = {
+    "Less than 1 year": 0,
+    "1–2 years": 1,
+    "3–5 years": 4,
+    "6–10 years": 8,
+    "10+ years": 10,
+  };
+
+  const degreeMap: Record<string, string> = {
+    "High School": "HIGH_SCHOOL",
+    Associate: "ASSOCIATE",
+    "Bachelor's": "BACHELOR",
+    "Master's": "MASTER",
+    PhD: "DOCTORATE",
+    Other: "OTHER",
+  };
+
+  const jobTypeMap: Record<string, string> = {
+    "Full-time": "FULL_TIME",
+    "Part-time": "PART_TIME",
+    Contract: "CONTRACT",
+    Freelance: "FREELANCE",
+    Internship: "INTERNSHIP",
+  };
+
+  const salaryMap: Record<string, number> = {
+    "$30k–$50k": 40000,
+    "$50k–$80k": 65000,
+    "$80k–$120k": 100000,
+    "$120k–$180k": 150000,
+    "$180k+": 200000,
+  };
+
+  const handleNext = async () => {
+    if (step === 1) {
+      if (!step1Data.firstName.trim() || !step1Data.lastName.trim()) {
+        alert("Please enter both first and last name.");
+        return;
+      }
+      if (!step1Data.email.includes("@")) {
+        alert("Please enter a valid email address.");
+        return;
+      }
+      if (!step1Data.phone.trim()) {
+        alert("Please enter a phone number.");
+        return;
+      }
+      setStep(2);
+    } else if (step === 2) {
+      if (!step2Data.headline.trim()) {
+        alert("Please enter a headline.");
+        return;
+      }
+      if (!step2Data.yearsExp) {
+        alert("Please select your years of experience.");
+        return;
+      }
+      if (step2Data.skills.length === 0) {
+        alert("Please add at least one skill.");
+        return;
+      }
+      setStep(3);
     } else {
-      const finalData = { ...step1Data, ...step2Data, ...step3Data };
+      try {
+        if (!session?.user?.id) return;
+
+        if (!step3Data.position.trim()) {
+            alert("Please enter your current position.");
+            return;
+        }
+
+        await updateUser({
+          id: parseInt(session.user.id as string, 10),
+          data: {
+            firstName: step1Data.firstName,
+            lastName: step1Data.lastName,
+            contactEmail: step1Data.email,
+            contactPhone: step1Data.phone,
+            isOnboarded: true,
+          },
+        });
+
+        await updateCandidateProfile({
+          headline: step2Data.headline,
+          summary: step2Data.summary,
+          experienceYears: expMap[step2Data.yearsExp],
+          skills: step2Data.skills,
+          location: step2Data.location,
+          preferredLocation: step2Data.location,
+          preferredJobType: jobTypeMap[step2Data.jobType] as EmploymentType,
+          highestDegree: degreeMap[step2Data.degree],
+          expectedSalary: salaryMap[step2Data.salary],
+          currentPosition: step3Data.position,
+          githubUrl: step3Data.github,
+          linkedinUrl: step3Data.linkedin,
+          phone: step1Data.phone,
+        });
+
+        await update({onboarded: true});
+
+        router.push("/candidate/dashboard");
+      } catch (error) {
+        console.error("Failed to submit onboarding data", error);
+        alert("Failed to submit onboarding data. Please try again.");
+      }
     }
   };
+
+  const isLoading = creatingProfile || updatingUser;
 
   return (
     <>
@@ -504,7 +607,14 @@ export default function Onboarding() {
         >
           {step === 1 && <Step1 data={step1Data} setData={setStep1Data} />}
           {step === 2 && <Step2 data={step2Data} setData={setStep2Data} />}
-          {step === 3 && <Step3 data={step3Data} setData={setStep3Data} />}
+          {step === 3 && (
+            <Step3
+              data={step3Data}
+              setData={setStep3Data}
+              companies={companies}
+              companiesLoading={companiesLoading}
+            />
+          )}
 
           <div
             className={`flex items-center mt-8 ${
@@ -524,16 +634,24 @@ export default function Onboarding() {
               {step > 1 && (
                 <button
                   onClick={() => setStep((s) => s - 1)}
-                  className="px-6 py-3 rounded-xl border-[1.5px] border-[#e2e2e2] bg-white text-sm font-semibold text-gray-600 cursor-pointer hover:bg-gray-50 transition-colors"
+                  disabled={isLoading}
+                  className="px-6 py-3 rounded-xl border-[1.5px] border-[#e2e2e2] bg-white text-sm font-semibold text-gray-600 cursor-pointer hover:bg-gray-50 transition-colors disabled:opacity-50"
                 >
                   Back
                 </button>
               )}
               <button
                 onClick={handleNext}
-                className="px-7 py-3 rounded-xl border-none bg-[#3d3578] text-white text-sm font-semibold cursor-pointer tracking-wide transition-colors hover:bg-[#2d2060]"
+                disabled={isLoading}
+                className="px-7 py-3 rounded-xl border-none bg-[#3d3578] text-white text-sm font-semibold cursor-pointer tracking-wide transition-colors hover:bg-[#2d2060] disabled:opacity-50 flex items-center justify-center min-w-[120px]"
               >
-                {step === 3 ? "Finish" : "Next Step"}
+                {isLoading ? (
+                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                ) : step === 3 ? (
+                  "Finish"
+                ) : (
+                  "Next Step"
+                )}
               </button>
             </div>
           </div>

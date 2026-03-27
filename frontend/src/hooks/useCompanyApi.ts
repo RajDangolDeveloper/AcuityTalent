@@ -26,7 +26,7 @@ export const useGetCompaniesName = () => {
   });
 };
 
-export const useGetCompanies = (page: number = 1, limit: number = 10) => {
+export const useGetCompanies = (page: number = 1, limit: number = 50) => {
   return useQuery({
     queryKey: ["get-companies", page, limit],
     queryFn: async () => {
@@ -53,20 +53,6 @@ export const useGetCompanyById = (id: number | null) => {
       return response.data.data;
     },
     enabled: !!id,
-  });
-};
-
-export const useGetCompanyByUserId = (userId: number | null) => {
-  return useQuery({
-    queryKey: ["company", "user", userId],
-    queryFn: async () => {
-      const response = await apiClient.get<SingleResponse<Company>>(
-        `/companies/user/${userId}`,
-      );
-      console.log(response);
-      return response.data.data;
-    },
-    enabled: !!userId,
   });
 };
 
@@ -104,9 +90,9 @@ export const useUpdateCompany = () => {
       console.log(response);
       return response.data.data;
     },
-    onSuccess: (_, variables) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["companies"] });
-      queryClient.invalidateQueries({ queryKey: ["company", variables.id] });
+      queryClient.invalidateQueries({ queryKey: ["recruiter-companies"] });
     },
   });
 };
@@ -120,6 +106,18 @@ export const useDeleteCompany = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["companies"] });
+    },
+  });
+};
+
+export const useGetRecruiterCompanies = () => {
+  return useQuery({
+    queryKey: ["recruiter-companies"],
+    queryFn: async () => {
+      const response = await apiClient.get<SingleResponse<any>>(
+        "/companies/recruiter",
+      );
+      return response.data.data;
     },
   });
 };

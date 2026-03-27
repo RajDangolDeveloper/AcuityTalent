@@ -1,6 +1,3 @@
-/**
- * DTO for work experience response
- */
 export class WorkExperienceResponseDto {
   id: number;
   candidateId: number;
