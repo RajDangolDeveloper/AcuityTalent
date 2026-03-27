@@ -51,6 +51,7 @@ export interface CreateCompanyDto {
   logoUrl?: string | null;
   backgroundImgUrl?: string | null;
   websiteUrl?: string | null;
+  companyEmail: string;
   companySize?: CompanySize | null;
   industry?: Industry | null;
   officeAddress?: string | null;

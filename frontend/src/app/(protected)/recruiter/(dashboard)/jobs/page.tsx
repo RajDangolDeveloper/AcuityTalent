@@ -10,7 +10,6 @@ import {
   useDeleteJob,
   useGetRecruiterJobs,
   useJobApplications,
-  useUpdateJobStatus,
 } from "@/src/hooks/useRecruiterApi";
 import {
   Briefcase,

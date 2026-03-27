@@ -535,11 +535,6 @@ export default function Onboarding() {
       try {
         if (!session?.user?.id) return;
 
-        if (!step3Data.position.trim()) {
-            alert("Please enter your current position.");
-            return;
-        }
-
         await updateUser({
           id: parseInt(session.user.id as string, 10),
           data: {

@@ -45,6 +45,7 @@ export const useUpdateUser = () => {
         `/users/${id}`,
         data,
       );
+      console.log(response.data)
       return response.data;
     },
     onSuccess: (updatedUser) => {

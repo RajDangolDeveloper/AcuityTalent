@@ -28,8 +28,10 @@ export class CompanyController {
   @Post()
   @HttpCode(HttpStatus.CREATED)
   async createCompany(
+    @Req() req,
     @Body() createCompanyDto: CreateCompanyDto,
   ): Promise<{ statusCode: number; data: CompanyResponseDto }> {
+    createCompanyDto.ownerId = req.user.id;
     const company = await this.companyService.createCompany(createCompanyDto);
 
     return {

@@ -9,6 +9,7 @@ export default function CustomButton({
   children,
   color,
   className,
+  ...props
 }: CustomButtonProps) {
   const colorVariants: Record<
     NonNullable<CustomButtonProps["color"]>,
@@ -20,6 +21,7 @@ export default function CustomButton({
   };
   return (
     <button
+    {...props}
       className={`${colorVariants[color]} ${className} w-full font-semibold py-2 px-4 rounded-md transition duration-300 ease-in-out`}
     >
       {children}

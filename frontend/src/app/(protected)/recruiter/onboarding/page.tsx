@@ -2,25 +2,75 @@
 
 import CustomButton from "@/src/components/CustomButton";
 import React, { useState } from "react";
-import { useGetCompaniesName } from "@/src/hooks/useCompanyApi";
+import { useCreateCompany, useGetCompaniesName } from "@/src/hooks/useCompanyApi";
 import { useUpdateRecruiterProfile } from "@/src/hooks/useRecruiterApi";
 import { useUpdateUser } from "@/src/hooks/useUserApi";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
+import { CompanySize, Industry } from "@/src/types/company";
 
 const OnboardingFlow = () => {
   const [step, setStep] = useState(1);
   const router = useRouter();
   const { data: session, update } = useSession();
-  const { data: companiesResponse, isLoading: companiesLoading } =
-    useGetCompaniesName();
-  const { mutateAsync: updateProfile, isPending: isUpdatingProfile } =
-    useUpdateRecruiterProfile();
-  const { mutateAsync: updateUser, isPending: isUpdatingUser } =
-    useUpdateUser();
+  const { data: companiesResponse, isLoading: companiesLoading } = useGetCompaniesName();
+  
+  const createCompany = useCreateCompany();
+  const { mutateAsync: updateProfile, isPending: isUpdatingProfile } = useUpdateRecruiterProfile();
+  const { mutateAsync: updateUser, isPending: isUpdatingUser } = useUpdateUser();
+
   const [selectedCompanyName, setSelectedCompanyName] = useState<string>("");
 
+  const INDUSTRY_OPTIONS = [
+  "TECHNOLOGY", "HEALTHCARE", "FINANCE", "EDUCATION", "RETAIL", 
+  "MANUFACTURING", "CONSULTING", "REAL_ESTATE", "ENTERTAINMENT", 
+  "HOSPITALITY", "CONSTRUCTION", "TRANSPORTATION", "ENERGY", 
+  "TELECOMMUNICATIONS", "MARKETING", "NON_PROFIT", "GOVERNMENT", "OTHER"
+];
+
+  // New State for Company Creation
+  const [formData, setFormData] = useState({
+    name: "",
+    description: "",
+    companySize: "",
+    email: "",
+    industry: "",
+    address: "",
+  });
+
   const companies = companiesResponse?.data || [];
+
+  // Handle Input Changes for Step 2
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleCompanyCreate = async () => {
+    if (!formData.name || !formData.email) {
+      alert("Please fill in at least the company name and email.");
+      return;
+    }
+
+    try {
+      await createCompany.mutateAsync({
+        ownerId: Number(session?.user?.id),
+        name: formData.name,
+        description: formData.description,
+        companySize: formData.companySize as CompanySize,
+        companyEmail: formData.email,
+        industry: formData.industry as Industry,
+        officeAddress: formData.address,
+      });
+      
+      alert("Company created successfully!");
+      setSelectedCompanyName(formData.name);
+      setStep(1);
+    } catch (error) {
+      console.error("Failed to create company:", error);
+      alert("Failed to create company. Please try again.");
+    }
+  };
 
   const handleCompanySubmit = async () => {
     if (!selectedCompanyName) {
@@ -28,7 +78,6 @@ const OnboardingFlow = () => {
       return;
     }
 
-    // Find the company ID based on the name
     const company = companies.find((c: any) => c.name === selectedCompanyName);
 
     if (!company) {
@@ -38,19 +87,13 @@ const OnboardingFlow = () => {
 
     try {
       if (!session?.user?.id) return;
+      const userId = session.user.id;
+      console.log(userId)
 
-      const userId = Number(session.user.id);
-
-      await updateProfile({
-        companyId: company.id,
-      });
-
-      await updateUser({
-        id: userId,
-        data: { isOnboarded: true },
-      });
-
-      await update({onboarded: true});
+      await updateProfile({ companyId: company.id });
+      await updateUser({ id: Number(userId), data: { isOnboarded: true } });
+      await update({ onboarded: true });
+      
       router.push("/recruiter/dashboard");
     } catch (error) {
       console.error("Failed to submit onboarding data:", error);
@@ -60,201 +103,147 @@ const OnboardingFlow = () => {
 
   return (
     <div className="min-h-screen bg-[linear-gradient(135deg,_#380294_0%,_#4d1b96_50%,_#52507d_100%)] flex items-center justify-center p-4 relative font-sans">
-      <div className="absolute top-6 left-6 flex flex-col gap-1">
-        <div className="w-4 h-4 bg-white rounded-sm"></div>
-        <div className="flex gap-1">
-          <div className="w-4 h-4 bg-white rounded-sm"></div>
-          <div className="w-4 h-4 bg-white rounded-sm"></div>
-        </div>
-      </div>
-      <div className="absolute top-6 right-6">
-        <div className="w-8 h-8 bg-gray-300 rounded-full"></div>
-      </div>
-
+      {/* Step 1: Find Business */}
       {step === 1 && (
         <div className="bg-white rounded-xl shadow-[0_10px_40px_rgba(0,0,0,0.2)] p-10 w-full max-w-[440px]">
-          <h1 className="text-[32px] font-bold text-black mb-8">
-            Find your Business
-          </h1>
-
+          <h1 className="text-[32px] font-bold text-black mb-8">Find your Business</h1>
           <div className="mb-8">
-            <label className="block text-[15px] font-bold text-black mb-1">
-              Company
-            </label>
-            <span className="block text-sm text-gray-600 mb-3">
-              Select your company
-            </span>
+            <label className="block text-[15px] font-bold text-black mb-1">Company</label>
             <input
               type="text"
               list="companies-list"
-              className="w-full border border-gray-200 rounded-lg p-4 text-gray-500 shadow-[0_2px_8px_rgba(0,0,0,0.04)] focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all mb-6"
-              placeholder={
-                companiesLoading
-                  ? "Loading companies..."
-                  : "Type to search or select a company"
-              }
+              className="w-full border border-gray-200 rounded-lg p-4 text-gray-700 mb-6"
+              placeholder={companiesLoading ? "Loading..." : "Type to search..."}
               value={selectedCompanyName}
               onChange={(e) => setSelectedCompanyName(e.target.value)}
-              disabled={companiesLoading}
             />
             <datalist id="companies-list">
               {companies.map((company: any) => (
                 <option key={company.id} value={company.name} />
               ))}
             </datalist>
-            <CustomButton
-              className=""
-              color={"primary"}
-              onClick={handleCompanySubmit}
-              disabled={isUpdatingProfile || isUpdatingUser || companiesLoading}
-            >
-              {isUpdatingProfile || isUpdatingUser ? "Submitting..." : "Submit"}
+            <CustomButton color={"primary"} onClick={handleCompanySubmit} disabled={isUpdatingProfile || isUpdatingUser}>
+              {isUpdatingProfile ? "Submitting..." : "Submit"}
             </CustomButton>
           </div>
-
           <div className="text-center text-sm">
             <span className="text-black">Didn't find your company? </span>
-            <button
-              onClick={() => setStep(2)}
-              className="text-[#4c4280] font-medium hover:underline focus:outline-none"
-            >
+            <button onClick={() => setStep(2)} className="text-[#4c4280] font-medium hover:underline">
               Create your own
             </button>
           </div>
         </div>
       )}
 
+      {/* Step 2: Create Company */}
       {step === 2 && (
         <div className="bg-white rounded-xl shadow-[0_10px_40px_rgba(0,0,0,0.2)] p-10 w-full max-w-[700px]">
-          <h1 className="text-[32px] font-bold text-black mb-8">
-            Create your Company
-          </h1>
+          <h1 className="text-[32px] font-bold text-black mb-8">Create your Company</h1>
+          
           <div className="grid grid-cols-3 gap-x-10 mb-10 items-start">
             <div className="col-span-2">
-              <h2 className="text-lg font-bold text-black mb-6">
-                Main Information
-              </h2>
+              <h2 className="text-lg font-bold text-black mb-6">Main Information</h2>
               <div className="mb-4">
                 <label className="block text-sm text-black mb-1">Name</label>
                 <input
+                  name="name"
                   type="text"
-                  placeholder="Name of this glorious company"
-                  className="w-full border border-gray-200 rounded-lg p-4 text-gray-400 text-sm shadow-[0_2px_8px_rgba(0,0,0,0.04)] focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  value={formData.name}
+                  onChange={handleInputChange}
+                  placeholder="Company Name"
+                  className="w-full border border-gray-200 rounded-lg p-4 text-sm"
                 />
               </div>
               <div>
-                <label className="block text-sm text-black mb-1">
-                  Description
-                </label>
+                <label className="block text-sm text-black mb-1">Description</label>
                 <input
+                  name="description"
                   type="text"
+                  value={formData.description}
+                  onChange={handleInputChange}
                   placeholder="What does your company do?"
-                  className="w-full border border-gray-200 rounded-lg p-4 text-gray-400 text-sm shadow-[0_2px_8px_rgba(0,0,0,0.04)] focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  className="w-full border border-gray-200 rounded-lg p-4 text-sm"
                 />
               </div>
             </div>
-            <div className="row-span-1 w-[200px] flex flex-col items-center gap-4 pt-10">
+            <div className="w-[200px] flex flex-col items-center gap-4 pt-10">
               <div className="w-32 h-32 bg-gray-200 rounded-full"></div>
-              <button className="bg-[#4e4871] text-white px-6 py-2.5 rounded-lg text-sm font-medium hover:bg-[#3d3858] transition-colors">
-                Upload Logo
-              </button>
+              <button className="bg-[#4e4871] text-white px-6 py-2 rounded-lg text-sm">Upload Logo</button>
             </div>
           </div>
+
           <div className="grid grid-cols-2 gap-6 mb-8">
             <div>
-              <label className="block text-sm text-black mb-1">
-                Company Size
-              </label>
-              <div className="relative">
-                <select className="w-full border border-gray-200 rounded-lg p-4 text-gray-400 text-sm shadow-[0_2px_8px_rgba(0,0,0,0.04)] appearance-none focus:outline-none focus:ring-2 focus:ring-purple-500 bg-white cursor-pointer">
-                  <option value="" disabled selected>
-                    Size of the Company
-                  </option>
-                  <option>1-10 Employees</option>
-                  <option>11-50 Employees</option>
-                  <option>51-200 Employees</option>
-                  <option>201+ Employees</option>
-                </select>
-                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
-                  <svg
-                    className="fill-current h-4 w-4"
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 20 20"
-                  >
-                    <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
-                  </svg>
-                </div>
-              </div>
+              <label className="block text-sm text-black mb-1">Company Size</label>
+              <select 
+                name="companySize" 
+                value={formData.companySize} 
+                onChange={handleInputChange}
+                className="w-full border border-gray-200 rounded-lg p-4 text-sm bg-white"
+              >
+                <option value="">Select Size</option>
+                <option value="ONE_TO_TEN">1-10 Employees</option>
+      <option value="ELEVEN_TO_FIFTY">11-50 Employees</option>
+      <option value="FIFTY_ONE_TO_TWO_HUNDRED">51-200 Employees</option>
+      <option value="TWO_HUNDRED_ONE_TO_FIVE_HUNDRED">201-500 Employees</option>
+      <option value="FIVE_HUNDRED_ONE_TO_THOUSAND">501-1000 Employees</option>
+      <option value="THOUSAND_PLUS">1000+ Employees</option>
+              </select>
             </div>
-
             <div>
               <label className="block text-sm text-black mb-1">Email</label>
-              <div className="relative">
-                <input
-                  type="text"
-                  placeholder="example@company.com"
-                  className="w-full border border-gray-200 rounded-lg p-4 text-gray-400 text-sm shadow-[0_2px_8px_rgba(0,0,0,0.04)] focus:outline-none focus:ring-2 focus:ring-purple-500"
-                />
-              </div>
+              <input
+                name="email"
+                type="email"
+                value={formData.email}
+                onChange={handleInputChange}
+                placeholder="example@company.com"
+                className="w-full border border-gray-200 rounded-lg p-4 text-sm"
+              />
             </div>
           </div>
 
-          <div>
-            <h2 className="text-lg font-bold text-black mb-4">
-              About your company
-            </h2>
-
-            <div className="grid grid-cols-2 gap-6 mb-10">
-              <div>
-                <label className="block text-sm text-black mb-1">
-                  Industry
-                </label>
-                <div className="relative">
-                  <select className="w-full border border-gray-200 rounded-lg p-4 text-gray-400 text-sm shadow-[0_2px_8px_rgba(0,0,0,0.04)] appearance-none focus:outline-none focus:ring-2 focus:ring-purple-500 bg-white cursor-pointer">
-                    <option value="" disabled selected>
-                      Industry of the Company
-                    </option>
-                    <option>Technology</option>
-                    <option>Finance</option>
-                    <option>Healthcare</option>
-                  </select>
-                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
-                    <svg
-                      className="fill-current h-4 w-4"
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 20 20"
-                    >
-                      <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
-                    </svg>
-                  </div>
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm text-black mb-1">Address</label>
-                <input
-                  type="text"
-                  placeholder="Address of your company"
-                  className="w-full border border-gray-200 rounded-lg p-4 text-gray-400 text-sm shadow-[0_2px_8px_rgba(0,0,0,0.04)] focus:outline-none focus:ring-2 focus:ring-purple-500"
-                />
-              </div>
-            </div>
-
-            {/* Action Buttons */}
-            <div className="flex justify-end gap-4">
-              <button
-                onClick={() => setStep(1)} // Added ability to go back
-                className="border border-[#4e4871] text-[#4e4871] px-6 py-2.5 rounded-lg text-sm font-medium hover:bg-purple-50 transition-colors"
+          <div className="grid grid-cols-2 gap-6 mb-10">
+            <div>
+              <label className="block text-sm text-black mb-1">Industry</label>
+              <select 
+                name="industry" 
+                value={formData.industry} 
+                onChange={handleInputChange}
+                className="w-full border border-gray-200 rounded-lg p-4 text-sm bg-white"
               >
-                Back
-              </button>
-              <button
-                // The image had a next button with the same text and style as screen 1
-                className="bg-[#4e4871] text-white px-8 py-3 rounded-lg text-sm font-medium hover:bg-[#3d3858] transition-colors"
-              >
-                Next Step
-              </button>
+                <option value="">Select Industry</option>
+                {INDUSTRY_OPTIONS.map((opt) => (
+        <option key={opt} value={opt}>
+          {opt.replace("_", " ")}
+        </option>
+      ))}
+              </select>
             </div>
+            <div>
+              <label className="block text-sm text-black mb-1">Address</label>
+              <input
+                name="address"
+                type="text"
+                value={formData.address}
+                onChange={handleInputChange}
+                placeholder="Company Address"
+                className="w-full border border-gray-200 rounded-lg p-4 text-sm"
+              />
+            </div>
+          </div>
+
+          <div className="flex justify-end gap-4">
+            <button onClick={() => setStep(1)} className="border border-[#4e4871] text-[#4e4871] px-6 py-2.5 rounded-lg text-sm">
+              Back
+            </button>
+            <button
+              onClick={handleCompanyCreate}
+              disabled={createCompany.isPending}
+              className="bg-[#4e4871] text-white px-8 py-3 rounded-lg text-sm font-medium hover:bg-[#3d3858]"
+            >
+              {createCompany.isPending ? "Creating..." : "Create Company"}
+            </button>
           </div>
         </div>
       )}
