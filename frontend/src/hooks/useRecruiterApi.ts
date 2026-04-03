@@ -13,6 +13,7 @@ import {
   ApplicationDetail,
   CandidateProfile,
   ApplicationStatus,
+  LocationType,
 } from "../types/recruiter";
 import Notification from "../element/Notification";
 
@@ -61,7 +62,6 @@ export const useApplicationDetail = (applicationId: number) => {
       const response = await apiClient.get<SingleResponse<ApplicationDetail>>(
         `/applications/${applicationId}`,
       );
-      console.log(response);
       return response.data.data;
     },
     enabled: !!applicationId,
@@ -126,6 +126,7 @@ export const useCreateJob = () => {
       experienceLevel?: string;
       salaryRange?: string;
       location: string;
+      locationType: LocationType;
       remoteAvailable: boolean;
     }) => {
       const response = await apiClient.post<SingleResponse<Job>>(
@@ -177,7 +178,7 @@ export const useDeleteJob = () => {
 export const useUpdateRecruiterProfile = () => {
   return useMutation({
     mutationFn: async (data: any) => {
-      const response = await apiClient.patch('/recruiters/profile', data);
+      const response = await apiClient.patch("/recruiters/profile", data);
       return response.data;
     },
   });

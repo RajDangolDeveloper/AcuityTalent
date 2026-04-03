@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { useCreateJob } from "@/src/hooks/useRecruiterApi";
 import Notification from "@/src/element/Notification";
+import { LocationType } from "@/src/types/recruiter";
 
 export default function CreateJobPage() {
   const router = useRouter();
@@ -14,8 +15,9 @@ export default function CreateJobPage() {
     title: "",
     salary: "",
     employmentType: "FULL_TIME",
-    locationtype: "HYBRID",
     experience: "",
+    experienceLevel: "",
+    requirements: "",
     location: "",
     locationType: "ONSITE",
     description: "",
@@ -55,12 +57,12 @@ export default function CreateJobPage() {
       await createJobMutation.mutateAsync({
         title: formData.title,
         description: formData.description,
-        requirements: formData.experience,
+        requirements: formData.requirements,
         employmentType: formData.employmentType,
-        experienceLevel: undefined,
+        experienceLevel: formData.experienceLevel,
         salaryRange: formData.salary,
         location: formData.location,
-        locationType: formData.locationtype,
+        locationType: formData.locationType as LocationType,
         remoteAvailable: formData.locationType === "REMOTE" ? true : false,
       });
 
@@ -186,7 +188,7 @@ export default function CreateJobPage() {
                   </label>
                   <select
                     name="locationtype"
-                    value={formData.locationtype}
+                    value={formData.locationType}
                     onChange={handleChange}
                     className="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary-500"
                   >
@@ -199,16 +201,19 @@ export default function CreateJobPage() {
               <div className="grid grid-cols-2 gap-6 mb-6">
                 <div>
                   <label className="block text-sm font-semibold text-gray-900 mb-2">
-                    Experience
+                    Experience Level
                   </label>
-                  <input
-                    type="text"
-                    name="experience"
-                    placeholder="e.g. 2 - 5+ years"
-                    value={formData.experience}
+                  <select
+                    name="experienceLevel"
+                    value={formData.experienceLevel}
                     onChange={handleChange}
                     className="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary-500"
-                  />
+                  >
+                    <option value="ENTRY">Entry level</option>
+                    <option value="MID">Mid level</option>
+                    <option value="SENIOR">Senior Level</option>
+                    <option value="EXECUTIVE">Executive Level</option>
+                  </select>
                 </div>
 
                 <div>
@@ -265,6 +270,27 @@ In this role, you'll be responsible for creating intuitive, user-centered design
 - Experience working in Agile/Scrum environments
 - Familiarity with front-end technologies (HTML, CSS, React)"
                   value={formData.description}
+                  onChange={handleChange}
+                  className={`w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-primary-500 font-mono text-sm h-60 ${
+                    errors.description ? "border-red-500" : "border-gray-300"
+                  }`}
+                  rows={20}
+                />
+                {errors.description && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors.description}
+                  </p>
+                )}
+              </div>
+
+              <div className="mt-4">
+                <label className="block text-sm font-semibold text-gray-900 mb-2">
+                  Requirements <span className="text-red-500">*</span>
+                </label>
+                <textarea
+                  name="requirements"
+                  placeholder="Write about the requirements for you position"
+                  value={formData.requirements}
                   onChange={handleChange}
                   className={`w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-primary-500 font-mono text-sm h-60 ${
                     errors.description ? "border-red-500" : "border-gray-300"

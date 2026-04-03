@@ -19,12 +19,12 @@ import {
   WorkExperience,
   Education,
 } from "@/src/types/candidate";
-import { useGetUser } from "@/src/hooks/useUserApi";
+import { useGetCurrentUser } from "@/src/hooks/useUserApi";
 import { useRecruiterCompanies } from "@/src/hooks/useCompanyApi";
 
 export default function CandidateProfilePage() {
   const { data: profile } = useCandidateProfile();
-  const { data: user } = useGetUser();
+  const { data: user } = useGetCurrentUser();
   const { data: experiences } = useCandidateWorkExperiences();
   const { data: educations } = useCandidateEducations();
   const { data: companies } = useRecruiterCompanies();

@@ -3,11 +3,12 @@
 import { useEffect, useState } from "react";
 import { Button } from "@/src/components/recruiter/Button";
 import { useRecruiterCompanies } from "@/src/hooks/useCompanyApi";
+import { useGetCurrentUser } from "@/src/hooks/useUserApi";
 
 export default function ProfilePage() {
   const { data: companies } = useRecruiterCompanies();
   const [selectedCompanyId, setSelectedCompanyId] = useState<number | "">("");
-
+  const { data: recruiter } = useGetCurrentUser();
   useEffect(() => {
     if (companies && companies.length && selectedCompanyId === "") {
       setSelectedCompanyId(companies[0].id);
@@ -27,7 +28,9 @@ export default function ProfilePage() {
             <div className="flex items-center gap-6 mb-8">
               <div className="w-24 h-24 rounded-full bg-gray-200 border-4 border-white shadow" />
               <h1 className="text-2xl font-semibold text-gray-900">
-                Raj Dangol
+                {(recruiter?.firstName ?? "Mr") +
+                  " " +
+                  (recruiter?.lastName ?? "No Name")}
               </h1>
             </div>
 
@@ -40,6 +43,7 @@ export default function ProfilePage() {
                   <input
                     type="text"
                     className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#433875]"
+                    defaultValue={recruiter?.firstName ?? ""}
                   />
                 </div>
                 <div>
@@ -49,6 +53,7 @@ export default function ProfilePage() {
                   <input
                     type="text"
                     className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#433875]"
+                    defaultValue={recruiter?.lastName ?? ""}
                   />
                 </div>
                 <div>
@@ -67,6 +72,7 @@ export default function ProfilePage() {
                   <input
                     type="tel"
                     className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#433875]"
+                    defaultValue={recruiter?.contactPhone ?? ""}
                   />
                 </div>
                 <div>
@@ -76,6 +82,7 @@ export default function ProfilePage() {
                   <input
                     type="email"
                     className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#433875]"
+                    defaultValue={recruiter?.contactEmail ?? ""}
                   />
                 </div>
               </div>

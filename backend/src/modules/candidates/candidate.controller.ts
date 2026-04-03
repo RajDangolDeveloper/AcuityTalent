@@ -28,7 +28,7 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 export class CandidateController {
   constructor(private candidateService: CandidateService) {}
 
-  @Post('profile/create')
+  @Post('profile')
   @HttpCode(HttpStatus.CREATED)
   async createProfile(
     @Body() createDto: CreateCandidateProfileDto,
@@ -59,29 +59,17 @@ export class CandidateController {
     };
   }
 
-  @Get(':id')
-  async getCandidateById(
-    @Param('id') id: string,
-    @Req() req: any,
-  ): Promise<{ statusCode: number; data: CandidateProfileResponseDto }> {
-    const profile = await this.candidateService.getCandidateProfileById(
-      parseInt(id),
-      req.user.id,
-    );
-
-    return {
-      statusCode: HttpStatus.OK,
-      data: profile,
-    };
+  @Get('profile/current')
+  async GetCurrentCandidateProfile(@Req() req) {
+    const userId = req.user.id;
+    return this.candidateService.getCandidateProfile(userId);
   }
 
-  @Get('user/:id')
+  @Get('profile/user')
   async getCandidateByUserId(
-    @Param('id') id: string,
     @Req() req: any,
   ): Promise<{ statusCode: number; data: CandidateProfileResponseDto }> {
     const profile = await this.candidateService.getCandidateProfileById(
-      parseInt(id),
       req.user.id,
     );
 
@@ -225,5 +213,19 @@ export class CandidateController {
     @Req() req: any,
   ): Promise<void> {
     await this.candidateService.deleteEducation(req.user.id, parseInt(id));
+  }
+
+  @Get(':id')
+  async getCandidateById(
+    @Param('id') id: string,
+  ): Promise<{ statusCode: number; data: CandidateProfileResponseDto }> {
+    const profile = await this.candidateService.getCandidateProfileById(
+      parseInt(id),
+    );
+
+    return {
+      statusCode: HttpStatus.OK,
+      data: profile,
+    };
   }
 }

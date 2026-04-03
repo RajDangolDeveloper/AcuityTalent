@@ -72,6 +72,7 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async jwt({ token, user, trigger }) {
       if (user) {
+        token.id = user.id;
         token.accessToken = user.access_token;
         token.role = user.role;
         token.isOnboarded = user.isOnboarded;
@@ -81,7 +82,11 @@ export const authOptions: NextAuthOptions = {
 
       if (trigger === "update" && token.id) {
         try {
-          const response = await apiClient.get("/users/current");
+          const response = await apiClient.get("/users/current", {
+            headers: {
+              Authorization: `Bearer ${token.accessToken}`,
+            },
+          });
           const freshUser = response.data;
           if (freshUser) {
             token.isOnboarded = freshUser.isOnboarded;
@@ -98,7 +103,7 @@ export const authOptions: NextAuthOptions = {
     },
     async session({ session, token }) {
       if (session.user) {
-        session.user.id = token.sub || "";
+        session.user.id = (token.id as string) || "";
         session.user.role = token.role as string;
         session.accessToken = token.accessToken as string;
         session.user.isOnboarded = token.isOnboarded as boolean;

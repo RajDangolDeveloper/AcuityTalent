@@ -13,6 +13,7 @@ import { CandidateModule } from './modules/candidates/candidate.module';
 import { SavedJobModule } from './modules/saved-jobs/saved-job.module';
 import { RecruiterModule } from './modules/recruiters/recruiter.module';
 import { UserModule } from './modules/user/user.module';
+import { InterviewGateway } from './modules/interview/interview.gateway';
 
 @Module({
   imports: [
@@ -32,6 +33,6 @@ import { UserModule } from './modules/user/user.module';
     SavedJobModule,
   ],
   controllers: [AppController],
-  providers: [AppService, PrismaService, EmailService],
+  providers: [AppService, PrismaService, EmailService, InterviewGateway],
 })
 export class AppModule {}

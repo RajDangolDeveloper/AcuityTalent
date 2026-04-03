@@ -8,11 +8,10 @@ export class EmailService {
   private transporter: nodemailer.Transporter;
 
   constructor(private configService: ConfigService) {
-    // Setup the transporter using environment variables
     this.transporter = nodemailer.createTransport({
       host: this.configService.get<string>('MAIL_HOST'),
       port: this.configService.get<number>('MAIL_PORT'),
-      secure: false, // true for 465, false for other ports
+      secure: false,
       auth: {
         user: this.configService.get<string>('MAIL_USER'),
         pass: this.configService.get<string>('MAIL_PASS'),
@@ -38,9 +37,6 @@ export class EmailService {
     }
   }
 
-  /**
-   * Step 18: Send shortlist notification email to candidate
-   */
   async sendShortlistEmail(data: {
     email: string;
     jobTitle: string;
@@ -71,9 +67,6 @@ export class EmailService {
     }
   }
 
-  /**
-   * Step 23: Send offer/hiring email to candidate
-   */
   async sendOfferEmail(data: {
     email: string;
     jobTitle: string;
@@ -106,9 +99,6 @@ export class EmailService {
     }
   }
 
-  /**
-   * Steps 26, 30: Send rejection email to candidate
-   */
   async sendRejectionEmail(data: {
     email: string;
     jobTitle: string;
@@ -140,9 +130,6 @@ export class EmailService {
     }
   }
 
-  /**
-   * Step 12: Send new application notification to recruiter
-   */
   async sendApplicationNotificationEmail(data: {
     email: string;
     candidateName: string;

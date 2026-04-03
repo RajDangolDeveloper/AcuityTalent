@@ -69,10 +69,16 @@ export class UserService {
     }
   }
 
-  async getCurrentUser(id: number) {
-    return this.prisma.user.findUnique({
+  async getUserById(id: number) {
+    return this.prisma.user.findUniqueOrThrow({
       where: {
         id: id,
+      },
+      omit: {
+        passwordHash: true,
+        createdAt: true,
+        updatedAt: true,
+        isOnboarded: true,
       },
     });
   }

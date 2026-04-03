@@ -1,6 +1,6 @@
 generator client {
-  provider = "prisma-client-js"
-  moduleFormat = "esm"
+  provider               = "prisma-client-js"
+  moduleFormat           = "esm"
   generatedFileExtension = "js"
 }
 
@@ -10,19 +10,32 @@ datasource db {
 
 // User Role Enum
 enum Role {
-  CANDIDATE 
+  CANDIDATE
   RECRUITER
   ADMIN
 }
 
+enum ParticipantStatus {
+  WAITING
+  ACTIVE
+  DISCONNECTED
+  LEFT
+}
+
+enum ParticipantRole {
+  INTERVIEWER
+  CANDIDATE
+  OBSERVER
+}
+
 // Company Size Enum
 enum CompanySize {
-  ONE_TO_TEN        // "1-10"
-  ELEVEN_TO_FIFTY   // "11-50"
-  FIFTY_ONE_TO_TWO_HUNDRED      // "51-200"
+  ONE_TO_TEN // "1-10"
+  ELEVEN_TO_FIFTY // "11-50"
+  FIFTY_ONE_TO_TWO_HUNDRED // "51-200"
   TWO_HUNDRED_ONE_TO_FIVE_HUNDRED // "201-500"
   FIVE_HUNDRED_ONE_TO_THOUSAND // "501-1000"
-  THOUSAND_PLUS     // "1000+"
+  THOUSAND_PLUS // "1000+"
 }
 
 // Industry Enum (common industries)
@@ -91,6 +104,22 @@ enum ApplicationStatus {
   WITHDRAWN
 }
 
+enum InterviewType {
+  SCREENING
+  TECHNICAL
+  FINAL
+  HR
+  SYSTEM_DESIGN
+}
+
+enum InterviewStatus {
+  SCHEDULED
+  COMPLETED
+  CANCELLED
+  RESCHEDULED
+  NO_SHOW
+}
+
 // Education Level Enum
 enum EducationLevel {
   HIGH_SCHOOL
@@ -112,22 +141,24 @@ enum FileType {
 }
 
 model User {
-  id           Int              @id @default(autoincrement())
-  email        String           @unique
+  id           Int      @id @default(autoincrement())
+  email        String   @unique
   passwordHash String
   firstName    String?
   lastName     String?
   contactPhone String?
-  contactEmail String?          // Can be different from login email
+  contactEmail String? // Can be different from login email
   role         Role
-  isOnboarded  Boolean          @default(false)
-  createdAt    DateTime         @default(now())
-  updatedAt    DateTime         @default(now())   @updatedAt
-  
-  // Relationships
-  otps         Otp[]
-  recruiter    RecruiterProfile?
-  candidate    CandidateProfile?
+  isOnboarded  Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @default(now()) @updatedAt
+
+  // Existing Relationships
+  otps      Otp[]
+  recruiter RecruiterProfile?
+  candidate CandidateProfile?
+
+  interviewParticipants InterviewParticipant[]
 }
 
 model Otp {
@@ -136,168 +167,170 @@ model Otp {
   email     String
   expiresAt DateTime
   createdAt DateTime @default(now())
-  
+
   // Relationships
-  user      User     @relation(fields: [email], references: [email], onDelete: Cascade)
-  
+  user User @relation(fields: [email], references: [email], onDelete: Cascade)
+
   @@index([email])
 }
 
 model Company {
-  id            Int               @id @default(autoincrement())
-  ownerId       Int
-  name          String
-  description   String?
-  logoUrl       String?
+  id               Int          @id @default(autoincrement())
+  ownerId          Int
+  name             String
+  description      String?
+  logoUrl          String?
   backgroundImgUrl String?
-  websiteUrl    String?
-  companyEmail  String
-  companySize   CompanySize?
-  industry      Industry?
-  officeAddress String?
-  isVerified    Boolean           @default(false)
-  createdAt     DateTime          @default(now())
-  updatedAt     DateTime          @default(now())   @updatedAt
-  
+  websiteUrl       String?
+  companyEmail     String
+  companySize      CompanySize?
+  industry         Industry?
+  officeAddress    String?
+  isVerified       Boolean      @default(false)
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @default(now()) @updatedAt
+
   // Relationships
-  recruiters    RecruiterProfile[]
-  employees     CandidateProfile[]  // Candidates currently working at this company
-  jobs          Job[]               // Jobs posted by this company
-  
+  recruiters RecruiterProfile[]
+  employees  CandidateProfile[] // Candidates currently working at this company
+  jobs       Job[] // Jobs posted by this company
+
   @@index([name])
   @@index([industry])
   @@index([companySize])
 }
 
 model RecruiterProfile {
-  id           Int      @id @default(autoincrement())
-  userId       Int      @unique
-  companyId    Int
+  id            Int      @id @default(autoincrement())
+  userId        Int      @unique
+  companyId     Int
   positionTitle String?
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
   // Relationships
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  company      Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  jobs         Job[]
-  
+  user                User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  company             Company     @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  jobs                Job[]
+  interviewsConducted Interview[] @relation("RecruiterInterviews")
+
   @@index([userId])
   @@index([companyId])
 }
 
 model CandidateProfile {
-  id                Int           @id @default(autoincrement())
-  userId            Int           @unique
+  id                Int                        @id @default(autoincrement())
+  userId            Int                        @unique
   headline          String?
   currentPosition   String?
   currentCompanyId  Int?
   experienceYears   Int?
-  highestDegree    EducationLevel?
-  skills            String[]      // Changed to array type
+  highestDegree     EducationLevel?
+  skills            String[] // Changed to array type
   preferredLocation String?
   preferredJobType  EmploymentType?
   expectedSalary    Float?
   embedding         CandidateProfileEmbedding?
   linkedinUrl       String?
   githubUrl         String?
-  phone             String?       // Candidate contact phone
-  location          String?       // Current location
-  summary           String?       // Professional summary
-  createdAt         DateTime      @default(now())
-  updatedAt         DateTime      @updatedAt
-  
+  phone             String? // Candidate contact phone
+  location          String? // Current location
+  summary           String? // Professional summary
+  createdAt         DateTime                   @default(now())
+  updatedAt         DateTime                   @updatedAt
+
   // Relationships
-  user              User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  currentCompany    Company?      @relation(fields: [currentCompanyId], references: [id], onDelete: SetNull)
-  resumes           Resume[]
-  applications      Application[]
-  workHistory       WorkExperience[]
-  education         Education[]
-  savedJobs         SavedJob[]
-  
+  user             User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  currentCompany   Company?               @relation(fields: [currentCompanyId], references: [id], onDelete: SetNull)
+  resumes          Resume[]
+  applications     Application[]
+  workHistory      WorkExperience[]
+  education        Education[]
+  savedJobs        SavedJob[]
+  interviewsJoined InterviewParticipant[]
+
   @@index([userId])
-  @@index([skills])  // PostgreSQL supports GIN indexes on arrays
+  @@index([skills]) // PostgreSQL supports GIN indexes on arrays
   @@index([experienceYears])
   @@index([highestDegree])
 }
 
 model CandidateProfileEmbedding {
-  id              Int      @id @default(autoincrement())
-  candidateProfileId Int @unique
+  id                 Int              @id @default(autoincrement())
+  candidateProfileId Int              @unique
   candidateProfile   CandidateProfile @relation(fields: [candidateProfileId], references: [id], onDelete: Cascade)
-  
-  embedding       Float[]
-  model           String   @default("all-mpnet-base-v2")
-  
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-  
+
+  embedding Float[]
+  model     String  @default("all-mpnet-base-v2")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   @@index([candidateProfileId])
 }
 
 model WorkExperience {
-  id              Int      @id @default(autoincrement())
-  candidateId     Int
-  company         String
-  position        String
-  startDate       DateTime
-  endDate         DateTime?
-  isCurrent       Boolean  @default(false)
-  description     String?
-  createdAt       DateTime @default(now())
-  
+  id          Int       @id @default(autoincrement())
+  candidateId Int
+  company     String
+  position    String
+  startDate   DateTime
+  endDate     DateTime?
+  isCurrent   Boolean   @default(false)
+  description String?
+  createdAt   DateTime  @default(now())
+
   // Relationships
-  candidate       CandidateProfile @relation(fields: [candidateId], references: [id], onDelete: Cascade)
-  
+  candidate CandidateProfile @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+
   @@index([candidateId])
 }
 
 model Education {
-  id              Int           @id @default(autoincrement())
-  candidateId     Int
-  institution     String
-  degree          EducationLevel
-  fieldOfStudy    String?
-  startDate       DateTime
-  endDate         DateTime?
-  gpa             Float?
-  description     String?
-  createdAt       DateTime      @default(now())
-  
+  id           Int            @id @default(autoincrement())
+  candidateId  Int
+  institution  String
+  degree       EducationLevel
+  fieldOfStudy String?
+  startDate    DateTime
+  endDate      DateTime?
+  gpa          Float?
+  description  String?
+  createdAt    DateTime       @default(now())
+
   // Relationships
-  candidate       CandidateProfile @relation(fields: [candidateId], references: [id], onDelete: Cascade)
-  
+  candidate CandidateProfile @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+
   @@index([candidateId])
 }
 
 model Job {
-  id                  Int            @id @default(autoincrement())
-  companyId           Int            // Direct company reference
-  recruiterId         Int            // Recruiter who posted the job
+  id                  Int              @id @default(autoincrement())
+  companyId           Int // Direct company reference
+  recruiterId         Int // Recruiter who posted the job
   title               String
   description         String
   requirements        String?
   employmentType      EmploymentType
   experienceLevel     ExperienceLevel?
   salaryRange         String?
-  location            String   
-  locationType        LocationType    
-  remoteAvailable     Boolean        @default(false)
-  status              JobStatus      @default(DRAFT)
+  location            String
+  locationType        LocationType
+  remoteAvailable     Boolean          @default(false)
+  status              JobStatus        @default(DRAFT)
   postedDate          DateTime?
   applicationDeadline DateTime?
   embedding           JobEmbedding?
-  viewsCount          Int            @default(0)
-  createdAt           DateTime       @default(now())
-  updatedAt           DateTime       @updatedAt
-  
+  viewsCount          Int              @default(0)
+  createdAt           DateTime         @default(now())
+  updatedAt           DateTime         @updatedAt
+
   // Relationships
-  company             Company        @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  recruiter           RecruiterProfile @relation(fields: [recruiterId], references: [id], onDelete: Cascade)
-  applications        Application[]
-  savedBy             SavedJob[]
-  
+  company      Company          @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  recruiter    RecruiterProfile @relation(fields: [recruiterId], references: [id], onDelete: Cascade)
+  applications Application[]
+  savedBy      SavedJob[]
+
   @@index([companyId])
   @@index([recruiterId])
   @@index([status])
@@ -308,60 +341,59 @@ model Job {
 }
 
 model JobEmbedding {
-  id              Int      @id @default(autoincrement())
-  jobId           Int      @unique
-  job             Job      @relation(fields: [jobId], references: [id], onDelete: Cascade)
-  
-  embedding       Float[]
-  model           String   @default("all-mpnet-base-v2")
-  
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-  
+  id    Int @id @default(autoincrement())
+  jobId Int @unique
+  job   Job @relation(fields: [jobId], references: [id], onDelete: Cascade)
+
+  embedding Float[]
+  model     String  @default("all-mpnet-base-v2")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   @@index([jobId])
 }
-
-
 
 model Resume {
   id          Int       @id @default(autoincrement())
   candidateId Int
-  filePath    String    // S3 URL or local path
+  filePath    String // S3 URL or local path
   fileName    String
   fileType    FileType
-  fileSize    Int       // in bytes
-  aiScore     Int       // in percentage
-  textContent String?   // Extracted text for search
+  fileSize    Int // in bytes
+  aiScore     Int // in percentage
+  textContent String? // Extracted text for search
   uploadedAt  DateTime? @default(now())
   createdAt   DateTime  @default(now())
-  
+
   // Relationships
-  candidate   CandidateProfile @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  candidate    CandidateProfile @relation(fields: [candidateId], references: [id], onDelete: Cascade)
   applications Application[]
-  
+
   @@index([candidateId])
   @@index([createdAt])
 }
 
-
-
 model Application {
-  id          Int               @id @default(autoincrement())
-  candidateId Int
-  jobId       Int
-  resumeId    Int
-  coverLetter String?
-  status      ApplicationStatus @default(APPLIED)
-  matchScore  Float?            // AI matching score (0-100)
-  appliedAt   DateTime          @default(now())
-  reviewedAt  DateTime?
-  updatedAt   DateTime          @updatedAt
-  
+  id           Int               @id @default(autoincrement())
+  candidateId  Int
+  jobId        Int
+  resumeId     Int
+  coverLetter  String?
+  status       ApplicationStatus @default(APPLIED)
+  hadInterview Boolean           @default(false)
+  matchScore   Float? // AI matching score (0-100)
+  appliedAt    DateTime          @default(now())
+  reviewedAt   DateTime?
+  updatedAt    DateTime          @updatedAt
+
   // Relationships
-  candidate   CandidateProfile @relation(fields: [candidateId], references: [id], onDelete: Cascade)
-  job         Job              @relation(fields: [jobId], references: [id], onDelete: Cascade)
-  resume      Resume           @relation(fields: [resumeId], references: [id], onDelete: Cascade)
-  
+  candidate CandidateProfile @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  job       Job              @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  resume    Resume           @relation(fields: [resumeId], references: [id], onDelete: Cascade)
+
+  interviews Interview[]
+
   @@unique([candidateId, jobId])
   @@index([candidateId])
   @@index([jobId])
@@ -375,12 +407,60 @@ model SavedJob {
   candidateId Int
   jobId       Int
   createdAt   DateTime @default(now())
-  
+
   // Relationships
-  candidate   CandidateProfile @relation(fields: [candidateId], references: [id], onDelete: Cascade)
-  job         Job              @relation(fields: [jobId], references: [id], onDelete: Cascade)
-  
+  candidate CandidateProfile @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  job       Job              @relation(fields: [jobId], references: [id], onDelete: Cascade)
+
   @@unique([candidateId, jobId])
   @@index([candidateId])
   @@index([jobId])
+}
+
+model InterviewParticipant {
+  id          Int @id @default(autoincrement())
+  interviewId Int
+  userId      Int
+
+  // WAITING (in queue), ACTIVE (in the video call), LEFT (finished)
+  role     ParticipantRole   @default(CANDIDATE)
+  status   ParticipantStatus @default(WAITING)
+  joinedAt DateTime          @default(now())
+
+  interview          Interview         @relation(fields: [interviewId], references: [id])
+  user               User              @relation(fields: [userId], references: [id])
+  candidateProfile   CandidateProfile? @relation(fields: [candidateProfileId], references: [id])
+  candidateProfileId Int?
+
+  @@unique([interviewId, userId])
+}
+
+model Interview {
+  id            Int @id @default(autoincrement())
+  applicationId Int
+  interviewerId Int
+
+  roomId        String    @unique
+  recordingUrl  String?
+  actualStartAt DateTime?
+  actualEndAt   DateTime?
+
+  // EXISTING FIELDS
+  interviewType InterviewType
+  status        InterviewStatus
+  scheduledAt   DateTime
+  meetingLink   String?
+  notes         String?
+  createdAt     DateTime               @default(now())
+  updatedAt     DateTime               @updatedAt
+  participants  InterviewParticipant[]
+
+  application Application      @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  interviewer RecruiterProfile @relation("RecruiterInterviews", fields: [interviewerId], references: [id], onDelete: Restrict)
+
+  @@index([applicationId])
+  @@index([interviewerId])
+  @@index([scheduledAt])
+  @@index([status])
+  @@index([roomId])
 }

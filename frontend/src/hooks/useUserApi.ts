@@ -12,11 +12,21 @@ export const useGetAllUsers = () => {
   });
 };
 
-export const useGetUser = () => {
+export const useGetCurrentUser = () => {
   return useQuery({
-    queryKey: ["users"],
+    queryKey: ["user"],
     queryFn: async () => {
-      const response = await apiClient.get<UserResponseDto>("/users");
+      const response = await apiClient.get<UserResponseDto>("/users/current");
+      return response.data;
+    },
+  });
+};
+
+export const useGetUserById = (id: number) => {
+  return useQuery({
+    queryKey: ["particular-users"],
+    queryFn: async () => {
+      const response = await apiClient.get<UserResponseDto>(`/users/${id}`);
       return response.data;
     },
   });
@@ -45,7 +55,7 @@ export const useUpdateUser = () => {
         `/users/${id}`,
         data,
       );
-      console.log(response.data)
+      console.log(response.data);
       return response.data;
     },
     onSuccess: (updatedUser) => {

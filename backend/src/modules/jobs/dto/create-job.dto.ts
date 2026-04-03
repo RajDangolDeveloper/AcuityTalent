@@ -12,18 +12,18 @@ export class CreateJobDto {
   @IsString()
   @MinLength(5)
   @MaxLength(255)
-  title: string;
+  title!: string;
 
   @IsString()
   @MinLength(20)
-  description: string;
+  description!: string;
 
   @IsOptional()
   @IsString()
   requirements?: string;
 
   @IsEnum(EmploymentType)
-  employmentType: EmploymentType;
+  employmentType!: EmploymentType;
 
   @IsOptional()
   @IsEnum(ExperienceLevel)
@@ -35,7 +35,7 @@ export class CreateJobDto {
 
   @IsString()
   @MinLength(3)
-  location: string;
+  location!: string;
 
   @IsEnum(LocationType)
   locationType;

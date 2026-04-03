@@ -88,4 +88,16 @@ export class RecruiterService {
       },
     });
   }
+
+  async getRecruiterProfileByUserId(id: number) {
+    return this.prisma.recruiterProfile.findUnique({
+      where: {
+        userId: id,
+      },
+      include: {
+        user: true,
+        company: true,
+      },
+    });
+  }
 }

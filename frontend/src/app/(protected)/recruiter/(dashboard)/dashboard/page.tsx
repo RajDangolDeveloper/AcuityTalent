@@ -17,7 +17,7 @@ export default function RecruiterDashboard() {
     },
     {
       label: "Total Applicants",
-      value: jobs.reduce((sum, job) => sum + job.applicationCount, 0),
+      value: jobs.reduce((sum, job) => sum + (job.applicationCount ?? 0), 0),
       icon: Users,
       color: "bg-green-100 text-green-600",
     },
@@ -60,20 +60,20 @@ export default function RecruiterDashboard() {
           {/* Stats Grid */}
           <div className="grid grid-cols-4 gap-6 mb-8">
             {stats.map((stat) => {
-              const Icon = stat.icon;
+              const Icon = stat.icon ?? "";
               return (
                 <div
-                  key={stat.label}
+                  key={stat.label ?? ""}
                   className="bg-white rounded-lg border border-gray-200 p-6"
                 >
                   <div
-                    className={`${stat.color} w-12 h-12 rounded-lg flex items-center justify-center mb-4`}
+                    className={`${stat.color ?? ""} w-12 h-12 rounded-lg flex items-center justify-center mb-4`}
                   >
                     <Icon size={24} />
                   </div>
                   <p className="text-gray-600 text-sm mb-1">{stat.label}</p>
                   <p className="text-3xl font-bold text-gray-900">
-                    {stat.value}
+                    {stat.value ?? ""}
                   </p>
                 </div>
               );

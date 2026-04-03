@@ -1,32 +1,16 @@
 "use client";
 
 import { SessionProvider, signOut, useSession } from "next-auth/react";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
+import { QueryClientProvider } from "@tanstack/react-query";
 import { ThemeProvider } from "./themeProvider";
-import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import { ToastContainer } from "react-toastify";
+import { queryClient } from "../lib/query-client";
 
 export default function Provider({
   children,
 }: {
   children: React.ReactElement;
 }) {
-  const [queryClient] = useState(
-    () =>
-      new QueryClient({
-        defaultOptions: {
-          queries: {
-            // Do not refetch when window/tab gains focus — avoids showing
-            // loading states on every tab switch. Initial page load still fetches.
-            refetchOnWindowFocus: false,
-            // Optional: avoid automatic refetch on reconnect as well
-            refetchOnReconnect: false,
-          },
-        },
-      }),
-  );
-
   return (
     <SessionProvider refetchInterval={5 * 60} refetchOnWindowFocus={true}>
       <ThemeProvider>

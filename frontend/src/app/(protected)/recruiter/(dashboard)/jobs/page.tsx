@@ -4,7 +4,6 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import React from "react";
 import Link from "next/link";
-import CandidateCard from "@/src/components/recruiter/CandidateCard";
 import JobCard from "@/src/components/recruiter/JobCard";
 import {
   useDeleteJob,
@@ -21,6 +20,7 @@ import {
   MapPin,
 } from "lucide-react";
 import Markdown from "react-markdown";
+import { useUpdateJobStatus } from "@/src/hooks/useJobApi";
 
 export default function JobsPage() {
   const [selectedJobId, setSelectedJobId] = useState<number | null>(null);

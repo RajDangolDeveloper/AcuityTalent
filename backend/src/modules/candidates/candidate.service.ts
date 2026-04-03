@@ -45,6 +45,10 @@ export class CandidateService {
   ): Promise<CandidateProfileResponseDto> {
     const profile = await this.prisma.candidateProfile.findUnique({
       where: { userId },
+      include: {
+        education: true,
+        workHistory: true,
+      },
     });
 
     if (!profile) {
@@ -56,10 +60,23 @@ export class CandidateService {
 
   async getCandidateProfileById(
     candidateId: number,
-    requestingUserId: number,
   ): Promise<CandidateProfileResponseDto> {
     const profile = await this.prisma.candidateProfile.findUnique({
       where: { id: candidateId },
+    });
+
+    if (!profile) {
+      throw new NotFoundException('Candidate profile not found');
+    }
+
+    return profile;
+  }
+
+  async getCandidateProfileByUserId(
+    candidateId: number,
+  ): Promise<CandidateProfileResponseDto> {
+    const profile = await this.prisma.candidateProfile.findUnique({
+      where: { userId: candidateId },
     });
 
     if (!profile) {

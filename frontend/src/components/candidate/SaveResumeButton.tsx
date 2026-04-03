@@ -49,10 +49,38 @@ const SaveResumeButton = ({
         type: "application/pdf",
       });
 
+      const stringifySection = (data: any): string => {
+        if (!data) return "";
+
+        if (Array.isArray(data)) {
+          return data
+            .map((item) =>
+              typeof item === "object" ? Object.values(item).join(" ") : item,
+            )
+            .join(", ");
+        }
+
+        // If it's a single object, grab all its values (e.g., degree, university, year)
+        if (typeof data === "object") {
+          return Object.values(data).join(" ");
+        }
+
+        return String(data);
+      };
+
+      const dataParts = [
+        stringifySection(resumeData.summary),
+        stringifySection(resumeData.skills),
+        stringifySection(resumeData.education),
+        stringifySection(resumeData.experience),
+      ];
+
+      const textContent = dataParts.filter((part) => !!part).join("\n\n");
+
       const formData = new FormData();
       formData.append("file", file);
       formData.append("userId", userId.toString());
-      formData.append("textContent", JSON.stringify(resumeData));
+      formData.append("textContent", JSON.stringify(textContent));
 
       const response = await apiClient.post("/resumes/upload", formData);
 

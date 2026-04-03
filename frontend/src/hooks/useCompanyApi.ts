@@ -8,7 +8,6 @@ export const useRecruiterCompanies = () => {
     queryKey: ["recruiter-companies"],
     queryFn: async () => {
       const response = await apiClient.get<SingleResponse<any>>("/companies");
-      console.log(response);
       return response.data.data;
     },
   });
@@ -106,18 +105,6 @@ export const useDeleteCompany = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["companies"] });
-    },
-  });
-};
-
-export const useGetRecruiterCompanies = () => {
-  return useQuery({
-    queryKey: ["recruiter-companies"],
-    queryFn: async () => {
-      const response = await apiClient.get<SingleResponse<any>>(
-        "/companies/recruiter",
-      );
-      return response.data.data;
     },
   });
 };

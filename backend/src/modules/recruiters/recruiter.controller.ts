@@ -23,17 +23,23 @@ import { DeleteRecruiterProfileDto } from './dto/DeleteRecruiterProfile.dto';
 export class RecruiterController {
   constructor(private recruiterService: RecruiterService) {}
 
-  @Post('profile/create')
+  @Get('profile')
+  async GetRecruiterProfile(@Body() id: number) {
+    return this.recruiterService.getRecruiterProfile(id);
+  }
+
+  @Get('profile/current')
+  async GetCurrentRecruiterProfile(@Req() req) {
+    const userId = req.user.id;
+    return this.recruiterService.getRecruiterProfileByUserId(userId);
+  }
+
+  @Post('profile')
   @HttpCode(HttpStatus.CREATED)
   async CreateRecruiterProfile(
     @Body() createRecruiterProfile: CreateRecruiterProfileDto,
   ) {
     return this.recruiterService.createRecruiterProfile(createRecruiterProfile);
-  }
-  Profile;
-  @Get('profile')
-  async GetRecruiterProfile(@Body() id: number) {
-    return this.recruiterService.getRecruiterProfile(id);
   }
 
   @Patch('profile')

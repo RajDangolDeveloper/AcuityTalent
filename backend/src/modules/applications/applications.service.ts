@@ -12,12 +12,15 @@ import { UpdateApplicationStatusDto } from './dto/update-application-status.dto'
 import { GetApplicationsQueryDto } from './dto/get-applications-query.dto';
 import { ApplicationResponseDto } from './dto/application-response.dto';
 import { ApplicationStatus, Role, JobStatus } from '@prisma/client';
+import { AiService } from '../ai/ai.service';
+import { MatchScoreRequest } from '../ai/dto/matchingScoreRequest.dto';
 
 @Injectable()
 export class ApplicationService {
   constructor(
     private prisma: PrismaService,
     private emailService: EmailService,
+    private aiService: AiService,
   ) {}
 
   async createApplication(
@@ -27,7 +30,6 @@ export class ApplicationService {
     // Verify candidate exists
     const candidate = await this.prisma.candidateProfile.findUnique({
       where: { userId },
-      include: { user: true },
     });
 
     if (!candidate) {
@@ -69,6 +71,20 @@ export class ApplicationService {
     if (existingApplication) {
       throw new ConflictException('You have already applied for this job');
     }
+    const matchScoreRequest = new MatchScoreRequest();
+    var score;
+    matchScoreRequest.jobContent = job.description + job.requirements;
+    matchScoreRequest.resumeContent = resume.textContent || '';
+    const matchScore = await this.aiService
+      .getMatchingScore(matchScoreRequest)
+      .subscribe({
+        next: (response) => {
+          score = response.score;
+        },
+        error: (err) => {
+          console.error('something went wrong', err);
+        },
+      });
 
     const application = await this.prisma.application.create({
       data: {
@@ -76,6 +92,7 @@ export class ApplicationService {
         jobId: createApplicationDto.jobId,
         resumeId: createApplicationDto.resumeId,
         coverLetter: createApplicationDto.coverLetter,
+        matchScore: Number(score),
         status: ApplicationStatus.APPLIED,
         appliedAt: new Date(),
       },
@@ -541,4 +558,116 @@ export class ApplicationService {
       total,
     };
   }
+
+  //Dashboard Functions
+  async getResponseRate(id: number) {
+    const candidate = await this.prisma.candidateProfile.findUnique({
+      where: {
+        userId: id,
+      },
+    });
+
+    if (!candidate) {
+      return Error('Candidate Profile not found');
+    }
+
+    const respondedApplications = await this.prisma.application.count({
+      where: {
+        candidateId: candidate.id,
+        status: {
+          notIn: ['APPLIED', 'WITHDRAWN'],
+        },
+      },
+    });
+    const totalApplications = await this.prisma.application.count({
+      where: {
+        candidateId: candidate.id,
+      },
+    });
+
+    const responseRate =
+      ((respondedApplications ?? 0) /
+        (totalApplications === 0 ? 1 : totalApplications)) *
+      100;
+
+    return responseRate;
+  }
+
+  async getUserTotalApplications(id: number) {
+    const candidate = await this.prisma.candidateProfile.findUnique({
+      where: {
+        userId: id,
+      },
+    });
+
+    if (!candidate) {
+      return Error('Candidate Profile not found');
+    }
+
+    const totalApplications = await this.prisma.application.count({
+      where: {
+        candidateId: candidate.id,
+      },
+    });
+    return totalApplications;
+  }
+
+  async getInterviewRate(id: number) {
+    const candidate = await this.prisma.candidateProfile.findUnique({
+      where: {
+        userId: id,
+      },
+    });
+
+    if (!candidate) {
+      return Error('Candidate Profile not found');
+    }
+
+    const respondedApplications = await this.prisma.application.count({
+      where: {
+        candidateId: candidate.id,
+        hadInterview: true,
+      },
+    });
+    const totalApplications = await this.prisma.application.count({
+      where: {
+        candidateId: candidate.id,
+      },
+    });
+
+    if (totalApplications === 0) {
+      return 0;
+    }
+
+    const interviewRate = (respondedApplications / totalApplications) * 100;
+
+    return Math.round(interviewRate * 100) / 100;
+  }
+
+  async getNumberOfOffers(id: number) {
+    const candidate = await this.prisma.candidateProfile.findUnique({
+      where: {
+        userId: id,
+      },
+    });
+
+    if (!candidate) {
+      return Error('Candidate Profile not found');
+    }
+
+    const jobOffers = await this.prisma.application.count({
+      where: {
+        status: 'OFFER_EXTENDED',
+        candidateId: candidate.id,
+      },
+    });
+
+    return jobOffers;
+  }
+
+  async getRecommendedJobs(id: number) {}
+
+  async getRecentJobApplications(id: number) {}
+
+  async getUserActivity(id: number) {}
 }

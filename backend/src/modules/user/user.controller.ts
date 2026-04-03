@@ -20,19 +20,25 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @Post()
-  async createUser(@Body() createUserDto: CreateUserDto) {
-    return this.userService.createUser(createUserDto);
-  }
-
   @Get('current')
   async getCurrentUsers(@Req() req) {
-    return this.userService.getCurrentUser(req.user.id);
+    const user = req.user.id;
+    return await this.userService.getUserById(Number(user));
   }
 
   @Get('all')
   async getAllUsers() {
     return this.userService.getAllUsers();
+  }
+
+  @Post()
+  async createUser(@Body() createUserDto: CreateUserDto) {
+    return this.userService.createUser(createUserDto);
+  }
+
+  @Get(':id')
+  async getUserById(@Param() id: number) {
+    return this.userService.getUserById(id);
   }
 
   @Patch(':id')

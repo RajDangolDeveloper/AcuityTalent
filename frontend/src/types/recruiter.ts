@@ -20,6 +20,8 @@ export type ExperienceLevel = "ENTRY" | "MID" | "SENIOR" | "EXECUTIVE";
 
 export type JobStatus = "ACTIVE" | "CLOSED" | "DRAFT";
 
+export type LocationType = "HYBRID" | "REMOTE" | "ONSITE";
+
 export interface Job {
   id: number;
   title: string;

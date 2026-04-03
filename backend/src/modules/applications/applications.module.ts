@@ -3,14 +3,14 @@ import { ApplicationController } from './applications.controller';
 import { ApplicationService } from './applications.service';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { EmailService } from 'src/config/email.service';
+import { AiService } from '../ai/ai.service';
+import { AiModule } from '../ai/ai.module';
+import { HttpModule } from '@nestjs/axios';
 
-/**
- * ApplicationModule - Encapsulates all application-related functionality
- * Dependencies: Prisma (database), Email (notifications)
- */
 @Module({
+  imports: [HttpModule],
   controllers: [ApplicationController],
-  providers: [ApplicationService, PrismaService, EmailService],
+  providers: [ApplicationService, PrismaService, EmailService, AiService],
   exports: [ApplicationService],
 })
 export class ApplicationModule {}

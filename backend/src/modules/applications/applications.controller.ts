@@ -23,21 +23,34 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 export class ApplicationController {
   constructor(private applicationService: ApplicationService) {}
 
-  @Post()
-  @HttpCode(HttpStatus.CREATED)
-  async createApplication(
-    @Body() createApplicationDto: CreateApplicationDto,
-    @Req() req: any,
-  ): Promise<{ statusCode: number; data: ApplicationResponseDto }> {
-    const application = await this.applicationService.createApplication(
-      createApplicationDto,
-      req.user.id,
-    );
+  @Get('candidate/responserate')
+  async getResponseRateForUser(@Req() req: any) {
+    const userId = req.user.id;
+    const responseRate = await this.applicationService.getResponseRate(userId);
+    return responseRate;
+  }
 
-    return {
-      statusCode: HttpStatus.CREATED,
-      data: application,
-    };
+  @Get('candidate/totalApplications')
+  async getTotalApplicationsForUser(@Req() req: any) {
+    const userId = req.user.id;
+    const totalApplications =
+      await this.applicationService.getUserTotalApplications(userId);
+    return totalApplications;
+  }
+
+  @Get('candidate/interviewrate')
+  async getInterviewRate(@Req() req: any) {
+    const userId = req.user.id;
+    const interviewRate =
+      await this.applicationService.getInterviewRate(userId);
+    return interviewRate;
+  }
+
+  @Get('candidate/totaloffers')
+  async getOfferNumber(@Req() req: any) {
+    const userId = req.user.id;
+    const offerNumber = await this.applicationService.getNumberOfOffers(userId);
+    return offerNumber;
   }
 
   @Get('recruiter/all')
@@ -145,6 +158,23 @@ export class ApplicationController {
 
     return {
       statusCode: HttpStatus.OK,
+      data: application,
+    };
+  }
+
+  @Post()
+  @HttpCode(HttpStatus.CREATED)
+  async createApplication(
+    @Body() createApplicationDto: CreateApplicationDto,
+    @Req() req: any,
+  ): Promise<{ statusCode: number; data: ApplicationResponseDto }> {
+    const application = await this.applicationService.createApplication(
+      createApplicationDto,
+      req.user.id,
+    );
+
+    return {
+      statusCode: HttpStatus.CREATED,
       data: application,
     };
   }
