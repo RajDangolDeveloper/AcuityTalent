@@ -1,6 +1,6 @@
 "use client";
 
-import { useGetCandidateApplications } from "@/src/hooks/useApplicationApi";
+import { useGetCandidateApplications } from "@/src/hooks/useCandidateApi";
 import { CandidateApplication, ApplicationStatus } from "@/src/types/candidate";
 import {
   Briefcase,

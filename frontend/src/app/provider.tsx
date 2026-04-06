@@ -4,7 +4,7 @@ import { SessionProvider, signOut, useSession } from "next-auth/react";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { ThemeProvider } from "./themeProvider";
 import { ToastContainer } from "react-toastify";
-import { queryClient } from "../lib/query-client";
+import { queryClient } from "@/library/queryClient";
 
 export default function Provider({
   children,

@@ -1,6 +1,5 @@
 import {
   useQuery,
-  UseMutationResult,
   useMutation,
   useQueryClient,
 } from "@tanstack/react-query";
@@ -140,11 +139,11 @@ export const useCreateJob = () => {
 };
 
 // Get recruiter's companies
-export const useRecruiterCompanies = () => {
+export const useGetRecruiterCompanies = () => {
   return useQuery({
     queryKey: ["recruiter-companies"],
     queryFn: async () => {
-      const response = await apiClient.get<SingleResponse<any>>("/companies");
+      const response = await apiClient.get<SingleResponse<any>>("/companies/recruiter");
       console.log(response);
       return response.data.data;
     },

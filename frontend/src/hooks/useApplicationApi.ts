@@ -3,7 +3,7 @@
 import { useMutation } from "@tanstack/react-query";
 import apiClient from "@/src/app/api/api-client";
 import { CandidateApplication, SingleResponse } from "@/src/types/candidate";
-import { queryClient } from "../lib/query-client";
+import { queryClient } from "@/library/queryClient";
 
 export const useCreateApplication = () => {
   return useMutation({

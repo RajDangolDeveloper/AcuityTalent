@@ -8,10 +8,9 @@ import {
 import { PrismaService } from 'src/prisma/prisma.service';
 import { EmailService } from 'src/config/email.service';
 import { CreateApplicationDto } from './dto/create-application.dto';
-import { UpdateApplicationStatusDto } from './dto/update-application-status.dto';
 import { GetApplicationsQueryDto } from './dto/get-applications-query.dto';
 import { ApplicationResponseDto } from './dto/application-response.dto';
-import { ApplicationStatus, Role, JobStatus } from '@prisma/client';
+import { ApplicationStatus, JobStatus } from '@prisma/client';
 import { AiService } from '../ai/ai.service';
 import { MatchScoreRequest } from '../ai/dto/matchingScoreRequest.dto';
 
@@ -168,7 +167,7 @@ export class ApplicationService {
 
     if (!candidate) {
       throw new ForbiddenException(
-        'Only candidates can view their applications',
+        'No Candidate Found',
       );
     }
 
@@ -234,6 +233,26 @@ export class ApplicationService {
         'You do not have permission to view this application',
       );
     }
+
+    const applicationUpdate = await this.prisma.application.update({
+  where: { id: applicationId },
+  data: {
+    status: 'REVIEWED', 
+  },
+  include: {
+    candidate: { 
+      include: { user: true } 
+    },
+    job: { 
+      include: { 
+        recruiter: { 
+          include: { company: true } 
+        } 
+      } 
+    },
+    resume: true,
+  },
+});
 
     return this.formatApplicationResponse(application);
   }

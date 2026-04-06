@@ -1,8 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import apiClient from "../app/api/api-client";
 import { Job, PaginatedResponse, SingleResponse } from "../types/recruiter";
-import { queryClient } from "../lib/query-client";
 import { JobDetails, SavedJob } from "../types/candidate";
+import { queryClient } from "@/library/queryClient";
 
 // Get all active jobs with filters
 export const getAllJobs = (

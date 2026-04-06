@@ -114,6 +114,7 @@ enum InterviewType {
 
 enum InterviewStatus {
   SCHEDULED
+  IN_PROGRESS
   COMPLETED
   CANCELLED
   RESCHEDULED
@@ -150,6 +151,7 @@ model User {
   contactEmail String? // Can be different from login email
   role         Role
   isOnboarded  Boolean  @default(false)
+  isVerified   Boolean @default(false)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @default(now()) @updatedAt
 

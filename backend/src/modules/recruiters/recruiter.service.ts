@@ -1,5 +1,5 @@
 import { PrismaService } from 'src/prisma/prisma.service';
-import { Injectable, NotFoundException, Req } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateRecruiterProfileDto } from './dto/CreateRecruiterProfile.dto';
 import { UpdateRecruiterProfileDto } from './dto/UpdateRecruiterProfile.dto';
 import { DeleteRecruiterProfileDto } from './dto/DeleteRecruiterProfile.dto';
@@ -9,17 +9,6 @@ export class RecruiterService {
   constructor(private prisma: PrismaService) {}
 
   async createRecruiterProfile(userData: CreateRecruiterProfileDto) {
-    const userFound = await this.prisma.recruiterProfile.findFirst({
-      where: {
-        userId: userData.userId,
-      },
-    });
-
-    if (!userFound) {
-      throw new NotFoundException(
-        `Recruiter with ID ${userData.userId} not found`,
-      );
-    }
     return this.prisma.recruiterProfile.create({
       data: {
         userId: userData.userId,

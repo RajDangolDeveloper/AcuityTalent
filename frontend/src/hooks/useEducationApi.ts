@@ -1,6 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 import apiClient from "../app/api/api-client";
-import { queryClient } from "../lib/query-client";
+import { queryClient } from "@/library/queryClient";
 import { SingleResponse, Education } from "../types/recruiter";
 
 export const useCreateEducation = () => {
