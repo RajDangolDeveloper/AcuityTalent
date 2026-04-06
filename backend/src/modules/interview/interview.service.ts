@@ -1,35 +1,58 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { CreateInterviewDto, InterviewStatus } from './dto/createInterview.dto';
+import { PrismaClient, Interview, InterviewStatus } from '@prisma/client';
+import { v4 as uuidv4 } from 'uuid';
+import { CreateInterviewDto } from './dto/createInterview.dto';
 import { UpdateInterviewDto } from './dto/updateInterview.dto';
-import { Interview } from '@prisma/client';
+import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
 export class InterviewsService {
-  constructor(
-    @InjectRepository(Interview)
-    private readonly interviewRepository: Repository<Interview>,
-  ) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   async create(createInterviewDto: CreateInterviewDto): Promise<Interview> {
-    const interview = this.interviewRepository.create({
-      ...createInterviewDto,
-      roomId: uuidv4().slice(0, 12),
+    return this.prisma.interview.create({
+      data: {
+        ...createInterviewDto,
+        roomId: uuidv4().slice(0, 12),
+        status: InterviewStatus.SCHEDULED,
+      },
     });
-    return this.interviewRepository.save(interview);
   }
 
   async findAll(): Promise<Interview[]> {
-    return this.interviewRepository.find({
-      relations: ['application', 'application.candidate', 'interviewer'],
-      order: { scheduledAt: 'ASC' },
+    return this.prisma.interview.findMany({
+      include: {
+        application: {
+          include: {
+            candidate: true,
+          },
+        },
+        interviewer: true,
+      },
+      orderBy: {
+        scheduledAt: 'asc',
+      },
     });
   }
 
   async findByCandidate(candidateId: number): Promise<Interview[]> {
-    return this.interviewRepository.find({
-      where: { application: { candidateId } },
-      relations: ['application', 'application.job', 'interviewer'],
-      order: { scheduledAt: 'ASC' },
+    return this.prisma.interview.findMany({
+      where: {
+        application: {
+          candidateId,
+        },
+      },
+      include: {
+        application: {
+          include: {
+            job: true,
+          },
+        },
+        interviewer: true,
+      },
+      orderBy: {
+        scheduledAt: 'asc',
+      },
     });
   }
 
@@ -41,46 +64,70 @@ export class InterviewsService {
     const startOfMonth = new Date(year, month - 1, 1);
     const endOfMonth = new Date(year, month, 0, 23, 59, 59);
 
-    return this.interviewRepository.find({
+    return this.prisma.interview.findMany({
       where: {
-        application: { candidateId },
-        scheduledAt: { gte: startOfMonth, lte: endOfMonth },
+        application: {
+          candidateId,
+        },
+        scheduledAt: {
+          gte: startOfMonth,
+          lte: endOfMonth,
+        },
         status: InterviewStatus.SCHEDULED,
       },
-      relations: ['application', 'application.job', 'interviewer'],
-      order: { scheduledAt: 'ASC' },
+      include: {
+        application: {
+          include: {
+            job: true,
+          },
+        },
+        interviewer: true,
+      },
+      orderBy: {
+        scheduledAt: 'asc',
+      },
     });
   }
 
   async findOne(id: number): Promise<Interview> {
-    const interview = await this.interviewRepository.findOne({
+    const interview = await this.prisma.interview.findUnique({
       where: { id },
-      relations: [
-        'application',
-        'application.job',
-        'application.candidate',
-        'interviewer',
-      ],
+      include: {
+        application: {
+          include: {
+            candidate: true,
+            job: true,
+          },
+        },
+        interviewer: true,
+      },
     });
+
     if (!interview) {
       throw new NotFoundException(`Interview with ID ${id} not found`);
     }
+
     return interview;
   }
 
   async findByRoomId(roomId: string): Promise<Interview> {
-    const interview = await this.interviewRepository.findOne({
+    const interview = await this.prisma.interview.findUnique({
       where: { roomId },
-      relations: [
-        'application',
-        'application.job',
-        'application.candidate',
-        'interviewer',
-      ],
+      include: {
+        application: {
+          include: {
+            candidate: true,
+            job: true,
+          },
+        },
+        interviewer: true,
+      },
     });
+
     if (!interview) {
       throw new NotFoundException(`Interview with Room ID ${roomId} not found`);
     }
+
     return interview;
   }
 
@@ -88,9 +135,17 @@ export class InterviewsService {
     id: number,
     updateInterviewDto: UpdateInterviewDto,
   ): Promise<Interview> {
-    const interview = await this.findOne(id);
-    Object.assign(interview, updateInterviewDto);
-    return this.interviewRepository.save(interview);
+    try {
+      return await this.prisma.interview.update({
+        where: { id },
+        data: updateInterviewDto,
+      });
+    } catch (error) {
+      if (error) {
+        throw new NotFoundException(`Interview with ID ${id} not found`);
+      }
+      throw error;
+    }
   }
 
   async markInProgress(id: number): Promise<Interview> {
@@ -109,9 +164,13 @@ export class InterviewsService {
   }
 
   async remove(id: number): Promise<void> {
-    const result = await this.interviewRepository.delete(id);
-    if (result.affected === 0) {
-      throw new NotFoundException(`Interview with ID ${id} not found`);
+    try {
+      await this.prisma.interview.delete({ where: { id } });
+    } catch (error) {
+      if (error) {
+        throw new NotFoundException(`Interview with ID ${id} not found`);
+      }
+      throw error;
     }
   }
 }

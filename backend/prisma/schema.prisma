@@ -114,6 +114,7 @@ enum InterviewType {
 
 enum InterviewStatus {
   SCHEDULED
+  IN_PROGRESS
   COMPLETED
   CANCELLED
   RESCHEDULED
@@ -447,7 +448,7 @@ model Interview {
 
   // EXISTING FIELDS
   interviewType InterviewType
-  status        InterviewStatus
+  status        InterviewStatus       
   scheduledAt   DateTime
   meetingLink   String?
   notes         String?

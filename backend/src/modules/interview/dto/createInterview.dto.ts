@@ -6,6 +6,7 @@ import {
   IsString,
   IsUUID,
   IsUrl,
+  IsDate,
 } from 'class-validator';
 
 export enum InterviewType {
@@ -34,8 +35,8 @@ export class CreateInterviewDto {
   @IsEnum(InterviewType)
   interviewType!: InterviewType;
 
-  @IsDateString()
-  scheduledAt!: string;
+  @IsDate()
+  scheduledAt!: Date;
 
   @IsOptional()
   @IsString()
@@ -50,5 +51,3 @@ export class CreateInterviewDto {
   @IsString()
   notes?: string;
 }
-
-

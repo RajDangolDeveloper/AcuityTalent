@@ -1,11 +1,11 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
 import InterviewCard from "@/src/components/interview/InterviewCard";
 import InterviewDetailModal from "@/src/components/interview/InterviewDetailModel";
 import { useUpcomingInterviews } from "@/src/hooks/useInterviewApi";
 import { InterviewType, Interview } from "@/src/types/interview";
+import router from "next/router";
+import { useState } from "react";
 
 const typeLabels: Record<InterviewType, string> = {
   [InterviewType.SCREENING]: "Screening",
@@ -16,7 +16,6 @@ const typeLabels: Record<InterviewType, string> = {
 };
 
 export default function InterviewsPage() {
-  const router = useRouter();
   const [filter, setFilter] = useState<
     "all" | "today" | "this-week" | InterviewType
   >("all");

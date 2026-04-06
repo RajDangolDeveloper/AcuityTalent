@@ -1,11 +1,12 @@
 import { Module } from '@nestjs/common';
 import { InterviewsController } from './interview.controller';
-import { InterviewGateway } from './interview.gateway';
 import { InterviewsService } from './interview.service';
+import { InterviewGateway } from './interview.gateway';
+import { PrismaService } from 'src/prisma/prisma.service';
 
 @Module({
   controllers: [InterviewsController],
-  providers: [InterviewsService, InterviewGateway],
+  providers: [InterviewsService, InterviewGateway, PrismaService],
   exports: [InterviewsService],
 })
 export class InterviewsModule {}

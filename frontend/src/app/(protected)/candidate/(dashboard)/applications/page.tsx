@@ -1,6 +1,6 @@
 "use client";
 
-import { useGetCandidateApplications } from "@/src/hooks/useApplicationApi";
+import { useGetCandidateApplications } from "@/src/hooks/useCandidateApi";
 import { CandidateApplication, ApplicationStatus } from "@/src/types/candidate";
 import {
   Briefcase,
@@ -96,7 +96,6 @@ const STATUS_LABEL: Record<ApplicationStatus, string> = {
   WITHDRAWN: "Withdrawn",
 };
 
-
 function ApplicationCard({ app }: { app: CandidateApplication }) {
   const appliedDate = new Date(app.appliedAt).toLocaleDateString("en-US", {
     month: "short",
@@ -166,7 +165,6 @@ function ApplicationCard({ app }: { app: CandidateApplication }) {
   );
 }
 
-
 function KanbanColumn({
   column,
   apps,
@@ -193,7 +191,9 @@ function KanbanColumn({
       <div className="flex flex-col gap-3">
         {apps.length === 0 ? (
           <div className="border-2 border-dashed border-gray-200 rounded-xl p-6 flex flex-col items-center justify-center gap-2 min-h-[100px]">
-            <div className={`w-2 h-2 rounded-full ${column.dotColor} opacity-50`} />
+            <div
+              className={`w-2 h-2 rounded-full ${column.dotColor} opacity-50`}
+            />
             <p className="text-xs text-gray-400 text-center">
               No applications here yet
             </p>
@@ -207,16 +207,20 @@ function KanbanColumn({
 }
 
 export default function ApplicationsPage() {
-  const { data: applications, isLoading, isError } = useGetCandidateApplications();
+  const {
+    data: applications,
+    isLoading,
+    isError,
+  } = useGetCandidateApplications();
 
   const getColumnApps = (column: Column) =>
     (applications ?? []).filter((a) =>
-      (column.statuses as string[]).includes(a.status)
+      (column.statuses as string[]).includes(a.status),
     );
 
   const total = applications?.length ?? 0;
   const activeCount = (applications ?? []).filter(
-    (a) => !["REJECTED", "WITHDRAWN"].includes(a.status)
+    (a) => !["REJECTED", "WITHDRAWN"].includes(a.status),
   ).length;
 
   return (
@@ -237,7 +241,9 @@ export default function ApplicationsPage() {
             </div>
             <div className="h-8 w-px bg-gray-200" />
             <div className="text-center">
-              <p className="text-2xl font-bold text-emerald-600">{activeCount}</p>
+              <p className="text-2xl font-bold text-emerald-600">
+                {activeCount}
+              </p>
               <p className="text-xs text-gray-500">Active</p>
             </div>
             <div className="h-8 w-px bg-gray-200" />
