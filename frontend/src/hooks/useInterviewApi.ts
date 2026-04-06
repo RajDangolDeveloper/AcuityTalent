@@ -7,7 +7,7 @@ import {
 } from "@tanstack/react-query";
 import apiClient from "../app/api/api-client";
 import { Interview } from "../types/interview";
-import { queryClient } from "../lib/query-client";
+import { queryClient } from "@/library/queryClient";
 import { interviewQueryKeys } from "../constants/interview/query-keys";
 
 export const useUpcomingInterviews = (

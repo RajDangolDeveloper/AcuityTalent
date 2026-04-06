@@ -155,6 +155,7 @@ export class AuthService {
         contactPhone: true,
         contactEmail: true,
         isOnboarded: true,
+        isVerified : true
       },
     });
 

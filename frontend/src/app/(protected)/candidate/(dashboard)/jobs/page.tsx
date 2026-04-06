@@ -3,18 +3,18 @@
 import { useState, useMemo } from "react";
 import { Search, Briefcase, Bookmark, MoveUpRight } from "lucide-react";
 import {
-  getAllJobs,
-  useJobDetails,
-  useCandidateApplications,
   useCandidateSavedJobs,
-  useCreateApplication,
-  useSaveJob,
-  useRemoveSavedJob,
   useCandidateResumes,
 } from "@/src/hooks/useCandidateApi";
+import {  useGetCandidateApplications,} from "@/src/hooks/useCandidateApi";
+import {   getAllJobs,
+  useJobDetails,} from "@/src/hooks/useJobApi";
+import {  useSaveJob,
+  useRemoveSavedJob,} from "@/src/hooks/useJobApi";
 import { Job, EmploymentType, ExperienceLevel } from "@/src/types/candidate";
 import Notification from "@/src/element/Notification";
 import Markdown from "react-markdown";
+import { useCreateApplication } from "@/src/hooks/useApplicationApi";
 
 export default function CandidateJobsPage() {
   const [page, setPage] = useState(1);
@@ -40,7 +40,7 @@ export default function CandidateJobsPage() {
   });
 
   const { data: savedJobsData } = useCandidateSavedJobs(1, 50);
-  const { data: applicationsData } = useCandidateApplications(1, 50);
+  const { data: applicationsData } = useGetCandidateApplications();
   const { data: selectedJob, isLoading: selectedJobLoading } =
     useJobDetails(selectedJobId);
   const { data: resumes = [] } = useCandidateResumes();

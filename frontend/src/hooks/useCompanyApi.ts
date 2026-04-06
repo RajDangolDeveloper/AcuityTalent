@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import apiClient from "../app/api/api-client";
-import { PaginatedResponse, Job, SingleResponse } from "../types/recruiter";
+import { PaginatedResponse, SingleResponse } from "../types/recruiter";
 import { Company, CreateCompanyDto, UpdateCompanyDto } from "../types/company";
 
 export const useRecruiterCompanies = () => {

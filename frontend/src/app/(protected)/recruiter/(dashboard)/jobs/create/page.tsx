@@ -207,6 +207,7 @@ export default function CreateJobPage() {
                     name="experienceLevel"
                     value={formData.experienceLevel}
                     onChange={handleChange}
+                    defaultValue={'ENTRY'}
                     className="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary-500"
                   >
                     <option value="ENTRY">Entry level</option>

@@ -2,11 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { Building2 } from "lucide-react";
-import {
-  useGetRecruiterCompanies,
-  useUpdateCompany,
-} from "@/src/hooks/useCompanyApi";
-
+import { useUpdateCompany } from "@/src/hooks/useCompanyApi";
+import {useGetRecruiterCompanies} from "@/src/hooks/useRecruiterApi";
 export default function ViewCompanyPage() {
   const { data: company, isLoading, error } = useGetRecruiterCompanies();
   const updateCompany = useUpdateCompany();

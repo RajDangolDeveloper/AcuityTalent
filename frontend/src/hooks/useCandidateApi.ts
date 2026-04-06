@@ -15,7 +15,8 @@ import {
 } from "@/src/types/candidate";
 import { ApplicationsResponse } from "../types/application";
 import { candidateQueryKeys } from "../constants/candidate/query-keys";
-import { queryClient } from "../lib/query-client";
+import { queryClient } from "@/library/queryClient";
+
 
 export const useGetCandidateApplications = () => {
   const params = { page: 1, limit: 50 };
