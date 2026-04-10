@@ -10,7 +10,7 @@ import { EmailService } from 'src/config/email.service';
 import { CreateApplicationDto } from './dto/create-application.dto';
 import { GetApplicationsQueryDto } from './dto/get-applications-query.dto';
 import { ApplicationResponseDto } from './dto/application-response.dto';
-import { ApplicationStatus, JobStatus } from '@prisma/client';
+import { ApplicationStatus, InterviewStatus, JobStatus } from '@prisma/client';
 import { AiService } from '../ai/ai.service';
 import { MatchScoreRequest } from '../ai/dto/matchingScoreRequest.dto';
 import { CandidateService } from '../candidates/candidate.service';
@@ -405,9 +405,57 @@ export class ApplicationService {
       },
     });
 
+    if (
+      newStatus === ApplicationStatus.OFFER_EXTENDED ||
+      newStatus === ApplicationStatus.REJECTED
+    ) {
+      await this.completeActiveInterviewsForApplication(applicationId);
+    }
+
     await this.handleStatusChangeNotifications(updatedApplication, newStatus);
 
     return this.formatApplicationResponse(updatedApplication);
+  }
+
+  private async completeActiveInterviewsForApplication(
+    applicationId: number,
+  ): Promise<void> {
+    const activeInterviews = await this.prisma.interview.findMany({
+      where: {
+        applicationId,
+        status: {
+          in: [
+            InterviewStatus.PENDING,
+            InterviewStatus.SCHEDULED,
+            InterviewStatus.IN_PROGRESS,
+          ],
+        },
+      },
+      select: {
+        id: true,
+        scheduledAt: true,
+        actualStartAt: true,
+      },
+    });
+
+    if (!activeInterviews.length) {
+      return;
+    }
+
+    const completedAt = new Date();
+
+    await this.prisma.$transaction(
+      activeInterviews.map((interview) =>
+        this.prisma.interview.update({
+          where: { id: interview.id },
+          data: {
+            status: InterviewStatus.COMPLETED,
+            actualStartAt: interview.actualStartAt ?? interview.scheduledAt,
+            actualEndAt: completedAt,
+          },
+        }),
+      ),
+    );
   }
 
   private validateStatusTransition(

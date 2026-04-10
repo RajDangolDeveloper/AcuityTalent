@@ -29,10 +29,21 @@ export default function InterviewRoomPage() {
         audio: true,
       });
       setLocalStream(stream);
+      setIsVideoEnabled(stream.getVideoTracks().length > 0);
       return stream;
     } catch (err) {
-      console.error("Failed to get media stream:", err);
-      throw err;
+      try {
+        const audioOnlyStream = await navigator.mediaDevices.getUserMedia({
+          video: false,
+          audio: true,
+        });
+        setLocalStream(audioOnlyStream);
+        setIsVideoEnabled(false);
+        return audioOnlyStream;
+      } catch (audioErr) {
+        console.error("Failed to get media stream:", audioErr);
+        throw audioErr;
+      }
     }
   }, []);
 
@@ -60,12 +71,18 @@ export default function InterviewRoomPage() {
   }, [interview, localStream, router, markCompleted]);
 
   const toggleVideo = useCallback(() => {
-    if (localStream) {
-      localStream
-        .getVideoTracks()
-        .forEach((track) => (track.enabled = !isVideoEnabled));
-      setIsVideoEnabled(!isVideoEnabled);
-    }
+    if (!localStream) return;
+
+    const cameraTracks = localStream
+      .getVideoTracks()
+      .filter((track) => !track.getSettings().displaySurface);
+
+    if (cameraTracks.length === 0) return;
+
+    cameraTracks.forEach((track) => {
+      track.enabled = !isVideoEnabled;
+    });
+    setIsVideoEnabled(!isVideoEnabled);
   }, [localStream, isVideoEnabled]);
 
   const toggleAudio = useCallback(() => {

@@ -34,8 +34,18 @@ export default function RecruiterInterviewRoomPage() {
         audio: true,
       });
       setLocalStream(stream);
+      setIsVideoEnabled(stream.getVideoTracks().length > 0);
     } catch (err) {
-      console.error("Failed to get media stream:", err);
+      try {
+        const audioOnlyStream = await navigator.mediaDevices.getUserMedia({
+          video: false,
+          audio: true,
+        });
+        setLocalStream(audioOnlyStream);
+        setIsVideoEnabled(false);
+      } catch (audioErr) {
+        console.error("Failed to get media stream:", audioErr);
+      }
     }
   }, []);
 
@@ -72,9 +82,15 @@ export default function RecruiterInterviewRoomPage() {
   const toggleVideo = useCallback(() => {
     if (!localStream) return;
 
-    localStream
+    const cameraTracks = localStream
       .getVideoTracks()
-      .forEach((track) => (track.enabled = !isVideoEnabled));
+      .filter((track) => !track.getSettings().displaySurface);
+
+    if (cameraTracks.length === 0) return;
+
+    cameraTracks.forEach((track) => {
+      track.enabled = !isVideoEnabled;
+    });
     setIsVideoEnabled(!isVideoEnabled);
   }, [localStream, isVideoEnabled]);
 
@@ -154,6 +170,7 @@ export default function RecruiterInterviewRoomPage() {
               onLeave={handleLeave}
               roomId={interview.roomId}
               allowScreenShare
+              prioritizeRemoteScreenShare
               localParticipantName={interviewerName || "Interviewer"}
               remoteParticipantName={candidateName}
               meetingTitle={interview.application?.job?.title || "Interview"}

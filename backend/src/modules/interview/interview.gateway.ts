@@ -4,6 +4,7 @@ import {
   SubscribeMessage,
   MessageBody,
   ConnectedSocket,
+  OnGatewayDisconnect,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { Logger } from '@nestjs/common';
@@ -11,10 +12,11 @@ import { Logger } from '@nestjs/common';
 @WebSocketGateway({
   cors: { origin: process.env.FRONTEND_URL || 'http://localhost:3000' },
 })
-export class InterviewGateway {
+export class InterviewGateway implements OnGatewayDisconnect {
   @WebSocketServer()
   server!: Server;
   private readonly logger = new Logger(InterviewGateway.name);
+  private readonly roomScreenShares = new Map<string, Set<string>>();
 
   private emitRoomParticipants(roomId: string) {
     const room = this.server.sockets.adapter.rooms.get(roomId);
@@ -23,6 +25,14 @@ export class InterviewGateway {
     this.server.to(roomId).emit('room-participants', {
       roomId,
       participants,
+    });
+  }
+
+  private emitRoomScreenShareState(roomId: string) {
+    const sharers = this.roomScreenShares.get(roomId);
+    this.server.to(roomId).emit('room-screen-share-state', {
+      roomId,
+      activeSharers: sharers ? Array.from(sharers) : [],
     });
   }
 
@@ -35,6 +45,7 @@ export class InterviewGateway {
     this.logger.log(`Client ${client.id} joined room ${roomId}`);
     client.to(roomId).emit('user-joined', client.id);
     this.emitRoomParticipants(roomId);
+    this.emitRoomScreenShareState(roomId);
     return { event: 'joined', data: roomId };
   }
 
@@ -43,10 +54,36 @@ export class InterviewGateway {
     @MessageBody() roomId: string,
     @ConnectedSocket() client: Socket,
   ) {
+    const sharers = this.roomScreenShares.get(roomId);
+    if (sharers) {
+      sharers.delete(client.id);
+      if (sharers.size === 0) {
+        this.roomScreenShares.delete(roomId);
+      }
+      this.emitRoomScreenShareState(roomId);
+    }
+
     client.leave(roomId);
     this.logger.log(`Client ${client.id} left room ${roomId}`);
     client.to(roomId).emit('user-left', client.id);
     this.emitRoomParticipants(roomId);
+  }
+
+  handleDisconnect(client: Socket) {
+    const joinedRooms = Array.from(client.rooms).filter(
+      (id) => id !== client.id,
+    );
+
+    joinedRooms.forEach((roomId) => {
+      const sharers = this.roomScreenShares.get(roomId);
+      if (!sharers) return;
+
+      sharers.delete(client.id);
+      if (sharers.size === 0) {
+        this.roomScreenShares.delete(roomId);
+      }
+      this.emitRoomScreenShareState(roomId);
+    });
   }
 
   @SubscribeMessage('webrtc-offer')
@@ -110,5 +147,31 @@ export class InterviewGateway {
     @ConnectedSocket() client: Socket,
   ) {
     client.to(data.roomId).emit('user-audio-state', data);
+  }
+
+  @SubscribeMessage('toggle-screen-share')
+  handleToggleScreenShare(
+    @MessageBody()
+    data: { roomId: string; senderId: string; isScreenSharing: boolean },
+    @ConnectedSocket() client: Socket,
+  ) {
+    let sharers = this.roomScreenShares.get(data.roomId);
+    if (!sharers) {
+      sharers = new Set<string>();
+      this.roomScreenShares.set(data.roomId, sharers);
+    }
+
+    if (data.isScreenSharing) {
+      sharers.add(data.senderId || client.id);
+    } else {
+      sharers.delete(data.senderId || client.id);
+    }
+
+    if (sharers.size === 0) {
+      this.roomScreenShares.delete(data.roomId);
+    }
+
+    client.to(data.roomId).emit('toggle-screen-share', data);
+    this.emitRoomScreenShareState(data.roomId);
   }
 }

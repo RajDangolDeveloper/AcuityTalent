@@ -27,7 +27,42 @@ export class InterviewsService {
     private readonly emailService: EmailService,
   ) {}
 
+  private async startDueScheduledInterviews(): Promise<void> {
+    const dueInterviews = await this.prisma.interview.findMany({
+      where: {
+        status: InterviewStatus.SCHEDULED,
+        scheduledAt: {
+          lte: new Date(),
+        },
+      },
+      select: {
+        id: true,
+        scheduledAt: true,
+        actualStartAt: true,
+      },
+    });
+
+    if (!dueInterviews.length) {
+      return;
+    }
+
+    await this.prisma.$transaction(
+      dueInterviews.map((interview) =>
+        this.prisma.interview.update({
+          where: { id: interview.id },
+          data: {
+            status: InterviewStatus.IN_PROGRESS,
+            actualStartAt: interview.actualStartAt ?? interview.scheduledAt,
+          },
+        }),
+      ),
+    );
+  }
+
   async create(createInterviewDto: CreateInterviewDto): Promise<Interview> {
+    const scheduledAt = new Date(createInterviewDto.scheduledAt);
+    const shouldStartImmediately = scheduledAt <= new Date();
+
     const recruiter = await this.recruiterService.getRecruiterProfile(
       createInterviewDto.interviewerId,
     );
@@ -70,11 +105,14 @@ export class InterviewsService {
         applicationId: createInterviewDto.applicationId,
         interviewerId: createInterviewDto.interviewerId,
         interviewType: createInterviewDto.interviewType,
-        scheduledAt: new Date(createInterviewDto.scheduledAt),
+        scheduledAt,
         meetingLink: createInterviewDto.meetingLink,
         notes: createInterviewDto.notes,
         roomId,
-        status: InterviewStatus.SCHEDULED,
+        status: shouldStartImmediately
+          ? InterviewStatus.IN_PROGRESS
+          : InterviewStatus.SCHEDULED,
+        actualStartAt: shouldStartImmediately ? scheduledAt : undefined,
         participants: {
           create: [
             {
@@ -111,7 +149,7 @@ export class InterviewsService {
         jobTitle: application.job.title,
         companyName: application.job.recruiter.company.name,
         interviewType: createInterviewDto.interviewType,
-        scheduledAt: new Date(createInterviewDto.scheduledAt),
+        scheduledAt,
         meetingLink: createInterviewDto.meetingLink,
       });
     } catch (error) {
@@ -159,6 +197,8 @@ export class InterviewsService {
   }
 
   async findAll(): Promise<Interview[]> {
+    await this.startDueScheduledInterviews();
+
     return this.prisma.interview.findMany({
       include: {
         application: {
@@ -184,6 +224,8 @@ export class InterviewsService {
   }
 
   async findByCandidate(candidateId: number): Promise<Interview[]> {
+    await this.startDueScheduledInterviews();
+
     return this.prisma.interview.findMany({
       where: {
         application: {
@@ -232,6 +274,8 @@ export class InterviewsService {
     year: number,
     month: number,
   ): Promise<Interview[]> {
+    await this.startDueScheduledInterviews();
+
     const startOfMonth = new Date(year, month - 1, 1);
     const endOfMonth = new Date(year, month, 0, 23, 59, 59);
 
@@ -280,6 +324,8 @@ export class InterviewsService {
   }
 
   async findOne(id: number): Promise<Interview> {
+    await this.startDueScheduledInterviews();
+
     const interview = await this.prisma.interview.findUnique({
       where: { id },
       include: {
@@ -309,6 +355,8 @@ export class InterviewsService {
   }
 
   async findByRoomId(roomId: string): Promise<Interview> {
+    await this.startDueScheduledInterviews();
+
     const interview = await this.prisma.interview.findUnique({
       where: { roomId },
       include: {
