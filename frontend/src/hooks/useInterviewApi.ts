@@ -6,9 +6,31 @@ import {
   QueryKey,
 } from "@tanstack/react-query";
 import apiClient from "../app/api/api-client";
-import { Interview } from "../types/interview";
+import {
+  CreateInterviewDto,
+  Interview,
+  InterviewStatus,
+} from "../types/interview";
 import { queryClient } from "@/library/queryClient";
 import { interviewQueryKeys } from "../constants/interview/query-keys";
+
+export const useCreateInterview = () => {
+  return useMutation({
+    mutationFn: async (newInterview: CreateInterviewDto) =>
+      (await apiClient.post("/interviews", newInterview)).data,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: interviewQueryKeys.interviews.all,
+      });
+    },
+    onError: () => {
+      alert("Failed to create Interview. Please try again.");
+    },
+  });
+};
+
+// Backward-compatible export to avoid breaking existing imports.
+export const createInterview = useCreateInterview;
 
 export const useUpcomingInterviews = (
   month?: string,
@@ -20,10 +42,34 @@ export const useUpcomingInterviews = (
   return useQuery({
     queryKey: interviewQueryKeys.interviews.upcoming(month),
     queryFn: async () => {
-      const query = month ? `?month=${month}` : "";
+      if (!month) {
+        const response = await apiClient.get<Interview[]>(
+          "/interviews/candidate",
+        );
+        return response.data;
+      }
+
+      const [year, monthNum] = month.split("-").map(Number);
+
       const response = await apiClient.get<Interview[]>(
-        `/interviews/candidate${query}`,
+        `/interviews/candidate/month?year=${year}&month=${monthNum}`,
       );
+      return response.data;
+    },
+    ...options,
+  });
+};
+
+export const useInterviews = (
+  options?: Omit<
+    UseQueryOptions<Interview[], Error, Interview[], QueryKey>,
+    "queryKey" | "queryFn"
+  >,
+) => {
+  return useQuery({
+    queryKey: interviewQueryKeys.interviews.all,
+    queryFn: async () => {
+      const response = await apiClient.get<Interview[]>("/interviews");
       return response.data;
     },
     ...options,
@@ -64,14 +110,17 @@ export const useUpdateInterviewStatus = (
   options?: UseMutationOptions<
     Interview,
     Error,
-    { id: number; status: string }
+    { id: number; status: InterviewStatus }
   >,
 ) => {
   return useMutation({
     mutationFn: async ({ id, status }) => {
-      const response = await apiClient.patch<Interview>(`/interviews/${id}`, {
-        status,
-      });
+      const response = await apiClient.patch<Interview>(
+        `/interviews/${id}/status`,
+        {
+          status,
+        },
+      );
       return response.data;
     },
     onSettled: (_, __, { id }) => {
@@ -92,7 +141,7 @@ export const useMarkInterviewInProgress = (
   return useMutation({
     mutationFn: async (id: number) => {
       const response = await apiClient.patch<Interview>(
-        `/interviews/${id}/status/in-progress`,
+        `/interviews/${id}/in-progress`,
       );
       return response.data;
     },
@@ -118,7 +167,7 @@ export const useMarkInterviewCompleted = (
   return useMutation({
     mutationFn: async ({ id, recordingUrl }) => {
       const response = await apiClient.patch<Interview>(
-        `/interviews/${id}/status/completed`,
+        `/interviews/${id}/complete`,
         {
           recordingUrl,
         },
@@ -131,6 +180,55 @@ export const useMarkInterviewCompleted = (
       });
       queryClient.invalidateQueries({
         queryKey: interviewQueryKeys.interviews.upcoming(),
+      });
+    },
+    ...options,
+  });
+};
+
+export const useUpdateInterviewNotes = (
+  options?: UseMutationOptions<Interview, Error, { id: number; notes: string }>,
+) => {
+  return useMutation({
+    mutationFn: async ({ id, notes }) => {
+      const response = await apiClient.patch<Interview>(
+        `/interviews/${id}/notes`,
+        {
+          notes,
+        },
+      );
+      return response.data;
+    },
+    onSettled: (_, __, { id }) => {
+      queryClient.invalidateQueries({
+        queryKey: interviewQueryKeys.interviews.detail(id),
+      });
+    },
+    ...options,
+  });
+};
+
+export const useSendInterviewDecision = (
+  options?:
+    | UseMutationOptions<
+        unknown,
+        Error,
+        { applicationId: number; decision: "OFFER" | "REJECTED" }
+      >
+    | undefined,
+) => {
+  return useMutation({
+    mutationFn: async ({ applicationId, decision }) => {
+      const response = await apiClient.post("/interviews/decision", {
+        applicationId,
+        decision,
+      });
+      return response.data;
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["applications"] });
+      queryClient.invalidateQueries({
+        queryKey: interviewQueryKeys.interviews.all,
       });
     },
     ...options,

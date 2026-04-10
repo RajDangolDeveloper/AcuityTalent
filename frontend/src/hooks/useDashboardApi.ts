@@ -13,6 +13,19 @@ export const useGetCandidateApplicationResponseRate = () => {
   });
 };
 
+export const useGetCandidateRecentApplication = () => {
+  return useQuery({
+    queryKey: ["recent-candidate-applications"],
+    queryFn: async () => {
+      const { data } = await apiClient.get(
+        "/applications/candidate/recentApplications",
+      );
+      console.log(data);
+      return data;
+    },
+  });
+};
+
 export const useGetCandidateTotalApplication = () => {
   return useQuery({
     queryKey: ["total-candidate-applications"],

@@ -2,10 +2,12 @@ generator client {
   provider               = "prisma-client-js"
   moduleFormat           = "esm"
   generatedFileExtension = "js"
+  previewFeatures = ["postgresqlExtensions"]
 }
 
 datasource db {
   provider = "postgresql"
+  extensions = [vector]
 }
 
 // User Role Enum
@@ -113,6 +115,7 @@ enum InterviewType {
 }
 
 enum InterviewStatus {
+  PENDING
   SCHEDULED
   IN_PROGRESS
   COMPLETED
@@ -147,6 +150,7 @@ model User {
   passwordHash String
   firstName    String?
   lastName     String?
+  profilePictureUrl String?
   contactPhone String?
   contactEmail String? // Can be different from login email
   role         Role
@@ -262,7 +266,7 @@ model CandidateProfileEmbedding {
   candidateProfileId Int              @unique
   candidateProfile   CandidateProfile @relation(fields: [candidateProfileId], references: [id], onDelete: Cascade)
 
-  embedding Float[]
+  embedding Unsupported("vector(768)")?
   model     String  @default("all-mpnet-base-v2")
 
   createdAt DateTime @default(now())
@@ -347,7 +351,7 @@ model JobEmbedding {
   jobId Int @unique
   job   Job @relation(fields: [jobId], references: [id], onDelete: Cascade)
 
-  embedding Float[]
+  embedding Unsupported("vector(768)")?
   model     String  @default("all-mpnet-base-v2")
 
   createdAt DateTime @default(now())
@@ -427,7 +431,7 @@ model InterviewParticipant {
   // WAITING (in queue), ACTIVE (in the video call), LEFT (finished)
   role     ParticipantRole   @default(CANDIDATE)
   status   ParticipantStatus @default(WAITING)
-  joinedAt DateTime          @default(now())
+  joinedAt DateTime?          @default(now())
 
   interview          Interview         @relation(fields: [interviewId], references: [id])
   user               User              @relation(fields: [userId], references: [id])

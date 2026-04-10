@@ -4,8 +4,8 @@ import InterviewCard from "@/src/components/interview/InterviewCard";
 import InterviewDetailModal from "@/src/components/interview/InterviewDetailModel";
 import { useUpcomingInterviews } from "@/src/hooks/useInterviewApi";
 import { InterviewType, Interview } from "@/src/types/interview";
-import router from "next/router";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 const typeLabels: Record<InterviewType, string> = {
   [InterviewType.SCREENING]: "Screening",
@@ -22,7 +22,7 @@ export default function InterviewsPage() {
   const [selectedInterview, setSelectedInterview] = useState<Interview | null>(
     null,
   );
-
+  const router = useRouter();
   const now = new Date();
   const month = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
 
@@ -175,7 +175,7 @@ export default function InterviewsPage() {
             });
 
             return (
-              <div key={dateStr} className="relative">
+              <div key={dateStr}>
                 <div
                   className={`flex items-center gap-3 mb-4 p-4 rounded-xl ${isTodayDate ? "bg-indigo-50 border border-indigo-200" : "bg-white/85 border border-white/50 shadow-sm"}`}
                 >
@@ -230,7 +230,7 @@ export default function InterviewsPage() {
         interview={selectedInterview}
         isOpen={!!selectedInterview}
         onClose={() => setSelectedInterview(null)}
-        onJoin={(roomId) => router.push(`/interviews/room/${roomId}`)}
+        onJoin={(roomId) => router.push(`/candidate/interviews/${roomId}`)}
       />
     </div>
   );

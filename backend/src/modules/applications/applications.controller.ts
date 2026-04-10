@@ -23,6 +23,11 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 export class ApplicationController {
   constructor(private applicationService: ApplicationService) {}
 
+  @Get('candidate/recentApplications')
+  async getRecentApplicationsForUser(@Req() req: any) {
+    return this.applicationService.getRecentJobApplications(req.user.id);
+  }
+
   @Get('candidate/responserate')
   async getResponseRateForUser(@Req() req: any) {
     const userId = req.user.id;
@@ -149,11 +154,9 @@ export class ApplicationController {
   @Get(':id')
   async getApplicationById(
     @Param('id') id: string,
-    @Req() req: any,
   ): Promise<{ statusCode: number; data: ApplicationResponseDto }> {
     const application = await this.applicationService.getApplicationById(
       parseInt(id),
-      req.user.id,
     );
 
     return {

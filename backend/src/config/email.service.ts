@@ -33,7 +33,7 @@ export class EmailService {
     try {
       return await this.transporter.sendMail(mailOptions);
     } catch (error) {
-      throw new InternalServerErrorException('Failed to send OTP email', error);
+      throw new InternalServerErrorException('Failed to send OTP email');
     }
   }
 
@@ -60,10 +60,7 @@ export class EmailService {
     try {
       return await this.transporter.sendMail(mailOptions);
     } catch (error) {
-      throw new InternalServerErrorException(
-        'Failed to send shortlist email',
-        error,
-      );
+      throw new InternalServerErrorException('Failed to send shortlist email');
     }
   }
 
@@ -92,10 +89,7 @@ export class EmailService {
     try {
       return await this.transporter.sendMail(mailOptions);
     } catch (error) {
-      throw new InternalServerErrorException(
-        'Failed to send offer email',
-        error,
-      );
+      throw new InternalServerErrorException('Failed to send offer email');
     }
   }
 
@@ -123,10 +117,7 @@ export class EmailService {
     try {
       return await this.transporter.sendMail(mailOptions);
     } catch (error) {
-      throw new InternalServerErrorException(
-        'Failed to send rejection email',
-        error,
-      );
+      throw new InternalServerErrorException('Failed to send rejection email');
     }
   }
 
@@ -161,7 +152,66 @@ export class EmailService {
     } catch (error) {
       throw new InternalServerErrorException(
         'Failed to send application notification email',
-        error,
+      );
+    }
+  }
+
+  async sendInterviewScheduledEmail(data: {
+    email: string;
+    candidateName: string;
+    jobTitle: string;
+    companyName: string;
+    interviewType: string;
+    scheduledAt: Date;
+    meetingLink?: string;
+  }) {
+    const {
+      email,
+      candidateName,
+      jobTitle,
+      companyName,
+      interviewType,
+      scheduledAt,
+      meetingLink,
+    } = data;
+
+    const formattedDate = scheduledAt.toLocaleDateString('en-US', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
+
+    const formattedTime = scheduledAt.toLocaleTimeString('en-US', {
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true,
+    });
+
+    const mailOptions = {
+      from: `"AcuityTalent" <${this.configService.get('MAIL_FROM')}>`,
+      to: email,
+      subject: `Interview Scheduled: ${jobTitle} at ${companyName}`,
+      text: `Hi ${candidateName}, your ${interviewType} interview for ${jobTitle} at ${companyName} is scheduled on ${formattedDate} at ${formattedTime}.${meetingLink ? ` Join link: ${meetingLink}` : ''}`,
+      html: `
+        <h2>Interview Scheduled</h2>
+        <p>Hi <strong>${candidateName}</strong>,</p>
+        <p>Your <strong>${interviewType}</strong> interview for the <strong>${jobTitle}</strong> role at <strong>${companyName}</strong> has been scheduled.</p>
+        <ul>
+          <li><strong>Date:</strong> ${formattedDate}</li>
+          <li><strong>Time:</strong> ${formattedTime}</li>
+        </ul>
+        ${meetingLink ? `<p><strong>Meeting Link:</strong> <a href="${meetingLink}">${meetingLink}</a></p>` : ''}
+        <p>Please be available a few minutes before the interview starts.</p>
+        <p>Best regards,<br>AcuityTalent Team</p>
+      `,
+    };
+
+    try {
+      return await this.transporter.sendMail(mailOptions);
+    } catch (error) {
+      throw new InternalServerErrorException(
+        'Failed to send interview scheduled email',
       );
     }
   }

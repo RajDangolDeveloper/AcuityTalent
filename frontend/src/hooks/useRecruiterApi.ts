@@ -1,8 +1,4 @@
-import {
-  useQuery,
-  useMutation,
-  useQueryClient,
-} from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import apiClient from "@/src/app/api/api-client";
 import {
   PaginatedResponse,
@@ -143,7 +139,9 @@ export const useGetRecruiterCompanies = () => {
   return useQuery({
     queryKey: ["recruiter-companies"],
     queryFn: async () => {
-      const response = await apiClient.get<SingleResponse<any>>("/companies/recruiter");
+      const response = await apiClient.get<SingleResponse<any>>(
+        "/companies/recruiter",
+      );
       console.log(response);
       return response.data.data;
     },
@@ -178,6 +176,25 @@ export const useUpdateRecruiterProfile = () => {
   return useMutation({
     mutationFn: async (data: any) => {
       const response = await apiClient.patch("/recruiters/profile", data);
+      return response.data;
+    },
+  });
+};
+
+export const useCreateRecruiterProfile = () => {
+  return useMutation({
+    mutationFn: async (data: any) => {
+      const response = await apiClient.post("/recruiters/profile", data);
+      return response.data;
+    },
+  });
+};
+
+export const useGetCurrentRecruiterProfile = () => {
+  return useQuery({
+    queryKey: ["recruiter-current-profile"],
+    queryFn: async () => {
+      const response = await apiClient.get("/recruiters/profile/current");
       return response.data;
     },
   });

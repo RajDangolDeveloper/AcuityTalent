@@ -13,6 +13,7 @@ import { ApplicationResponseDto } from './dto/application-response.dto';
 import { ApplicationStatus, JobStatus } from '@prisma/client';
 import { AiService } from '../ai/ai.service';
 import { MatchScoreRequest } from '../ai/dto/matchingScoreRequest.dto';
+import { CandidateService } from '../candidates/candidate.service';
 
 @Injectable()
 export class ApplicationService {
@@ -20,6 +21,7 @@ export class ApplicationService {
     private prisma: PrismaService,
     private emailService: EmailService,
     private aiService: AiService,
+    private candidateProfileService: CandidateService,
   ) {}
 
   async createApplication(
@@ -166,9 +168,7 @@ export class ApplicationService {
     });
 
     if (!candidate) {
-      throw new ForbiddenException(
-        'No Candidate Found',
-      );
+      throw new ForbiddenException('No Candidate Found');
     }
 
     const where: any = {
@@ -201,7 +201,6 @@ export class ApplicationService {
 
   async getApplicationById(
     applicationId: number,
-    userId: number,
   ): Promise<ApplicationResponseDto> {
     const application = await this.prisma.application.findUnique({
       where: { id: applicationId },
@@ -217,17 +216,24 @@ export class ApplicationService {
     }
 
     const recruiter = await this.prisma.recruiterProfile.findUnique({
-      where: { userId },
+      where: { id: application.job.recruiterId },
     });
 
+    if (!recruiter) {
+      throw new NotFoundException('Recruiter not found');
+    }
+
     const candidate = await this.prisma.candidateProfile.findUnique({
-      where: { userId },
+      where: { id: application.candidateId },
     });
+
+    if (!candidate) {
+      throw new NotFoundException('Candidate not found');
+    }
 
     const isRecruiter =
       recruiter && recruiter.id === application.job.recruiterId;
     const isCandidate = candidate && candidate.id === application.candidateId;
-
     if (!isRecruiter && !isCandidate) {
       throw new ForbiddenException(
         'You do not have permission to view this application',
@@ -235,24 +241,24 @@ export class ApplicationService {
     }
 
     const applicationUpdate = await this.prisma.application.update({
-  where: { id: applicationId },
-  data: {
-    status: 'REVIEWED', 
-  },
-  include: {
-    candidate: { 
-      include: { user: true } 
-    },
-    job: { 
-      include: { 
-        recruiter: { 
-          include: { company: true } 
-        } 
-      } 
-    },
-    resume: true,
-  },
-});
+      where: { id: applicationId },
+      data: {
+        status: 'REVIEWED',
+      },
+      include: {
+        candidate: {
+          include: { user: true },
+        },
+        job: {
+          include: {
+            recruiter: {
+              include: { company: true },
+            },
+          },
+        },
+        resume: true,
+      },
+    });
 
     return this.formatApplicationResponse(application);
   }
@@ -686,7 +692,25 @@ export class ApplicationService {
 
   async getRecommendedJobs(id: number) {}
 
-  async getRecentJobApplications(id: number) {}
+  async getRecentJobApplications(id: number) {
+    const candidateProfile =
+      await this.candidateProfileService.getCandidateProfileByUserId(id);
+
+    const recentApplications = await this.prisma.application.findMany({
+      orderBy: {
+        appliedAt: 'desc',
+      },
+      where: {
+        candidateId: candidateProfile.id,
+      },
+      take: 10,
+      include: {
+        job: true,
+      },
+    });
+
+    return recentApplications;
+  }
 
   async getUserActivity(id: number) {}
 }

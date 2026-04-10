@@ -1,12 +1,17 @@
 import { Module } from '@nestjs/common';
-import { InterviewsController } from './interview.controller';
 import { InterviewsService } from './interview.service';
 import { InterviewGateway } from './interview.gateway';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { InterviewsController } from './interview.controller';
+import { RecruiterModule } from '../recruiters/recruiter.module';
+import { CandidateModule } from '../candidates/candidate.module';
+import { ApplicationModule } from '../applications/applications.module';
+import { EmailService } from 'src/config/email.service';
 
 @Module({
+  imports: [RecruiterModule, CandidateModule, ApplicationModule],
   controllers: [InterviewsController],
-  providers: [InterviewsService, InterviewGateway, PrismaService],
+  providers: [InterviewsService, InterviewGateway, PrismaService, EmailService],
   exports: [InterviewsService],
 })
 export class InterviewsModule {}

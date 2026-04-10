@@ -9,11 +9,14 @@ export class RecruiterService {
   constructor(private prisma: PrismaService) {}
 
   async createRecruiterProfile(userData: CreateRecruiterProfileDto) {
+    const currentTime = new Date();
     return this.prisma.recruiterProfile.create({
       data: {
-        userId: userData.userId,
-        companyId: userData.companyId,
+        userId: userData.userId!,
+        companyId: userData.companyId!,
         positionTitle: userData.positionTitle,
+        updatedAt: currentTime,
+        createdAt: currentTime,
       },
     });
   }

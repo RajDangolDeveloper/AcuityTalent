@@ -13,7 +13,7 @@ import {
   Req,
 } from '@nestjs/common';
 import { CompanyService } from './company.service';
-import { CreateCompanyDto } from './dto/create-company.dto';
+import { CreateCompanyDto } from './dto/CreateCompanyDto';
 import { UpdateCompanyDto } from './dto/update-company.dto';
 import { GetCompaniesQueryDto } from './dto/get-companies-query.dto';
 import { CompanyResponseDto } from './dto/company-response.dto';

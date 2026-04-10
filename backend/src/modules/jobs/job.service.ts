@@ -303,4 +303,8 @@ export class JobService {
       applicationDeadline: job.applicationDeadline,
     };
   }
+
+  async getJobRecommendations(){
+    
+  }
 }

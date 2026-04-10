@@ -16,6 +16,16 @@ export class InterviewGateway {
   server!: Server;
   private readonly logger = new Logger(InterviewGateway.name);
 
+  private emitRoomParticipants(roomId: string) {
+    const room = this.server.sockets.adapter.rooms.get(roomId);
+    const participants = room ? Array.from(room) : [];
+
+    this.server.to(roomId).emit('room-participants', {
+      roomId,
+      participants,
+    });
+  }
+
   @SubscribeMessage('join-room')
   handleJoinRoom(
     @MessageBody() roomId: string,
@@ -24,6 +34,7 @@ export class InterviewGateway {
     client.join(roomId);
     this.logger.log(`Client ${client.id} joined room ${roomId}`);
     client.to(roomId).emit('user-joined', client.id);
+    this.emitRoomParticipants(roomId);
     return { event: 'joined', data: roomId };
   }
 
@@ -35,6 +46,7 @@ export class InterviewGateway {
     client.leave(roomId);
     this.logger.log(`Client ${client.id} left room ${roomId}`);
     client.to(roomId).emit('user-left', client.id);
+    this.emitRoomParticipants(roomId);
   }
 
   @SubscribeMessage('webrtc-offer')

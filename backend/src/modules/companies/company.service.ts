@@ -1,5 +1,5 @@
 import { PrismaService } from 'src/prisma/prisma.service';
-import { CreateCompanyDto } from './dto/create-company.dto';
+import { CreateCompanyDto } from './dto/CreateCompanyDto';
 import { UpdateCompanyDto } from './dto/update-company.dto';
 import { CompanyResponseDto } from './dto/company-response.dto';
 import { GetCompaniesQueryDto } from './dto/get-companies-query.dto';
@@ -9,6 +9,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { CompanyNameResponseDto } from './dto/company-name-response.dto';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class CompanyService {
@@ -23,8 +24,12 @@ export class CompanyService {
       });
       return company;
     } catch (error) {
-      if (error.code === 'P2002') {
-        throw new BadRequestException('Company with this name already exists');
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        if (error.code === 'P2002') {
+          throw new BadRequestException(
+            'Company with this name already exists',
+          );
+        }
       }
       throw error;
     }
@@ -153,11 +158,15 @@ export class CompanyService {
       });
       return company;
     } catch (error) {
-      if (error.code === 'P2025') {
-        throw new NotFoundException('Company not found');
-      }
-      if (error.code === 'P2002') {
-        throw new BadRequestException('Company with this name already exists');
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        if (error.code === 'P2025') {
+          throw new NotFoundException('Company not found');
+        }
+        if (error.code === 'P2002') {
+          throw new BadRequestException(
+            'Company with this name already exists',
+          );
+        }
       }
       throw error;
     }
@@ -169,8 +178,10 @@ export class CompanyService {
         where: { id },
       });
     } catch (error) {
-      if (error.code === 'P2025') {
-        throw new NotFoundException('Company not found');
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        if (error.code === 'P2025') {
+          throw new NotFoundException('Company not found');
+        }
       }
       throw error;
     }

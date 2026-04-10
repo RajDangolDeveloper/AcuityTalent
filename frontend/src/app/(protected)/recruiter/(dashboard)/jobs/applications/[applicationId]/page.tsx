@@ -14,11 +14,15 @@ import {
   useApplicationDetail,
   useUpdateApplicationStatus,
   useGetRecruiterJobs,
+  useGetCurrentRecruiterProfile,
 } from "@/src/hooks/useRecruiterApi";
 import { useGetCandidateById } from "@/src/hooks/useCandidateApi";
 import { useGetCurrentUser } from "@/src/hooks/useUserApi";
+import CreateInterviewModal from "@/src/components/interview/CreateInterviewModal";
+import { useState } from "react";
 
 export default function ApplicationDetailPage() {
+  const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
   const params = useParams();
   const applicationId = params?.applicationId
     ? Number(params.applicationId)
@@ -31,6 +35,7 @@ export default function ApplicationDetailPage() {
   const updateStatus = useUpdateApplicationStatus();
   const candidateAccountQuery = useGetCurrentUser();
   const candidateProfileQuery = useGetCandidateById(application?.candidateId);
+  const recruiterProfileQuery = useGetCurrentRecruiterProfile();
 
   const handleStatusUpdate = async (status: string) => {
     if (!application) return;
@@ -316,7 +321,7 @@ export default function ApplicationDetailPage() {
             </button>
             <div className="flex flex-wrap gap-3">
               <button
-                onClick={() => handleStatusUpdate("INTERVIEWING")}
+                onClick={() => setIsScheduleModalOpen(true)}
                 className="px-5 py-2.5 border border-[#483d8b] text-[#483d8b] font-semibold rounded-lg hover:bg-indigo-50 transition-colors focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
               >
                 Interview
@@ -343,6 +348,15 @@ export default function ApplicationDetailPage() {
           </div>
         </div>
       </div>
+
+      {application?.id && recruiterProfileQuery.data?.id && (
+        <CreateInterviewModal
+          isOpen={isScheduleModalOpen}
+          onClose={() => setIsScheduleModalOpen(false)}
+          applicationId={application.id}
+          interviewerId={recruiterProfileQuery.data.id}
+        />
+      )}
     </div>
   );
 }

@@ -14,10 +14,10 @@ export class CreateCompanyDto {
   @IsString()
   @MinLength(2)
   @MaxLength(255)
-  name: string;
+  name!: string;
 
   @IsNumber()
-  ownerId: number;
+  ownerId!: number;
 
   @IsOptional()
   @IsString()
@@ -32,7 +32,7 @@ export class CreateCompanyDto {
   websiteUrl?: string;
 
   @IsEmail()
-  companyEmail: string;
+  companyEmail!: string;
 
   @IsOptional()
   @IsEnum(CompanySize)

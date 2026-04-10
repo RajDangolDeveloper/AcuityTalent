@@ -1,18 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import {
-  useCandidateProfile,
-  useUpdateCandidateProfile,
-  useCandidateWorkExperiences,
-  useCreateWorkExperience,
-  useUpdateWorkExperience,
-  useDeleteWorkExperience,
-  useCandidateEducations,
-  useCreateEducation,
-  useUpdateEducation,
-  useDeleteEducation,
-} from "@/src/hooks/useCandidateApi";
 
 import {
   CandidateProfile,
@@ -21,6 +9,22 @@ import {
 } from "@/src/types/candidate";
 import { useGetCurrentUser } from "@/src/hooks/useUserApi";
 import { useRecruiterCompanies } from "@/src/hooks/useCompanyApi";
+import {
+  useCandidateProfile,
+  useCandidateWorkExperiences,
+  useCandidateEducations,
+  useUpdateCandidateProfile,
+  useCreateWorkExperience,
+} from "@/src/hooks/useCandidateApi";
+import {
+  useCreateEducation,
+  useUpdateEducation,
+  useDeleteEducation,
+} from "@/src/hooks/useEducationApi";
+import {
+  useUpdateWorkExperience,
+  useDeleteWorkExperience,
+} from "@/src/hooks/useExperienceApi";
 
 export default function CandidateProfilePage() {
   const { data: profile } = useCandidateProfile();

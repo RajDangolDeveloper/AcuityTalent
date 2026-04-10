@@ -118,11 +118,6 @@ export class AuthService {
       this.candidateService.createCandidateProfile(result.id, emptyProfile);
     }
 
-    if (registerDto.role === 'RECRUITER') {
-      const emptyProfile = new CreateRecruiterProfileDto();
-      this.recruiterService.createRecruiterProfile(emptyProfile);
-    }
-
     const { passwordHash: _, ...userWithoutPassword } = result;
 
     console.log();
@@ -152,10 +147,11 @@ export class AuthService {
         updatedAt: true,
         firstName: true,
         lastName: true,
+        profilePictureUrl: true,
         contactPhone: true,
         contactEmail: true,
         isOnboarded: true,
-        isVerified : true
+        isVerified: true,
       },
     });
 

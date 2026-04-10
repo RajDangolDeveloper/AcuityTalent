@@ -38,7 +38,7 @@ export default function InterviewDetailModal({
     ? `${interview.application.candidate.user.firstName} ${interview.application.candidate.user.lastName}`
     : "Candidate";
   const interviewerName = interview.interviewer
-    ? `${interview.interviewer.firstName} ${interview.interviewer.lastName}`
+    ? `${interview.interviewer.firstName || interview.interviewer.user?.firstName || ""} ${interview.interviewer.lastName || interview.interviewer.user?.lastName || ""}`.trim()
     : "Interviewer";
 
   const formatDateTime = (dateStr: string) =>

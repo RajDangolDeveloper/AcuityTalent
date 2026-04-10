@@ -168,12 +168,12 @@ export class ResumeController {
   )
   async uploadLocal(
     @UploadedFile() file: Express.Multer.File,
-    @Body('userId') userIdStr: string,
+    @Req() req,
     @Body('textContent') textContent: string,
   ) {
+    const userId = req.user.id;
     if (!file) throw new BadRequestException('No file uploaded');
-    if (!userIdStr) throw new BadRequestException('userId is required');
-    const userId = parseInt(userIdStr, 10);
+    if (!userId) throw new BadRequestException('userId is required');
     if (isNaN(userId)) throw new BadRequestException('userId must be a number');
     return this.resumeService.createFromLocalFile(file, userId, textContent);
   }

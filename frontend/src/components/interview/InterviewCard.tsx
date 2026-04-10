@@ -35,7 +35,7 @@ export default function InterviewCard({
     ? `${interview.application.candidate.user.firstName} ${interview.application.candidate.user.lastName}`
     : "Candidate";
   const interviewerName = interview.interviewer
-    ? `${interview.interviewer.firstName} ${interview.interviewer.lastName}`
+    ? `${interview.interviewer.firstName || interview.interviewer.user?.firstName || ""} ${interview.interviewer.lastName || interview.interviewer.user?.lastName || ""}`.trim()
     : "Interviewer";
   const colors =
     typeColors[interview.interviewType as keyof typeof typeColors] ||
@@ -47,7 +47,6 @@ export default function InterviewCard({
       style={{
         animation: "slideIn 0.5s ease-out forwards",
         animationDelay: `${animationDelay}s`,
-        opacity: 0,
       }}
       onClick={onClick}
     >

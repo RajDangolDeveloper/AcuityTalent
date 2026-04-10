@@ -6,11 +6,18 @@ import { EmailService } from 'src/config/email.service';
 import { AiService } from '../ai/ai.service';
 import { AiModule } from '../ai/ai.module';
 import { HttpModule } from '@nestjs/axios';
+import { CandidateService } from '../candidates/candidate.service';
 
 @Module({
   imports: [HttpModule],
   controllers: [ApplicationController],
-  providers: [ApplicationService, PrismaService, EmailService, AiService],
+  providers: [
+    ApplicationService,
+    CandidateService,
+    PrismaService,
+    EmailService,
+    AiService,
+  ],
   exports: [ApplicationService],
 })
 export class ApplicationModule {}

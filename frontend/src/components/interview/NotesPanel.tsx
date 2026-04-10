@@ -1,8 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useMutation } from "@tanstack/react-query";
-import apiClient from "@/src/app/api/api-client";
+import { useUpdateInterviewNotes } from "@/src/hooks/useInterviewApi";
 
 interface NotesPanelProps {
   interviewId: number;
@@ -17,13 +16,7 @@ export default function NotesPanel({
   const [isSaving, setIsSaving] = useState(false);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
 
-  const saveMutation = useMutation({
-    mutationFn: async (content: string) => {
-      const res = await apiClient.patch(`/interviews/${interviewId}`, {
-        notes: content,
-      });
-      return res.data;
-    },
+  const saveMutation = useUpdateInterviewNotes({
     onSuccess: () => {
       setIsSaving(false);
       setLastSaved(new Date());
@@ -37,7 +30,7 @@ export default function NotesPanel({
   const handleSave = () => {
     if (notes === initialNotes && !isSaving) return;
     setIsSaving(true);
-    saveMutation.mutate(notes);
+    saveMutation.mutate({ id: interviewId, notes });
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -51,7 +44,11 @@ export default function NotesPanel({
       if (notes !== initialNotes) handleSave();
     }, 2000);
     return () => clearTimeout(timer);
-  }, [notes]);
+  }, [notes, initialNotes]);
+
+  useEffect(() => {
+    setNotes(initialNotes);
+  }, [initialNotes]);
 
   return (
     <div className="flex flex-col h-full bg-gray-800 rounded-2xl border border-gray-700 overflow-hidden">
