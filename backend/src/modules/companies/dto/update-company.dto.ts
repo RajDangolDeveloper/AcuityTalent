@@ -2,9 +2,9 @@ import {
   IsString,
   IsOptional,
   IsEnum,
-  IsUrl,
   MinLength,
   MaxLength,
+  IsUrl,
 } from 'class-validator';
 import { CompanySize, Industry } from '@prisma/client';
 
@@ -23,8 +23,12 @@ export class UpdateCompanyDto {
   description?: string;
 
   @IsOptional()
-  @IsUrl()
+  @IsString()
   logoUrl?: string;
+
+  @IsOptional()
+  @IsString()
+  backgroundImgUrl?: string;
 
   @IsOptional()
   @IsUrl()

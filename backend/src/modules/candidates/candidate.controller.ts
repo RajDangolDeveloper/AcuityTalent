@@ -6,6 +6,7 @@ import {
   Delete,
   Body,
   Param,
+  Query,
   HttpStatus,
   HttpCode,
   UseGuards,
@@ -76,6 +77,27 @@ export class CandidateController {
     return {
       statusCode: HttpStatus.OK,
       data: profile,
+    };
+  }
+
+  @Get('recommendations/jobs')
+  async getRecommendedJobs(
+    @Req() req: any,
+    @Query('topK') topK?: string,
+  ): Promise<{ statusCode: number; data: any[] }> {
+    const parsedTopK = Number(topK);
+    const safeTopK = Number.isFinite(parsedTopK)
+      ? Math.max(1, Math.min(50, parsedTopK))
+      : 10;
+
+    const jobs = await this.candidateService.getRecommendedJobs(
+      req.user.id,
+      safeTopK,
+    );
+
+    return {
+      statusCode: HttpStatus.OK,
+      data: jobs,
     };
   }
 

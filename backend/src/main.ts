@@ -2,6 +2,9 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { IoAdapter } from '@nestjs/platform-socket.io';
+import { join } from 'path';
+import { existsSync, mkdirSync } from 'fs';
+import * as express from 'express';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
@@ -27,6 +30,12 @@ async function bootstrap() {
       transform: true,
     }),
   );
+
+  const uploadsPath = join(process.cwd(), 'uploads');
+  if (!existsSync(uploadsPath)) {
+    mkdirSync(uploadsPath, { recursive: true });
+  }
+  app.use('/uploads', express.static(uploadsPath));
 
   await app.listen(process.env.PORT || 4000);
 }

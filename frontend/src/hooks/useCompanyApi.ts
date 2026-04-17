@@ -66,8 +66,13 @@ export const useCreateCompany = () => {
       console.log(response);
       return response.data.data;
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["companies"] });
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["get-companies"] }),
+        queryClient.invalidateQueries({ queryKey: ["recruiter-companies"] }),
+        queryClient.invalidateQueries({ queryKey: ["admin-overview"] }),
+        queryClient.invalidateQueries({ queryKey: ["admin-feature-list"] }),
+      ]);
     },
   });
 };
@@ -89,9 +94,15 @@ export const useUpdateCompany = () => {
       console.log(response);
       return response.data.data;
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["companies"] });
-      queryClient.invalidateQueries({ queryKey: ["recruiter-companies"] });
+    onSuccess: async (_, variables) => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["get-companies"] }),
+        queryClient.invalidateQueries({ queryKey: ["recruiter-companies"] }),
+        queryClient.invalidateQueries({ queryKey: ["company", variables.id] }),
+        queryClient.invalidateQueries({ queryKey: ["admin-overview"] }),
+        queryClient.invalidateQueries({ queryKey: ["admin-feature-list"] }),
+        queryClient.invalidateQueries({ queryKey: ["admin-feature-detail"] }),
+      ]);
     },
   });
 };
@@ -103,8 +114,42 @@ export const useDeleteCompany = () => {
       const response = await apiClient.delete(`/companies/${id}`);
       console.log(response);
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["companies"] });
+    onSuccess: async (_, id) => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["get-companies"] }),
+        queryClient.invalidateQueries({ queryKey: ["recruiter-companies"] }),
+        queryClient.removeQueries({ queryKey: ["company", id] }),
+        queryClient.invalidateQueries({ queryKey: ["admin-overview"] }),
+        queryClient.invalidateQueries({ queryKey: ["admin-feature-list"] }),
+      ]);
+    },
+  });
+};
+
+export const useUploadCompanyLogo = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ id, file }: { id: number; file: File }) => {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const response = await apiClient.post<SingleResponse<Company>>(
+        `/companies/${id}/upload/logo`,
+        formData,
+        {
+          headers: { "Content-Type": "multipart/form-data" },
+        },
+      );
+
+      return response.data.data;
+    },
+    onSuccess: async (company) => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["get-companies"] }),
+        queryClient.invalidateQueries({ queryKey: ["recruiter-companies"] }),
+        queryClient.invalidateQueries({ queryKey: ["company", company.id] }),
+      ]);
     },
   });
 };

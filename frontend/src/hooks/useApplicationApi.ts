@@ -1,11 +1,13 @@
 "use client";
 
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import apiClient from "@/src/app/api/api-client";
 import { CandidateApplication, SingleResponse } from "@/src/types/candidate";
-import { queryClient } from "@/library/queryClient";
+import { candidateQueryKeys } from "@/src/constants/candidate/query-keys";
 
 export const useCreateApplication = () => {
+  const queryClient = useQueryClient();
+
   return useMutation({
     mutationFn: async ({
       jobId,
@@ -36,10 +38,32 @@ export const useCreateApplication = () => {
         throw error;
       }
     },
-    onSuccess: () => {
+    onSuccess: async () => {
       console.log("[useCreateApplication] Invalidating related queries");
-      queryClient.invalidateQueries({ queryKey: ["candidate-applications"] });
-      queryClient.invalidateQueries({ queryKey: ["candidate-saved-jobs"] });
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: candidateQueryKeys.candidate.applications.all(),
+        }),
+        queryClient.invalidateQueries({ queryKey: ["candidate-saved-jobs"] }),
+        queryClient.invalidateQueries({
+          queryKey: ["recent-candidate-applications"],
+        }),
+        queryClient.invalidateQueries({
+          queryKey: ["total-candidate-applications"],
+        }),
+        queryClient.invalidateQueries({
+          queryKey: ["candidate-applications-response-rate"],
+        }),
+        queryClient.invalidateQueries({
+          queryKey: ["candidate-applications-interview-rate"],
+        }),
+        queryClient.invalidateQueries({ queryKey: ["candidate-total-offers"] }),
+        queryClient.invalidateQueries({ queryKey: ["job-details"] }),
+        queryClient.invalidateQueries({ queryKey: ["candidate-jobs"] }),
+        queryClient.invalidateQueries({
+          queryKey: ["candidate-recommended-jobs"],
+        }),
+      ]);
     },
   });
 };

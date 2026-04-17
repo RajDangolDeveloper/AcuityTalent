@@ -7,9 +7,17 @@ import CustomSidebar, {
   BottomItems,
 } from "@/src/components/CustomSidebar";
 import {
+  Bookmark,
   LayoutDashboard,
+  Users2,
+  UserCircle2,
+  UserSquare2,
+  Building2,
   BriefcaseBusiness,
-  NotepadText,
+  FileText,
+  CalendarCheck2,
+  ShieldUser,
+  Brain,
   Settings,
   LogOut,
 } from "lucide-react";
@@ -25,7 +33,7 @@ export default async function AdminLayout({
     redirect("/recruiter/login");
   }
 
-  if (!session.user.role.includes("ADMIN")) {
+  if (session.user.role !== "ADMIN") {
     redirect("/recruiter/login");
   }
 
@@ -41,12 +49,52 @@ export default async function AdminLayout({
           <SidebarItem
             href="/admin/users"
             label="Users"
+            icon={<Users2 size={20} />}
+          />
+          <SidebarItem
+            href="/admin/candidates"
+            label="Candidates"
+            icon={<UserCircle2 size={20} />}
+          />
+          <SidebarItem
+            href="/admin/recruiters"
+            label="Recruiters"
+            icon={<UserSquare2 size={20} />}
+          />
+          <SidebarItem
+            href="/admin/companies"
+            label="Companies"
+            icon={<Building2 size={20} />}
+          />
+          <SidebarItem
+            href="/admin/jobs"
+            label="Jobs"
             icon={<BriefcaseBusiness size={20} />}
           />
           <SidebarItem
-            href="/admin/reports"
-            label="Reports"
-            icon={<NotepadText size={20} />}
+            href="/admin/applications"
+            label="Applications"
+            icon={<FileText size={20} />}
+          />
+          <SidebarItem
+            href="/admin/interviews"
+            label="Interviews"
+            icon={<CalendarCheck2 size={20} />}
+          />
+          <SidebarItem
+            href="/admin/resumes"
+            label="Resumes"
+            icon={<ShieldUser size={20} />}
+          />
+          <SidebarItem
+            href="/admin/saved-jobs"
+            label="Saved Jobs"
+            icon={<Bookmark size={20} />}
+          />
+          <SidebarItem
+            href="/admin/ai/embeddings"
+            label="AI Embeddings"
+            icon={<Brain size={20} />}
           />
         </TopItems>
 

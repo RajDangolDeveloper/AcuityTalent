@@ -7,3 +7,10 @@ qwen-api
 dashscope
 python-dotenv
 pydantic-settings
+fastapi 
+sqlalchemy 
+psycopg2-binary 
+pgvector
+sqlalchemy[mypy]
+scikit-learn
+numpy

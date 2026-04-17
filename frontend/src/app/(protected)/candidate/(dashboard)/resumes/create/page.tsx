@@ -7,8 +7,8 @@ import InputResumeDetails, {
 } from "@/src/components/candidate/InputResumeDetails";
 import ResumePreview from "@/src/components/candidate/ResumePreview";
 import TemplateSelector from "@/src/components/candidate/TemplateSelector";
+import PdfDownloadButton from "@/src/components/candidate/PdfDownloadButton";
 import { templates } from "@/src/components/templates";
-import { pdf, PDFDownloadLink } from "@react-pdf/renderer";
 import { useUploadResume } from "@/src/hooks/useResumeApi";
 import { ClassicPDFTemplate } from "@/src/components/templatePdf/ClassicTemplatePdf";
 import { CleanPDFTemplate } from "@/src/components/templatePdf/CleanTemplatePdf";
@@ -19,14 +19,21 @@ import { SpecialistPDFTemplate } from "@/src/components/templatePdf/SpecialistTe
 import { TemplateKey } from "@/src/types/resume";
 import SaveResumeButton from "@/src/components/candidate/SaveResumeButton";
 import { useSession } from "next-auth/react";
+import { useSubscriptionStatus } from "@/src/hooks/useUserApi";
 
 export default function CreateResumePage() {
   const session = useSession();
+  const { data: subscription } = useSubscriptionStatus();
   const [activeTab, setActiveTab] = useState<"edit" | "customize" | "ai">(
     "edit",
   );
   const [selectedTemplate, setSelectedTemplate] =
     useState<keyof typeof templates>("modern");
+
+  const templateKeys = Object.keys(templates) as Array<keyof typeof templates>;
+  const availableTemplates = subscription?.isPremium
+    ? templateKeys
+    : templateKeys.slice(0, 3);
 
   const [resumeData, setResumeData] = useState<ResumeData>({
     experience: [],
@@ -108,6 +115,7 @@ export default function CreateResumePage() {
               <TemplateSelector
                 selectedTemplate={selectedTemplate}
                 onSelect={setSelectedTemplate}
+                availableTemplates={availableTemplates}
               />
             </div>
           )}
@@ -125,7 +133,7 @@ export default function CreateResumePage() {
                 resumeData={resumeData}
                 template={selectedTemplate}
               />
-              <PDFDownloadLink
+              <PdfDownloadButton
                 className="absolute right-5 bottom-5 rounded-md bg-primary-500 p-4 text-gray-200"
                 document={<PDFComponent data={resumeData} />}
                 fileName="temp.pdf"
@@ -133,7 +141,7 @@ export default function CreateResumePage() {
                 {({ loading }) =>
                   loading ? "Generating PDF..." : "Download PDF"
                 }
-              </PDFDownloadLink>
+              </PdfDownloadButton>
             </div>
           )}
           {activeTab === "ai" && <AiReview />}

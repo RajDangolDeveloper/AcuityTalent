@@ -13,10 +13,10 @@ import {
 import { v4 as uuidv4 } from 'uuid';
 import { CreateInterviewDto } from './dto/createInterview.dto';
 import { UpdateInterviewDto } from './dto/updateInterview.dto';
-import { PrismaService } from 'src/prisma/prisma.service';
 import { RecruiterService } from '../recruiters/recruiter.service';
 import { ApplicationService } from '../applications/applications.service';
-import { EmailService } from 'src/config/email.service';
+import { EmailService } from '../../config/email.service';
+import { PrismaService } from '../../prisma/prisma.service';
 
 @Injectable()
 export class InterviewsService {
@@ -298,7 +298,9 @@ export class InterviewsService {
           gte: startOfMonth,
           lte: endOfMonth,
         },
-        status: InterviewStatus.SCHEDULED,
+        status: {
+          in: [InterviewStatus.SCHEDULED, InterviewStatus.IN_PROGRESS],
+        },
       },
       include: {
         application: {

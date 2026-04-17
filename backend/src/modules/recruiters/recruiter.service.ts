@@ -1,8 +1,8 @@
-import { PrismaService } from 'src/prisma/prisma.service';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateRecruiterProfileDto } from './dto/CreateRecruiterProfile.dto';
 import { UpdateRecruiterProfileDto } from './dto/UpdateRecruiterProfile.dto';
 import { DeleteRecruiterProfileDto } from './dto/DeleteRecruiterProfile.dto';
+import { PrismaService } from '../../prisma/prisma.service';
 
 @Injectable()
 export class RecruiterService {

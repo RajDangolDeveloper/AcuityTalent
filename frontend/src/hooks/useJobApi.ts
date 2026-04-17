@@ -2,7 +2,6 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import apiClient from "../app/api/api-client";
 import { Job, PaginatedResponse, SingleResponse } from "../types/recruiter";
 import { JobDetails, SavedJob } from "../types/candidate";
-import { queryClient } from "@/library/queryClient";
 
 // Get all active jobs with filters
 export const getAllJobs = (
@@ -68,6 +67,8 @@ export const useJobDetails = (jobId: number | null) => {
 };
 
 export const useUpdateJobStatus = () => {
+  const queryClient = useQueryClient();
+
   return useMutation({
     mutationFn: async (payload: { id: number; status: string }) => {
       const response = await apiClient.patch<SingleResponse<any>>(
@@ -76,10 +77,16 @@ export const useUpdateJobStatus = () => {
       );
       return response.data.data;
     },
-    onSuccess: () => {
+    onSuccess: async (_, variables) => {
       // Invalidate the jobs list or dashboard stats so they refresh automatically
-      queryClient.invalidateQueries({ queryKey: ["recruiter-jobs"] });
-      queryClient.invalidateQueries({ queryKey: ["recruiter-stats"] });
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["recruiter-jobs"] }),
+        queryClient.invalidateQueries({ queryKey: ["recruiter-stats"] }),
+        queryClient.invalidateQueries({ queryKey: ["candidate-jobs"] }),
+        queryClient.invalidateQueries({
+          queryKey: ["job-details", variables.id],
+        }),
+      ]);
     },
     onError: (error) => {
       console.error("Failed to update job status:", error);
@@ -88,6 +95,8 @@ export const useUpdateJobStatus = () => {
 };
 
 export const useSaveJob = () => {
+  const queryClient = useQueryClient();
+
   return useMutation({
     mutationFn: async (jobId: number) => {
       console.log("[useSaveJob] Saving job", { jobId });
@@ -103,14 +112,23 @@ export const useSaveJob = () => {
         throw error;
       }
     },
-    onSuccess: () => {
+    onSuccess: async () => {
       console.log("[useSaveJob] Invalidating saved jobs query");
-      queryClient.invalidateQueries({ queryKey: ["candidate-saved-jobs"] });
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["candidate-saved-jobs"] }),
+        queryClient.invalidateQueries({ queryKey: ["candidate-jobs"] }),
+        queryClient.invalidateQueries({ queryKey: ["job-details"] }),
+        queryClient.invalidateQueries({
+          queryKey: ["candidate-recommended-jobs"],
+        }),
+      ]);
     },
   });
 };
 
 export const useRemoveSavedJob = () => {
+  const queryClient = useQueryClient();
+
   return useMutation({
     mutationFn: async (jobId: number) => {
       console.log("[useRemoveSavedJob] Removing saved job", { jobId });
@@ -122,9 +140,16 @@ export const useRemoveSavedJob = () => {
         throw error;
       }
     },
-    onSuccess: () => {
+    onSuccess: async () => {
       console.log("[useRemoveSavedJob] Invalidating saved jobs query");
-      queryClient.invalidateQueries({ queryKey: ["candidate-saved-jobs"] });
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["candidate-saved-jobs"] }),
+        queryClient.invalidateQueries({ queryKey: ["candidate-jobs"] }),
+        queryClient.invalidateQueries({ queryKey: ["job-details"] }),
+        queryClient.invalidateQueries({
+          queryKey: ["candidate-recommended-jobs"],
+        }),
+      ]);
     },
   });
 };

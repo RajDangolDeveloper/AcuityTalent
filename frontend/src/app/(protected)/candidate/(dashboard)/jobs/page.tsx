@@ -1,16 +1,15 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import Link from "next/link";
 import { Search, Briefcase, Bookmark, MoveUpRight } from "lucide-react";
 import {
   useCandidateSavedJobs,
   useCandidateResumes,
 } from "@/src/hooks/useCandidateApi";
-import {  useGetCandidateApplications,} from "@/src/hooks/useCandidateApi";
-import {   getAllJobs,
-  useJobDetails,} from "@/src/hooks/useJobApi";
-import {  useSaveJob,
-  useRemoveSavedJob,} from "@/src/hooks/useJobApi";
+import { useGetCandidateApplications } from "@/src/hooks/useCandidateApi";
+import { getAllJobs, useJobDetails } from "@/src/hooks/useJobApi";
+import { useSaveJob, useRemoveSavedJob } from "@/src/hooks/useJobApi";
 import { Job, EmploymentType, ExperienceLevel } from "@/src/types/candidate";
 import Notification from "@/src/element/Notification";
 import Markdown from "react-markdown";
@@ -43,6 +42,7 @@ export default function CandidateJobsPage() {
   const { data: applicationsData } = useGetCandidateApplications();
   const { data: selectedJob, isLoading: selectedJobLoading } =
     useJobDetails(selectedJobId);
+
   const { data: resumes = [] } = useCandidateResumes();
 
   const createApplicationMutation = useCreateApplication();
@@ -55,8 +55,8 @@ export default function CandidateJobsPage() {
     [savedJobsData?.data],
   );
   const appliedJobIds = useMemo(
-    () => new Set((applicationsData?.data || []).map((app) => app.jobId)),
-    [applicationsData?.data],
+    () => new Set((applicationsData || []).map((app) => app.jobId)),
+    [applicationsData],
   );
 
   const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
@@ -253,15 +253,25 @@ export default function CandidateJobsPage() {
                   }`}
                 >
                   <div className="flex gap-3">
-                    {/* Company Logo Placeholder */}
-                    <div className="w-14 h-14 bg-gray-300 rounded shrink-0"></div>
+                    <Link
+                      href={`/candidate/company/${job.companyId}`}
+                      onClick={(e) => e.stopPropagation()}
+                      className="w-14 h-14 bg-gray-300 rounded shrink-0 flex items-center justify-center text-xs font-semibold text-gray-700 hover:ring-2 hover:ring-primary-400"
+                      title={`View ${job.companyName}`}
+                    >
+                      {job.companyName?.slice(0, 2).toUpperCase() || "CO"}
+                    </Link>
                     <div className="flex flex-col items-start justify-center min-w-0">
                       <h3 className="font-semibold text-primary-500 truncate">
                         {job.title}
                       </h3>
-                      <p className="text-xs text-gray-600 truncate">
+                      <Link
+                        href={`/candidate/company/${job.companyId}`}
+                        onClick={(e) => e.stopPropagation()}
+                        className="text-xs text-gray-600 truncate hover:text-primary-600 hover:underline"
+                      >
                         {job.companyName}
-                      </p>
+                      </Link>
                       <p className="text-xs text-gray-500 mt-1">
                         {job.location}
                         {job.remoteAvailable && (
@@ -286,13 +296,9 @@ export default function CandidateJobsPage() {
               <div className="border-b border-gray-200 px-8 py-6">
                 <div className="flex items-start justify-between gap-4">
                   <div>
-                    {/* Company Logo and Name */}
                     <div className="flex items-center gap-3 mb-4">
                       <div className="w-16 h-16 bg-gray-300 rounded"></div>
                       <div>
-                        <p className="text-sm text-gray-600 font-medium">
-                          Company
-                        </p>
                         <p className="text-gray-600">
                           {selectedJob.companyName}
                         </p>

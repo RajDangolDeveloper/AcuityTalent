@@ -10,6 +10,7 @@ interface CandidateCardProps {
   isSelected?: boolean;
   onClick?: () => void;
   showModal?: boolean;
+  showPremiumAnalytics?: boolean;
 }
 
 export default function CandidateCard({
@@ -18,6 +19,7 @@ export default function CandidateCard({
   isSelected,
   onClick,
   showModal,
+  showPremiumAnalytics = true,
 }: CandidateCardProps) {
   const handleClose = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -35,9 +37,14 @@ export default function CandidateCard({
             <h3 className="font-bold text-lg text-gray-900">
               {candidate.candidateName}
             </h3>
-            {candidate.matchScore && (
+            {showPremiumAnalytics && candidate.matchScore !== undefined && (
               <Badge variant="success" className="mt-1">
                 {Math.round(candidate.matchScore)}% Compatible
+              </Badge>
+            )}
+            {showPremiumAnalytics && candidate.riskScore !== undefined && (
+              <Badge variant="warning" className="mt-1">
+                {Math.round(candidate.riskScore)}% Risk
               </Badge>
             )}
           </div>

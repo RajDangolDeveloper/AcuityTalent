@@ -6,11 +6,7 @@ import { ThemeProvider } from "./themeProvider";
 import { ToastContainer } from "react-toastify";
 import { queryClient } from "@/library/queryClient";
 
-export default function Provider({
-  children,
-}: {
-  children: React.ReactElement;
-}) {
+export default function Provider({ children }: { children: React.ReactNode }) {
   return (
     <SessionProvider refetchInterval={5 * 60} refetchOnWindowFocus={true}>
       <ThemeProvider>

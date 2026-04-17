@@ -1,12 +1,12 @@
 import { Module } from '@nestjs/common';
 import { ApplicationController } from './applications.controller';
 import { ApplicationService } from './applications.service';
-import { PrismaService } from 'src/prisma/prisma.service';
-import { EmailService } from 'src/config/email.service';
 import { AiService } from '../ai/ai.service';
 import { AiModule } from '../ai/ai.module';
 import { HttpModule } from '@nestjs/axios';
 import { CandidateService } from '../candidates/candidate.service';
+import { PrismaService } from '../../prisma/prisma.service';
+import { EmailService } from '../../config/email.service';
 
 @Module({
   imports: [HttpModule],

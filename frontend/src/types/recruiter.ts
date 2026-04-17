@@ -42,6 +42,7 @@ export interface Job {
   // Populated relationships
   recruiterName?: string;
   recruiterEmail?: string;
+  companyId: number;
   companyName?: string;
   applicationCount?: number;
 }
@@ -58,6 +59,7 @@ export interface CandidateApplication {
   yearsOfExperience?: number;
   status: ApplicationStatus;
   matchScore?: number;
+  riskScore?: number;
   appliedAt: string;
 }
 
@@ -107,9 +109,11 @@ export interface ApplicationDetail {
   id: number;
   jobId: number;
   candidateId: number;
+  resumeId: number;
   status: ApplicationStatus;
   appliedAt: string; // When candidate applied
   matchScore?: number;
+  riskScore?: number;
   coverLetter?: string;
   candidate: CandidateProfile;
   job: {
@@ -117,6 +121,7 @@ export interface ApplicationDetail {
     title: string;
     companyName: string;
   };
+  resumeFileName?: string;
 }
 
 // Pagination

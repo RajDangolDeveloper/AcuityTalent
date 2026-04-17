@@ -27,6 +27,7 @@ export const useCreateEducation = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["candidate-educations"] });
+      queryClient.invalidateQueries({ queryKey: ["candidate-profile"] });
     },
   });
 };
@@ -59,6 +60,7 @@ export const useUpdateEducation = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["candidate-educations"] });
+      queryClient.invalidateQueries({ queryKey: ["candidate-profile"] });
     },
   });
 };
@@ -75,6 +77,7 @@ export const useDeleteEducation = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["candidate-educations"] });
+      queryClient.invalidateQueries({ queryKey: ["candidate-profile"] });
     },
   });
 };

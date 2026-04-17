@@ -8,6 +8,7 @@ import { FileDown, Trash2, Pencil, Loader2, FileText } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
+import { useSubscriptionStatus } from "@/src/hooks/useUserApi";
 
 export default function ResumesPage() {
   const router = useRouter();
@@ -17,6 +18,7 @@ export default function ResumesPage() {
   const [downloadingId, setDownloadingId] = useState<number | null>(null);
   const [deletingId, setDeletingId] = useState<number | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const { data: subscription } = useSubscriptionStatus();
 
   // ✅ Hooks called at component level
   const deleteMutation = useDeleteResume();
@@ -132,7 +134,7 @@ export default function ResumesPage() {
                   onClick={() => handleSelectResume(resume.id)}
                 >
                   <div className="flex items-start gap-3">
-                    <div className="w-10 h-12 rounded bg-gray-100 flex items-center justify-center flex-shrink-0">
+                    <div className="w-10 h-12 rounded bg-gray-100 flex items-center justify-center shrink-0">
                       <FileText className="w-5 h-5 text-gray-400" />
                     </div>
                     <div className="flex-1 min-w-0">
@@ -187,7 +189,7 @@ export default function ResumesPage() {
             {/* Action Bar */}
             <div className="flex items-center justify-between px-6 py-3 border-b border-gray-200 bg-white">
               <div className="flex items-center gap-3 min-w-0">
-                <FileText className="w-5 h-5 text-gray-400 flex-shrink-0" />
+                <FileText className="w-5 h-5 text-gray-400 shrink-0" />
                 <h3
                   className="font-medium text-gray-900 truncate"
                   title={selectedResume?.fileName}
@@ -199,6 +201,11 @@ export default function ResumesPage() {
                   {selectedResume &&
                     new Date(selectedResume.uploadedAt).toLocaleDateString()}
                 </span>
+                {subscription?.isPremium && selectedResume && (
+                  <span className="rounded-full bg-indigo-50 px-2 py-0.5 text-xs font-medium text-indigo-700">
+                    Resume Score: {selectedResume.aiScore}%
+                  </span>
+                )}
               </div>
 
               <div className="flex items-center gap-2">

@@ -1,4 +1,4 @@
-import { PrismaService } from 'src/prisma/prisma.service';
+import { PrismaService } from '../../prisma/prisma.service';
 import { CreateSavedJobDto } from './dto/create-saved-job.dto';
 import { SavedJobResponseDto } from './dto/saved-job-response.dto';
 import {

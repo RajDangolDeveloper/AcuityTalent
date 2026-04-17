@@ -56,10 +56,15 @@ export default function InterviewDetailModal({
       hour12: true,
     });
 
-  const isUpcoming = new Date(interview.scheduledAt) > new Date();
-  const isReady =
-    isUpcoming &&
-    new Date(interview.scheduledAt).getTime() - Date.now() < 30 * 60 * 1000;
+  const scheduledTime = new Date(interview.scheduledAt).getTime();
+  const now = Date.now();
+  const earlyWindowMs = 30 * 60 * 1000;
+  const lateWindowMs = 60 * 60 * 1000;
+
+  const canAttend =
+    now >= scheduledTime - earlyWindowMs && now <= scheduledTime + lateWindowMs;
+  const isBeforeWindow = now < scheduledTime - earlyWindowMs;
+  const isAfterWindow = now > scheduledTime + lateWindowMs;
 
   return (
     <div
@@ -96,7 +101,7 @@ export default function InterviewDetailModal({
           </div>
 
           <div className="flex items-center gap-4 mb-6">
-            <div className="p-0.5 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600">
+            <div className="p-0.5 rounded-full bg-linear-to-br from-indigo-500 to-purple-600">
               <div className="w-14 h-14 rounded-full bg-gray-100 flex items-center justify-center">
                 <span className="text-lg font-bold text-gray-600">
                   {candidateName
@@ -170,15 +175,10 @@ export default function InterviewDetailModal({
           </div>
 
           <div className="mt-6 space-y-3">
-            {isUpcoming ? (
+            {canAttend ? (
               <button
                 onClick={() => onJoin(interview.roomId)}
-                disabled={!isReady}
-                className={`w-full py-3 rounded-lg font-medium transition-all flex items-center justify-center gap-2 ${
-                  isReady
-                    ? "bg-gradient-to-r from-green-500 to-emerald-600 text-white hover:shadow-lg hover:scale-[1.02]"
-                    : "bg-gray-200 text-gray-500 cursor-not-allowed"
-                }`}
+                className="w-full py-3 rounded-lg font-medium transition-all flex items-center justify-center gap-2 bg-linear-to-r from-green-500 to-emerald-600 text-white hover:shadow-lg hover:scale-[1.02]"
               >
                 <svg
                   className="w-5 h-5"
@@ -193,18 +193,20 @@ export default function InterviewDetailModal({
                     d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"
                   />
                 </svg>
-                {isReady
-                  ? "Attend Interview"
-                  : `Available ${formatTime(interview.scheduledAt)}`}
+                Attend Interview
               </button>
+            ) : isAfterWindow ? (
+              <div className="w-full py-3 bg-gray-100 text-gray-500 rounded-lg font-medium text-center">
+                Interview Closed
+              </div>
             ) : (
               <div className="w-full py-3 bg-gray-100 text-gray-500 rounded-lg font-medium text-center">
-                Interview Completed
+                Available {formatTime(interview.scheduledAt)}
               </div>
             )}
             <button
               onClick={onClose}
-              className="w-full py-2.5 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-lg font-medium hover:shadow-lg transition"
+              className="w-full py-2.5 bg-linear-to-r from-indigo-500 to-purple-600 text-white rounded-lg font-medium hover:shadow-lg transition"
             >
               Close
             </button>

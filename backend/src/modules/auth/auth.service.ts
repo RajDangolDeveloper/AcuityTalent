@@ -7,13 +7,10 @@ import {
   ConflictException,
 } from '@nestjs/common';
 import { LoginDto } from './dto/login.dto';
-import { PrismaService } from 'src/prisma/prisma.service';
 import { RegisterDto } from './dto/register.dto';
 import { ForgetPasswordDto } from './dto/forgotPassword.dto';
-import { PasswordService } from 'src/config/password.service';
 import { UpdatePasswordDto } from './dto/updatePassword.dto';
 import { User } from '@prisma/client';
-import { EmailService } from 'src/config/email.service';
 import { SendOtp } from './dto/sendOtp.dto';
 import { VerifyOtpDto } from './dto/verifyOtp.dto';
 import { JwtService } from '@nestjs/jwt';
@@ -21,6 +18,9 @@ import { CandidateService } from '../candidates/candidate.service';
 import { RecruiterService } from '../recruiters/recruiter.service';
 import { CreateCandidateProfileDto } from '../candidates/dto/create-candidate-profile.dto';
 import { CreateRecruiterProfileDto } from '../recruiters/dto/CreateRecruiterProfile.dto';
+import { EmailService } from '../../config/email.service';
+import { PasswordService } from '../../config/password.service';
+import { PrismaService } from '../../prisma/prisma.service';
 
 @Injectable()
 export class AuthService {
@@ -151,6 +151,9 @@ export class AuthService {
         contactPhone: true,
         contactEmail: true,
         isOnboarded: true,
+        subscriptionPlan: true,
+        coverLetterGenerationCount: true,
+        subscriptionExpiresAt: true,
         isVerified: true,
       },
     });

@@ -32,6 +32,7 @@ export const useUpdateWorkExperience = () => {
       queryClient.invalidateQueries({
         queryKey: ["candidate-work-experiences"],
       });
+      queryClient.invalidateQueries({ queryKey: ["candidate-profile"] });
     },
   });
 };
@@ -50,6 +51,7 @@ export const useDeleteWorkExperience = () => {
       queryClient.invalidateQueries({
         queryKey: ["candidate-work-experiences"],
       });
+      queryClient.invalidateQueries({ queryKey: ["candidate-profile"] });
     },
   });
 };

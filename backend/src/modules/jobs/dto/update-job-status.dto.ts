@@ -6,8 +6,8 @@ export class updateJobStatusDto {
     { allowNaN: false, allowInfinity: false },
     { message: 'id must be a valid number' },
   )
-  id: number;
+  id!: number;
 
   @IsEnum(JobStatus)
-  status: JobStatus;
+  status!: JobStatus;
 }

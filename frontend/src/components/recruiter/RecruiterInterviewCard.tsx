@@ -107,7 +107,7 @@ export default function RecruiterInterviewCard({
               </span>
               {interview.interviewer && (
                 <span className="flex items-center gap-1 truncate">
-                  <User className="w-3.5 h-3.5 flex-shrink-0" />
+                  <User className="w-3.5 h-3.5 shrink-0" />
                   <span className="truncate">{interview.interviewer.name}</span>
                 </span>
               )}
@@ -196,7 +196,7 @@ export default function RecruiterInterviewCard({
               e.stopPropagation();
               onJoin();
             }}
-            className="mt-3 w-full flex items-center justify-center gap-2 px-3 py-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white text-sm font-medium rounded-lg hover:from-indigo-600 hover:to-purple-700 transition-all"
+            className="mt-3 w-full flex items-center justify-center gap-2 px-3 py-2 bg-linear-to-r from-indigo-500 to-purple-600 text-white text-sm font-medium rounded-lg hover:from-indigo-600 hover:to-purple-700 transition-all"
           >
             <Video className="w-4 h-4" />
             Join Now
@@ -222,7 +222,7 @@ export default function RecruiterInterviewCard({
         )}
 
         {/* Avatar / Initials */}
-        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-100 to-purple-100 flex items-center justify-center flex-shrink-0">
+        <div className="w-12 h-12 rounded-xl bg-linear-to-br from-indigo-100 to-purple-100 flex items-center justify-center shrink-0">
           <span className="text-lg font-semibold text-indigo-700">
             {interview.application?.candidate?.user?.firstName.charAt(0) || "C"}
           </span>
@@ -371,7 +371,7 @@ export default function RecruiterInterviewCard({
               e.stopPropagation();
               onJoin();
             }}
-            className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white text-sm font-medium rounded-lg hover:from-indigo-600 hover:to-purple-700 transition-all shadow-sm"
+            className="flex items-center gap-2 px-4 py-2 bg-linear-to-r from-indigo-500 to-purple-600 text-white text-sm font-medium rounded-lg hover:from-indigo-600 hover:to-purple-700 transition-all shadow-sm"
           >
             <Video className="w-4 h-4" />
             Join Interview

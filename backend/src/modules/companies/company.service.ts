@@ -1,4 +1,3 @@
-import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateCompanyDto } from './dto/CreateCompanyDto';
 import { UpdateCompanyDto } from './dto/update-company.dto';
 import { CompanyResponseDto } from './dto/company-response.dto';
@@ -10,6 +9,7 @@ import {
 } from '@nestjs/common';
 import { CompanyNameResponseDto } from './dto/company-name-response.dto';
 import { Prisma } from '@prisma/client';
+import { PrismaService } from '../../prisma/prisma.service';
 
 @Injectable()
 export class CompanyService {

@@ -5,6 +5,7 @@ import React, { useState } from "react";
 import {
   useCreateCompany,
   useGetCompaniesName,
+  useUploadCompanyLogo,
 } from "@/src/hooks/useCompanyApi";
 import { useUpdateUser } from "@/src/hooks/useUserApi";
 import { useRouter } from "next/navigation";
@@ -20,12 +21,15 @@ const OnboardingFlow = () => {
     useGetCompaniesName();
 
   const createCompany = useCreateCompany();
+  const uploadCompanyLogo = useUploadCompanyLogo();
   const { mutateAsync: createProfile, isPending: isCreatingProfile } =
     useCreateRecruiterProfile();
   const { mutateAsync: updateUser, isPending: isUpdatingUser } =
     useUpdateUser();
 
   const [selectedCompanyName, setSelectedCompanyName] = useState<string>("");
+  const [logoFile, setLogoFile] = useState<File | null>(null);
+  const [logoPreview, setLogoPreview] = useState<string | null>(null);
 
   const INDUSTRY_OPTIONS = [
     "TECHNOLOGY",
@@ -74,7 +78,7 @@ const OnboardingFlow = () => {
     }
 
     try {
-      await createCompany.mutateAsync({
+      const company = await createCompany.mutateAsync({
         ownerId: Number(session?.user?.id),
         name: formData.name,
         description: formData.description,
@@ -83,6 +87,10 @@ const OnboardingFlow = () => {
         industry: formData.industry as Industry,
         officeAddress: formData.address,
       });
+
+      if (logoFile) {
+        await uploadCompanyLogo.mutateAsync({ id: company.id, file: logoFile });
+      }
 
       alert("Company created successfully!");
       setSelectedCompanyName(formData.name);
@@ -127,7 +135,7 @@ const OnboardingFlow = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[linear-gradient(135deg,_#380294_0%,_#4d1b96_50%,_#52507d_100%)] flex items-center justify-center p-4 relative font-sans">
+    <div className="min-h-screen bg-[linear-gradient(135deg,#380294_0%,#4d1b96_50%,#52507d_100%)] flex items-center justify-center p-4 relative font-sans">
       {/* Step 1: Find Business */}
       {step === 1 && (
         <div className="bg-white rounded-xl shadow-[0_10px_40px_rgba(0,0,0,0.2)] p-10 w-full max-w-[440px]">
@@ -211,8 +219,38 @@ const OnboardingFlow = () => {
               </div>
             </div>
             <div className="w-[200px] flex flex-col items-center gap-4 pt-10">
-              <div className="w-32 h-32 bg-gray-200 rounded-full"></div>
-              <button className="bg-[#4e4871] text-white px-6 py-2 rounded-lg text-sm">
+              <div className="w-32 h-32 bg-gray-200 rounded-full overflow-hidden">
+                {logoPreview ? (
+                  <img
+                    src={logoPreview}
+                    alt="Company logo preview"
+                    className="h-full w-full object-cover"
+                  />
+                ) : null}
+              </div>
+              <input
+                id="company-logo-input"
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={(e) => {
+                  const file = e.target.files?.[0] ?? null;
+                  setLogoFile(file);
+                  if (!file) {
+                    setLogoPreview(null);
+                    return;
+                  }
+                  const nextUrl = URL.createObjectURL(file);
+                  setLogoPreview(nextUrl);
+                }}
+              />
+              <button
+                type="button"
+                onClick={() => {
+                  document.getElementById("company-logo-input")?.click();
+                }}
+                className="bg-[#4e4871] text-white px-6 py-2 rounded-lg text-sm"
+              >
                 Upload Logo
               </button>
             </div>

@@ -1,5 +1,10 @@
 import { IsOptional, IsString, IsEnum } from 'class-validator';
-import { JobStatus, EmploymentType, ExperienceLevel } from '@prisma/client';
+import {
+  JobStatus,
+  EmploymentType,
+  ExperienceLevel,
+  LocationType,
+} from '@prisma/client';
 
 /**
  * DTO for updating job information
@@ -32,6 +37,10 @@ export class UpdateJobDto {
   @IsOptional()
   @IsString()
   location?: string;
+
+  @IsEnum(LocationType)
+  @IsString()
+  locationType?: LocationType;
 
   @IsOptional()
   remoteAvailable?: boolean;

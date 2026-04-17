@@ -1,15 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import AiReview from "@/src/components/candidate/AiReview";
 import InputResumeDetails, {
   ResumeData,
 } from "@/src/components/candidate/InputResumeDetails";
 import ResumePreview from "@/src/components/candidate/ResumePreview";
 import TemplateSelector from "@/src/components/candidate/TemplateSelector";
+import PdfDownloadButton from "@/src/components/candidate/PdfDownloadButton";
 import { templates } from "@/src/components/templates";
-import { pdf, PDFDownloadLink } from "@react-pdf/renderer";
-import { useUploadResume } from "@/src/hooks/useResumeApi";
+import { useGetResumeById } from "@/src/hooks/useResumeApi";
 import { ClassicPDFTemplate } from "@/src/components/templatePdf/ClassicTemplatePdf";
 import { CleanPDFTemplate } from "@/src/components/templatePdf/CleanTemplatePdf";
 import { ModernPDFTemplate } from "@/src/components/templatePdf/ModernTemplatePdf";
@@ -19,20 +19,65 @@ import { SpecialistPDFTemplate } from "@/src/components/templatePdf/SpecialistTe
 import { TemplateKey } from "@/src/types/resume";
 import SaveResumeButton from "@/src/components/candidate/SaveResumeButton";
 import { useSession } from "next-auth/react";
+import { useParams } from "next/navigation";
+import { useSubscriptionStatus } from "@/src/hooks/useUserApi";
 
 export default function UpdateResumePage() {
+  const params = useParams();
+
+  const resumeId = params?.id ? parseInt(params.id as string) : null;
   const session = useSession();
+  const { data: subscription } = useSubscriptionStatus();
   const [activeTab, setActiveTab] = useState<"edit" | "customize" | "ai">(
     "edit",
   );
   const [selectedTemplate, setSelectedTemplate] =
     useState<keyof typeof templates>("modern");
 
+  const templateKeys = Object.keys(templates) as Array<keyof typeof templates>;
+  const availableTemplates = subscription?.isPremium
+    ? templateKeys
+    : templateKeys.slice(0, 3);
+
+  useEffect(() => {
+    if (!availableTemplates.includes(selectedTemplate)) {
+      setSelectedTemplate(availableTemplates[0] ?? "modern");
+    }
+  }, [availableTemplates, selectedTemplate]);
+
+  const getResume = useGetResumeById(resumeId).data;
+  const resumeText = getResume?.resumeText ?? "";
+  const resumeJSON = useMemo(() => {
+    if (!resumeText) return null;
+    try {
+      return JSON.parse(resumeText) as ResumeData;
+    } catch (e) {
+      console.error("Failed to parse resume JSON", e);
+      return null;
+    }
+  }, [resumeText]);
+
   const [resumeData, setResumeData] = useState<ResumeData>({
     experience: [],
     education: [],
     skills: [],
   });
+
+  useEffect(() => {
+    if (!resumeJSON) return;
+
+    setResumeData((prev) => ({
+      ...prev,
+      ...resumeJSON,
+      experience: Array.isArray(resumeJSON.experience)
+        ? resumeJSON.experience
+        : [],
+      education: Array.isArray(resumeJSON.education)
+        ? resumeJSON.education
+        : [],
+      skills: Array.isArray(resumeJSON.skills) ? resumeJSON.skills : [],
+    }));
+  }, [resumeJSON]);
 
   const pdfTemplates: Record<TemplateKey, React.FC<{ data: ResumeData }>> = {
     modern: ModernPDFTemplate,
@@ -44,8 +89,6 @@ export default function UpdateResumePage() {
   };
 
   const PDFComponent = pdfTemplates[selectedTemplate];
-
-  const uploadResume = useUploadResume();
 
   return (
     <div className="flex flex-col h-screen min-w-full justify-center items-center">
@@ -108,6 +151,7 @@ export default function UpdateResumePage() {
               <TemplateSelector
                 selectedTemplate={selectedTemplate}
                 onSelect={setSelectedTemplate}
+                availableTemplates={availableTemplates}
               />
             </div>
           )}
@@ -125,7 +169,7 @@ export default function UpdateResumePage() {
                 resumeData={resumeData}
                 template={selectedTemplate}
               />
-              <PDFDownloadLink
+              <PdfDownloadButton
                 className="absolute right-5 bottom-5 rounded-md bg-primary-500 p-4 text-gray-200"
                 document={<PDFComponent data={resumeData} />}
                 fileName="temp.pdf"
@@ -133,7 +177,7 @@ export default function UpdateResumePage() {
                 {({ loading }) =>
                   loading ? "Generating PDF..." : "Download PDF"
                 }
-              </PDFDownloadLink>
+              </PdfDownloadButton>
             </div>
           )}
           {activeTab === "ai" && <AiReview />}

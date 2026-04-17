@@ -2,6 +2,6 @@
   "scripts": {
     "backend": "cd backend && npm run start:dev",
     "frontend": "cd frontend && npm run dev",
-    "python": "cd ai && .\\venv\\Scripts\\python -m uvicorn main:app --reload"
+    "python": "cd ai && .\\venv\\Scripts\\uvicorn main:app --reload"
   }
 }

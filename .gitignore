@@ -21,8 +21,7 @@ backend/dist/
 frontend/.next/*
 frontend/.next/dev
 
-# --- Environment Secrets ---
-# Using a wildcard to catch any .env folder or file
+**/uploads/
 **/.env/
 .env
 

@@ -10,6 +10,7 @@ import {
   Download,
   ArrowLeft,
 } from "lucide-react";
+import apiClient from "@/src/app/api/api-client";
 import {
   useApplicationDetail,
   useUpdateApplicationStatus,
@@ -18,6 +19,7 @@ import {
 } from "@/src/hooks/useRecruiterApi";
 import { useGetCandidateById } from "@/src/hooks/useCandidateApi";
 import { useGetCurrentUser } from "@/src/hooks/useUserApi";
+import { useSubscriptionStatus } from "@/src/hooks/useUserApi";
 import CreateInterviewModal from "@/src/components/interview/CreateInterviewModal";
 import { useState } from "react";
 
@@ -36,6 +38,52 @@ export default function ApplicationDetailPage() {
   const candidateAccountQuery = useGetCurrentUser();
   const candidateProfileQuery = useGetCandidateById(application?.candidateId);
   const recruiterProfileQuery = useGetCurrentRecruiterProfile();
+  const { data: subscription } = useSubscriptionStatus();
+  const isPremium = subscription?.isPremium ?? false;
+
+  const getCandidateCategory = (
+    matchScore?: number,
+    riskScore?: number,
+  ): string => {
+    if (matchScore == null || riskScore == null) return "Uncategorized";
+    if (matchScore >= 75 && riskScore <= 33) return "High Potential";
+    if (matchScore >= 55 && riskScore <= 66) return "Balanced";
+    return "High Risk";
+  };
+
+  const handleResumeDownload = async () => {
+    if (!application?.id) return;
+
+    try {
+      const response = await apiClient.get(
+        `/applications/${application.id}/resume/download`,
+        {
+          responseType: "blob",
+        },
+      );
+
+      const contentDisposition = response.headers["content-disposition"] || "";
+      const fileNameMatch = contentDisposition.match(
+        /filename=\"?([^\";]+)\"?/i,
+      );
+      const fileName =
+        fileNameMatch?.[1] || application.resumeFileName || "resume.pdf";
+
+      const blob = new Blob([response.data], {
+        type: response.headers["content-type"] || "application/pdf",
+      });
+      const downloadUrl = window.URL.createObjectURL(blob);
+      const anchor = document.createElement("a");
+      anchor.href = downloadUrl;
+      anchor.download = fileName;
+      document.body.appendChild(anchor);
+      anchor.click();
+      anchor.remove();
+      window.URL.revokeObjectURL(downloadUrl);
+    } catch (error) {
+      console.error("Failed to download resume:", error);
+    }
+  };
 
   const handleStatusUpdate = async (status: string) => {
     if (!application) return;
@@ -127,16 +175,39 @@ export default function ApplicationDetailPage() {
                     candidateAccount?.lastName || ""}
                 </h2>
               </div>
-              {application.matchScore && (
-                <span className="bg-teal-50 text-teal-700 border border-teal-200 px-3 py-1 rounded-full text-sm font-semibold shadow-sm">
-                  {application.matchScore}% Compatible
-                </span>
-              )}
-              {!application.matchScore && (
-                <span className="bg-teal-50 text-teal-700 border border-teal-200 px-3 py-1 rounded-full text-sm font-semibold shadow-sm">
-                  No Compatibility Score
-                </span>
-              )}
+              <div className="flex items-center gap-2">
+                {isPremium && application.matchScore != null && (
+                  <span className="bg-teal-50 text-teal-700 border border-teal-200 px-3 py-1 rounded-full text-sm font-semibold shadow-sm">
+                    {application.matchScore}% Compatible
+                  </span>
+                )}
+                {isPremium && application.matchScore === null && (
+                  <span className="bg-teal-50 text-teal-700 border border-teal-200 px-3 py-1 rounded-full text-sm font-semibold shadow-sm">
+                    No Compatibility Score
+                  </span>
+                )}
+                {isPremium && application.riskScore != null && (
+                  <span
+                    className={`px-3 py-1 rounded-full text-sm font-semibold shadow-sm border ${
+                      application.riskScore >= 67
+                        ? "bg-red-50 text-red-700 border-red-200"
+                        : application.riskScore >= 34
+                          ? "bg-amber-50 text-amber-700 border-amber-200"
+                          : "bg-emerald-50 text-emerald-700 border-emerald-200"
+                    }`}
+                  >
+                    {application.riskScore}% Risk
+                  </span>
+                )}
+                {isPremium && (
+                  <span className="bg-indigo-50 text-indigo-700 border border-indigo-200 px-3 py-1 rounded-full text-sm font-semibold shadow-sm">
+                    {getCandidateCategory(
+                      application.matchScore,
+                      application.riskScore,
+                    )}
+                  </span>
+                )}
+              </div>
             </div>
 
             {/* Contact Info */}
@@ -170,6 +241,17 @@ export default function ApplicationDetailPage() {
                 </h3>
                 <p className="text-gray-600 text-sm leading-relaxed">
                   {candidateProfile?.summary || ""}
+                </p>
+              </div>
+            )}
+
+            {application.coverLetter && (
+              <div className="mt-6 bg-gray-50 rounded-lg p-5 border border-gray-100">
+                <h3 className="font-semibold text-gray-900 mb-2">
+                  Cover Letter
+                </h3>
+                <p className="text-gray-700 text-sm whitespace-pre-wrap leading-relaxed">
+                  {application.coverLetter}
                 </p>
               </div>
             )}
@@ -313,7 +395,8 @@ export default function ApplicationDetailPage() {
 
           <div className="border-t border-gray-200 p-6 bg-gray-50 flex flex-wrap gap-4 items-center justify-between">
             <button
-              onClick={() => console.warn("Download not implemented")}
+              onClick={handleResumeDownload}
+              disabled={!application.resumeId}
               className="px-6 py-2.5 bg-white border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 hover:text-gray-900 transition-colors shadow-sm inline-flex items-center focus:ring-2 focus:ring-offset-2 focus:ring-gray-200"
             >
               <Download className="mr-2 w-4 h-4" />

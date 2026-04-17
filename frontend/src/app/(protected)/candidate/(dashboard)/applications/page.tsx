@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { useGetCandidateApplications } from "@/src/hooks/useCandidateApi";
 import { CandidateApplication, ApplicationStatus } from "@/src/types/candidate";
 import {
@@ -207,6 +208,10 @@ function KanbanColumn({
 }
 
 export default function ApplicationsPage() {
+  useEffect(() => {
+    document.title = "Applications - AcuityTalent";
+  }, []);
+
   const {
     data: applications,
     isLoading,

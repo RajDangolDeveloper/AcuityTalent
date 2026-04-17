@@ -1,3 +1,5 @@
+from typing import List
+
 from pydantic import BaseModel, Field, validator
 
 class MatchRequest(BaseModel):
@@ -202,4 +204,66 @@ class RewriteResponse(BaseModel):
         ...,
         description="The improved version of the original text",
     )
+    status: str = Field(default="success")
+
+
+class JobRecommendationResponse(BaseModel):
+    user_id: int = Field(..., description="ID of the user/candidate")
+    recommended_job_ids: List[int] = Field(..., description="List of recommended job IDs")
+
+
+class RecommendedJobItem(BaseModel):
+    job_id: int = Field(..., description="ID of the job")
+    title: str = Field(..., description="Job title")
+    location: str = Field(..., description="Job location")
+    employment_type: str = Field(..., description="Employment type (FULL_TIME, PART_TIME, etc)")
+    match_score: float = Field(..., description="Match score as percentage (0-100)")
+
+
+class JobRecommendationsListResponse(BaseModel):
+    recommendations: List[RecommendedJobItem] = Field(..., description="List of recommended jobs with scores")
+    total_count: int = Field(..., description="Total number of recommendations")
+    status: str = Field(default="success")
+
+class EmbeddingRequest(BaseModel):
+    text: str = Field(
+        text="The text needed to create embeddings",
+    )
+
+class EmbeddingResponse(BaseModel):
+    embedding: List[float] = Field(..., description="The generated embedding vector")
+    status: str = Field(default="success")
+
+
+class InterviewRiskItem(BaseModel):
+    status: str = Field(..., description="Interview status, e.g. NO_SHOW")
+
+
+class WorkHistoryRiskItem(BaseModel):
+    start_date: str = Field(..., description="ISO date string for work start")
+    end_date: str | None = Field(
+        default=None,
+        description="ISO date string for work end; null/empty means current role",
+    )
+    is_current: bool = Field(default=False)
+
+
+class RiskAssessmentRequest(BaseModel):
+    work_history: List[WorkHistoryRiskItem] = Field(default_factory=list)
+    candidate_skills: List[str] = Field(default_factory=list)
+    job_requirements: str = Field(default="")
+    expected_salary: float | None = Field(default=None)
+    offered_salary: float | None = Field(default=None)
+    interviews: List[InterviewRiskItem] = Field(default_factory=list)
+
+
+class RiskAssessmentResponse(BaseModel):
+    risk_score: float = Field(..., description="Risk score between 0 and 1")
+    risk_label: str = Field(..., description="LOW, MEDIUM, or HIGH")
+    stability_score: float = Field(..., description="Component risk between 0 and 1")
+    skill_gap_score: float = Field(..., description="Component risk between 0 and 1")
+    salary_alignment_score: float = Field(
+        ..., description="Component risk between 0 and 1"
+    )
+    reliability_score: float = Field(..., description="Component risk between 0 and 1")
     status: str = Field(default="success")

@@ -5,15 +5,19 @@ import {
   ForbiddenException,
   ConflictException,
 } from '@nestjs/common';
-import { PrismaService } from 'src/prisma/prisma.service';
-import { EmailService } from 'src/config/email.service';
+
 import { CreateApplicationDto } from './dto/create-application.dto';
 import { GetApplicationsQueryDto } from './dto/get-applications-query.dto';
 import { ApplicationResponseDto } from './dto/application-response.dto';
 import { ApplicationStatus, InterviewStatus, JobStatus } from '@prisma/client';
 import { AiService } from '../ai/ai.service';
-import { MatchScoreRequest } from '../ai/dto/matchingScoreRequest.dto';
+import { MatchRequest } from '../ai/dto/match-request.dto';
+import { MatchResponse } from '../ai/dto/match-response.dto';
+import { RiskAssessmentRequest } from '../ai/dto/risk-assessment-request.dto';
 import { CandidateService } from '../candidates/candidate.service';
+import { firstValueFrom } from 'rxjs';
+import { PrismaService } from '../../prisma/prisma.service';
+import { EmailService } from '../../config/email.service';
 
 @Injectable()
 export class ApplicationService {
@@ -72,20 +76,38 @@ export class ApplicationService {
     if (existingApplication) {
       throw new ConflictException('You have already applied for this job');
     }
-    const matchScoreRequest = new MatchScoreRequest();
-    var score;
-    matchScoreRequest.jobContent = job.description + job.requirements;
-    matchScoreRequest.resumeContent = resume.textContent || '';
-    const matchScore = await this.aiService
-      .getMatchingScore(matchScoreRequest)
-      .subscribe({
-        next: (response) => {
-          score = response.score;
-        },
-        error: (err) => {
-          console.error('something went wrong', err);
-        },
-      });
+
+    let matchScore = 0;
+    const normalizedResumeText = this.normalizeAiText(
+      resume.textContent ?? resume.resumeText,
+    );
+    const normalizedJobDescription = this.normalizeAiText(
+      `${job.description ?? ''} ${job.requirements ?? ''}`,
+    );
+
+    if (
+      normalizedResumeText.length >= 10 &&
+      normalizedJobDescription.length >= 10
+    ) {
+      const matchScoreRequest: MatchRequest = {
+        resume_text: normalizedResumeText,
+        job_description: normalizedJobDescription,
+      };
+
+      try {
+        const response = await firstValueFrom(
+          this.aiService.getMatchingScore(matchScoreRequest),
+        );
+        matchScore = response.similarity_score;
+      } catch (err) {
+        console.error('Error calculating matching score:', err);
+        matchScore = 0;
+      }
+    } else {
+      console.warn(
+        'Skipping AI match score: resume/job text does not satisfy minimum length requirements',
+      );
+    }
 
     const application = await this.prisma.application.create({
       data: {
@@ -93,7 +115,7 @@ export class ApplicationService {
         jobId: createApplicationDto.jobId,
         resumeId: createApplicationDto.resumeId,
         coverLetter: createApplicationDto.coverLetter,
-        matchScore: Number(score),
+        matchScore: matchScore,
         status: ApplicationStatus.APPLIED,
         appliedAt: new Date(),
       },
@@ -205,9 +227,10 @@ export class ApplicationService {
     const application = await this.prisma.application.findUnique({
       where: { id: applicationId },
       include: {
-        candidate: { include: { user: true } },
+        candidate: { include: { user: true, workHistory: true } },
         job: { include: { recruiter: { include: { company: true } } } },
         resume: true,
+        interviews: { select: { status: true } },
       },
     });
 
@@ -260,7 +283,53 @@ export class ApplicationService {
       },
     });
 
-    return this.formatApplicationResponse(application);
+    return this.formatApplicationResponseWithRisk(application);
+  }
+
+  async downloadApplicationResume(
+    applicationId: number,
+    userId: number,
+  ): Promise<{ filePath: string; fileName: string; fileType: string }> {
+    const application = await this.prisma.application.findUnique({
+      where: { id: applicationId },
+      include: {
+        candidate: true,
+        job: { include: { recruiter: true } },
+        resume: true,
+      },
+    });
+
+    if (!application) {
+      throw new NotFoundException('Application not found');
+    }
+
+    const recruiter = await this.prisma.recruiterProfile.findUnique({
+      where: { userId },
+    });
+
+    const candidate = await this.prisma.candidateProfile.findUnique({
+      where: { userId },
+    });
+
+    const isRecruiter =
+      recruiter && application.job.recruiterId === recruiter.id;
+    const isCandidate = candidate && application.candidateId === candidate.id;
+
+    if (!isRecruiter && !isCandidate) {
+      throw new ForbiddenException(
+        'You do not have permission to download this resume',
+      );
+    }
+
+    if (!application.resume) {
+      throw new NotFoundException('Resume not found for this application');
+    }
+
+    return {
+      filePath: application.resume.filePath,
+      fileName: application.resume.fileName,
+      fileType: application.resume.fileType,
+    };
   }
 
   async shortlistApplication(
@@ -488,7 +557,7 @@ export class ApplicationService {
     application: any,
     newStatus: ApplicationStatus,
   ): Promise<void> {
-    const candidateEmail = application.candidate.user.email;
+    const candidateEmail = application.candidate.user.contactEmail;
     const jobTitle = application.job.title;
     const companyName = application.job.recruiter.company.name;
 
@@ -559,6 +628,72 @@ export class ApplicationService {
     };
   }
 
+  private async formatApplicationResponseWithRisk(
+    application: any,
+  ): Promise<ApplicationResponseDto> {
+    const base = this.formatApplicationResponse(application);
+    const riskScore = await this.computeCandidateRiskScore(application);
+
+    return {
+      ...base,
+      riskScore,
+    };
+  }
+
+  private parseSalaryRange(salaryRange?: string | null): number | null {
+    if (!salaryRange) {
+      return null;
+    }
+
+    const numbers = salaryRange
+      .replace(/,/g, '')
+      .match(/\d+(?:\.\d+)?/g)
+      ?.map(Number);
+
+    if (!numbers?.length) {
+      return null;
+    }
+
+    return numbers.reduce((sum, n) => sum + n, 0) / numbers.length;
+  }
+
+  private async computeCandidateRiskScore(
+    application: any,
+  ): Promise<number | undefined> {
+    try {
+      const payload: RiskAssessmentRequest = {
+        work_history: (application.candidate?.workHistory ?? []).map((w) => ({
+          start_date: w.startDate?.toISOString?.() ?? String(w.startDate),
+          end_date: w.endDate
+            ? (w.endDate.toISOString?.() ?? String(w.endDate))
+            : null,
+          is_current: Boolean(w.isCurrent),
+        })),
+        candidate_skills: application.candidate?.skills ?? [],
+        job_requirements:
+          `${application.job?.requirements ?? ''} ${application.job?.description ?? ''}`.trim(),
+        expected_salary: application.candidate?.expectedSalary ?? null,
+        offered_salary: this.parseSalaryRange(application.job?.salaryRange),
+        interviews: (application.interviews ?? []).map((i) => ({
+          status: i.status,
+        })),
+      };
+
+      const risk = await firstValueFrom(
+        this.aiService.getRiskAssessment(payload),
+      );
+
+      if (risk.status === 'error') {
+        return undefined;
+      }
+
+      return Math.round(risk.risk_score * 100);
+    } catch (error) {
+      console.error('Failed to compute candidate risk score:', error);
+      return undefined;
+    }
+  }
+
   async getApplicationStats(userId: number): Promise<any> {
     const recruiter = await this.prisma.recruiterProfile.findUnique({
       where: { userId },
@@ -617,17 +752,22 @@ export class ApplicationService {
     const applications = await this.prisma.application.findMany({
       where,
       include: {
-        candidate: { include: { user: true } },
+        candidate: { include: { user: true, workHistory: true } },
         job: { include: { recruiter: { include: { company: true } } } },
         resume: true,
+        interviews: { select: { status: true } },
       },
       skip: (query.page - 1) * query.limit,
       take: query.limit,
       orderBy: { appliedAt: 'desc' },
     });
 
+    const mapped = await Promise.all(
+      applications.map((app) => this.formatApplicationResponseWithRisk(app)),
+    );
+
     return {
-      data: applications.map((app) => this.formatApplicationResponse(app)),
+      data: mapped,
       total,
     };
   }
@@ -736,6 +876,25 @@ export class ApplicationService {
     });
 
     return jobOffers;
+  }
+
+  private normalizeAiText(value?: string | null): string {
+    if (!value) return '';
+
+    const trimmed = value.trim();
+    if (!trimmed) return '';
+
+    // Some flows store textContent as a JSON-stringified string (e.g. "..."), so unwrap when possible.
+    try {
+      const parsed = JSON.parse(trimmed);
+      if (typeof parsed === 'string') {
+        return parsed.trim();
+      }
+    } catch {
+      // Ignore parse errors and use raw text.
+    }
+
+    return trimmed;
   }
 
   async getRecommendedJobs(id: number) {}

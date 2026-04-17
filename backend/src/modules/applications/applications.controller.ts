@@ -11,12 +11,14 @@ import {
   Req,
   HttpStatus,
   HttpCode,
+  StreamableFile,
 } from '@nestjs/common';
 import { ApplicationService } from './applications.service';
 import { CreateApplicationDto } from './dto/create-application.dto';
 import { GetApplicationsQueryDto } from './dto/get-applications-query.dto';
 import { ApplicationResponseDto } from './dto/application-response.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { createReadStream } from 'fs';
 
 @Controller('applications')
 @UseGuards(JwtAuthGuard)
@@ -149,6 +151,31 @@ export class ApplicationController {
         limit: query.limit,
       },
     };
+  }
+
+  @Get(':id/resume/download')
+  async downloadApplicationResume(
+    @Param('id') id: string,
+    @Req() req: any,
+  ): Promise<StreamableFile> {
+    const resumeData = await this.applicationService.downloadApplicationResume(
+      parseInt(id),
+      req.user.id,
+    );
+
+    const file = createReadStream(resumeData.filePath);
+    const contentType =
+      resumeData.fileType === 'DOC'
+        ? 'application/msword'
+        : resumeData.fileType === 'DOCX'
+          ? 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+          : 'application/pdf';
+    req.res.set({
+      'Content-Type': contentType,
+      'Content-Disposition': `attachment; filename="${resumeData.fileName}"`,
+    });
+
+    return new StreamableFile(file);
   }
 
   @Get(':id')

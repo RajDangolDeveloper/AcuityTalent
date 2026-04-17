@@ -4,11 +4,12 @@ import {
   ForbiddenException,
   BadRequestException,
 } from '@nestjs/common';
-import { PrismaService } from 'src/prisma/prisma.service';
+
 import { CreateResumeDto } from './dto/create-resume.dto';
 import { UpdateResumeDto } from './dto/update-resume.dto';
 import { ResumeResponseDto } from './dto/resume-response.dto';
 import { FileType } from '@prisma/client';
+import { PrismaService } from '../../prisma/prisma.service';
 
 @Injectable()
 export class ResumeService {
@@ -131,12 +132,6 @@ export class ResumeService {
       },
     });
 
-    if (activeApplications > 0) {
-      throw new BadRequestException(
-        'Cannot delete resume that has active applications',
-      );
-    }
-
     await this.prisma.resume.delete({
       where: { id: resumeId },
     });
@@ -186,8 +181,8 @@ export class ResumeService {
     file: Express.Multer.File,
     userId: number,
     textContent: string,
+    resumeText: string,
   ) {
-    console.log('Sending userId:', userId);
     const candidateProfile = await this.prisma.candidateProfile.findUnique({
       where: { userId },
     });
@@ -206,6 +201,7 @@ export class ResumeService {
         fileType,
         fileSize: file.size,
         aiScore: 0,
+        resumeText: resumeText,
         textContent: textContent,
         uploadedAt: new Date(),
       },
@@ -232,9 +228,10 @@ export class ResumeService {
       filePath: resume.filePath,
       fileType: resume.fileType,
       fileSize: resume.fileSize,
+      textContent: resume.textContent,
+      resumeText: resume.resumeText,
       uploadedAt: resume.uploadedAt,
       createdAt: resume.createdAt,
-      textContent: resume.textContent,
     };
   }
 }

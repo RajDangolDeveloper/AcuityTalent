@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { redirect, useRouter } from "next/navigation";
 import React from "react";
 import Link from "next/link";
 import JobCard from "@/src/components/recruiter/JobCard";
@@ -18,6 +18,8 @@ import {
   DollarSign,
   GraduationCap,
   MapPin,
+  Pencil,
+  X,
 } from "lucide-react";
 import Markdown from "react-markdown";
 import { useUpdateJobStatus } from "@/src/hooks/useJobApi";
@@ -166,7 +168,7 @@ export default function JobsPage() {
 
         {selectedJob ? (
           <div className="flex flex-col gap-4 w-full">
-            <div className="flex justify-between items-end gap-8 w-full py-12 h-48 px-16 bg-white border border-gray-200 shadow-sm rounded-sm">
+            <div className="relative flex justify-between items-end gap-8 w-full py-12 h-48 px-6 bg-white border border-gray-200 shadow-sm rounded-sm">
               <div className="flex flex-col gap-4">
                 <div className="flex items-center gap-3">
                   <h2 className="text-3xl font-bold text-[#4B4B7C]">
@@ -217,7 +219,7 @@ export default function JobsPage() {
               </div>
               <div className="flex gap-4">
                 <select
-                  className="rounded-md border text-center"
+                  className="rounded-md border text-center h-12"
                   defaultValue={selectedJob.status}
                   name="jobStatus"
                   onChange={handleJobStatusUpdate}
@@ -228,13 +230,23 @@ export default function JobsPage() {
                     </option>
                   ))}
                 </select>
+              </div>
+              <div className="absolute top-5 right-5 flex justify-center items-center gap-4">
+                <button
+                  onClick={() => {
+                    redirect(`jobs/edit/${selectedJobId}`);
+                  }}
+                  className="font-bold hover:bg-red-50 transition-colors text-lg"
+                >
+                  <Pencil size={20} />
+                </button>
                 <button
                   onClick={() => {
                     handleJobDelete();
                   }}
-                  className="border border-red-500 text-red-500 font-bold h-16 px-8 py-4 rounded-xl hover:bg-red-50 transition-colors text-lg"
+                  className=" text-red-500 font-bold hover:bg-red-50 transition-colors text-lg"
                 >
-                  Delete Job
+                  <X />
                 </button>
               </div>
             </div>

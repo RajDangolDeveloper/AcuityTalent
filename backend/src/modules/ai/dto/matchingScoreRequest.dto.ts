@@ -1,4 +1,4 @@
 export class MatchScoreRequest {
-  resumeContent: string;
-  jobContent: string;
+  resumeContent!: string;
+  jobContent!: string;
 }

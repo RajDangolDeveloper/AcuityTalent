@@ -4,13 +4,18 @@ import { templates, templatePreviews } from "../templates";
 interface TemplateSelectorProps {
   selectedTemplate: keyof typeof templates;
   onSelect: (template: keyof typeof templates) => void;
+  availableTemplates?: Array<keyof typeof templates>;
 }
 
 const TemplateSelector: React.FC<TemplateSelectorProps> = ({
   selectedTemplate,
   onSelect,
+  availableTemplates,
 }) => {
-  const templateKeys = Object.keys(templates) as Array<keyof typeof templates>;
+  const templateKeys =
+    availableTemplates && availableTemplates.length > 0
+      ? availableTemplates
+      : (Object.keys(templates) as Array<keyof typeof templates>);
   return (
     <div className="p-6">
       <h2 className="text-2xl font-semibold mb-4">Templates & Colors</h2>

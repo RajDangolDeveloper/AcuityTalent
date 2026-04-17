@@ -80,6 +80,8 @@ export const useCandidateProfile = (candidateId: number) => {
 
 // Update application status
 export const useUpdateApplicationStatus = () => {
+  const queryClient = useQueryClient();
+
   return useMutation({
     mutationFn: async ({
       applicationId,
@@ -107,11 +109,38 @@ export const useUpdateApplicationStatus = () => {
       console.log(response);
       return response.data.data;
     },
+    onSuccess: async (_, variables) => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["job-applications"] }),
+        queryClient.invalidateQueries({
+          queryKey: ["application-detail", variables.applicationId],
+        }),
+        queryClient.invalidateQueries({
+          queryKey: ["candidate", "applications"],
+        }),
+        queryClient.invalidateQueries({
+          queryKey: ["recent-candidate-applications"],
+        }),
+        queryClient.invalidateQueries({
+          queryKey: ["total-candidate-applications"],
+        }),
+        queryClient.invalidateQueries({
+          queryKey: ["candidate-applications-response-rate"],
+        }),
+        queryClient.invalidateQueries({
+          queryKey: ["candidate-applications-interview-rate"],
+        }),
+        queryClient.invalidateQueries({ queryKey: ["candidate-total-offers"] }),
+        queryClient.invalidateQueries({ queryKey: ["interviews"] }),
+      ]);
+    },
   });
 };
 
 // Create job
 export const useCreateJob = () => {
+  const queryClient = useQueryClient();
+
   return useMutation({
     mutationFn: async (jobData: {
       title: string;
@@ -131,6 +160,14 @@ export const useCreateJob = () => {
       console.log(response);
       return response.data.data;
     },
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["recruiter-jobs"] }),
+        queryClient.invalidateQueries({ queryKey: ["candidate-jobs"] }),
+        queryClient.invalidateQueries({ queryKey: ["admin-overview"] }),
+        queryClient.invalidateQueries({ queryKey: ["admin-feature-list"] }),
+      ]);
+    },
   });
 };
 
@@ -148,6 +185,50 @@ export const useGetRecruiterCompanies = () => {
   });
 };
 
+export const useUpdateJob = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      jobId,
+      jobData,
+    }: {
+      jobId: number;
+      jobData: {
+        title?: string;
+        description?: string;
+        requirements?: string;
+        employmentType?: string;
+        experienceLevel?: string;
+        salaryRange?: string;
+        location?: string;
+        locationType?: LocationType;
+        remoteAvailable?: boolean;
+      };
+    }) => {
+      const response = await apiClient.patch<SingleResponse<Job>>(
+        `jobs/${jobId}`,
+        jobData,
+      );
+      return response.data.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["recruiter-jobs"] });
+      queryClient.invalidateQueries({ queryKey: ["candidate-jobs"] });
+      Notification({
+        toastMessage: "Job Updated Successfully",
+        toastStatus: "success",
+      });
+    },
+    onError: (error) => {
+      Notification({
+        toastMessage: "Job Updated UnSuccessfully",
+        toastStatus: "error",
+      });
+    },
+  });
+};
+
 export const useDeleteJob = () => {
   const queryClient = useQueryClient();
 
@@ -158,6 +239,7 @@ export const useDeleteJob = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["recruiter-jobs"] });
+      queryClient.invalidateQueries({ queryKey: ["candidate-jobs"] });
       Notification({
         toastMessage: "Job Deleted Successfully",
         toastStatus: "success",
@@ -173,19 +255,41 @@ export const useDeleteJob = () => {
 };
 
 export const useUpdateRecruiterProfile = () => {
+  const queryClient = useQueryClient();
+
   return useMutation({
     mutationFn: async (data: any) => {
       const response = await apiClient.patch("/recruiters/profile", data);
       return response.data;
     },
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: ["recruiter-current-profile"],
+        }),
+        queryClient.invalidateQueries({ queryKey: ["admin-overview"] }),
+        queryClient.invalidateQueries({ queryKey: ["admin-feature-list"] }),
+      ]);
+    },
   });
 };
 
 export const useCreateRecruiterProfile = () => {
+  const queryClient = useQueryClient();
+
   return useMutation({
     mutationFn: async (data: any) => {
       const response = await apiClient.post("/recruiters/profile", data);
       return response.data;
+    },
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: ["recruiter-current-profile"],
+        }),
+        queryClient.invalidateQueries({ queryKey: ["admin-overview"] }),
+        queryClient.invalidateQueries({ queryKey: ["admin-feature-list"] }),
+      ]);
     },
   });
 };

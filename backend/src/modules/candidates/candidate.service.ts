@@ -1,4 +1,3 @@
-import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateCandidateProfileDto } from './dto/create-candidate-profile.dto';
 import { UpdateCandidateProfileDto } from './dto/update-candidate-profile.dto';
 import { CandidateProfileResponseDto } from './dto/candidate-profile-response.dto';
@@ -13,10 +12,19 @@ import {
   BadRequestException,
   NotFoundException,
 } from '@nestjs/common';
+import { JobStatus } from '@prisma/client';
+import { AiService } from '../ai/ai.service';
+import { EmbeddingRequest } from '../ai/dto/embedding-request.dto';
+import { CreateCandidateEmbeddingDto } from './dto/create-candidate-profile-embedding.dto';
+import { PrismaService } from '../../prisma/prisma.service';
+import { firstValueFrom } from 'rxjs';
 
 @Injectable()
 export class CandidateService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private ai: AiService,
+  ) {}
 
   async createCandidateProfile(
     userId: number,
@@ -37,7 +45,53 @@ export class CandidateService {
         ...createDto,
       },
     });
+
+    await this.recomputeCandidateEmbedding(profile.id);
+
     return profile;
+  }
+
+  async createCandidateEmbedding(
+    createCandidateEmbedding: CreateCandidateEmbeddingDto,
+  ) {
+    const vectorValue = `[${createCandidateEmbedding.embedding.join(',')}]`;
+
+    const [created] = await this.prisma.$queryRaw<
+      Array<{
+        id: number;
+        candidateProfileId: number;
+        embedding: unknown;
+        model: string;
+        createdAt: Date;
+        updatedAt: Date;
+      }>
+    >`
+    WITH upsert AS (
+      INSERT INTO "CandidateProfileEmbedding" (
+        "candidateProfileId",
+        "embedding",
+        "model",
+        "createdAt",
+        "updatedAt"
+      )
+      VALUES (
+        ${createCandidateEmbedding.candidateProfileId},
+        ${vectorValue}::vector(768),
+        ${'all-mpnet-base-v2'},
+        NOW(),
+        NOW()
+      )
+      ON CONFLICT ("candidateProfileId")
+      DO UPDATE SET
+        "embedding" = EXCLUDED."embedding",
+        "model" = EXCLUDED."model",
+        "updatedAt" = NOW()
+      RETURNING *
+    )
+    SELECT * FROM upsert
+  `;
+
+    return created;
   }
 
   async getCandidateProfile(
@@ -94,6 +148,9 @@ export class CandidateService {
       where: { userId },
       data: updateDto,
     });
+
+    await this.recomputeCandidateEmbedding(profile.id);
+
     return profile;
   }
 
@@ -115,6 +172,10 @@ export class CandidateService {
       throw new NotFoundException('Candidate profile not found');
     }
 
+    if (!createDto.startDate) {
+      throw new BadRequestException('startDate is required');
+    }
+
     const workExp = await this.prisma.workExperience.create({
       data: {
         candidateId: candidate.id,
@@ -123,6 +184,9 @@ export class CandidateService {
         endDate: createDto.endDate ? new Date(createDto.endDate) : null,
       },
     });
+
+    await this.recomputeCandidateEmbedding(candidate.id);
+
     return workExp;
   }
 
@@ -171,6 +235,9 @@ export class CandidateService {
         endDate: updateDto.endDate ? new Date(updateDto.endDate) : null,
       },
     });
+
+    await this.recomputeCandidateEmbedding(candidate.id);
+
     return updated;
   }
 
@@ -195,6 +262,8 @@ export class CandidateService {
     await this.prisma.workExperience.delete({
       where: { id: experienceId },
     });
+
+    await this.recomputeCandidateEmbedding(candidate.id);
   }
 
   // Education CRUD
@@ -209,6 +278,10 @@ export class CandidateService {
       throw new NotFoundException('Candidate profile not found');
     }
 
+    if (!createDto.startDate) {
+      throw new BadRequestException('startDate is required');
+    }
+
     const education = await this.prisma.education.create({
       data: {
         candidateId: candidate.id,
@@ -217,6 +290,9 @@ export class CandidateService {
         endDate: createDto.endDate ? new Date(createDto.endDate) : null,
       },
     });
+
+    await this.recomputeCandidateEmbedding(candidate.id);
+
     return education;
   }
 
@@ -263,6 +339,9 @@ export class CandidateService {
         endDate: updateDto.endDate ? new Date(updateDto.endDate) : null,
       },
     });
+
+    await this.recomputeCandidateEmbedding(candidate.id);
+
     return updated;
   }
 
@@ -284,5 +363,155 @@ export class CandidateService {
     await this.prisma.education.delete({
       where: { id: educationId },
     });
+
+    await this.recomputeCandidateEmbedding(candidate.id);
+  }
+
+  private async recomputeCandidateEmbedding(candidateProfileId: number) {
+    const candidate = await this.prisma.candidateProfile.findUnique({
+      where: { id: candidateProfileId },
+      include: {
+        workHistory: true,
+        education: true,
+      },
+    });
+
+    if (!candidate) {
+      throw new NotFoundException('Candidate profile not found');
+    }
+
+    const workHistoryText = candidate.workHistory
+      .map((item) =>
+        [item.company, item.position, item.description]
+          .filter(Boolean)
+          .join(' '),
+      )
+      .join(' ');
+
+    const educationText = candidate.education
+      .map((item) =>
+        [item.institution, item.degree, item.fieldOfStudy, item.description]
+          .filter(Boolean)
+          .join(' '),
+      )
+      .join(' ');
+
+    const embeddingText = [
+      candidate.headline,
+      candidate.currentPosition,
+      candidate.highestDegree,
+      candidate.skills?.join(' '),
+      candidate.preferredLocation,
+      candidate.summary,
+      candidate.linkedinUrl,
+      candidate.githubUrl,
+      workHistoryText,
+      educationText,
+    ]
+      .filter(Boolean)
+      .join(' ')
+      .trim();
+
+    if (!embeddingText) {
+      return;
+    }
+
+    const request = new EmbeddingRequest();
+    request.text = embeddingText;
+
+    const embeddingResult = await this.ai.generateEmbedding(request);
+
+    if (!embeddingResult.embedding?.length) {
+      return;
+    }
+
+    const dto = new CreateCandidateEmbeddingDto();
+    dto.candidateProfileId = candidateProfileId;
+    dto.embedding = embeddingResult.embedding;
+
+    await this.createCandidateEmbedding(dto);
+  }
+
+  async getRecommendedJobs(userId: number, topK: number = 10) {
+    const candidate = await this.prisma.candidateProfile.findUnique({
+      where: { userId },
+    });
+
+    if (!candidate) {
+      throw new NotFoundException('Candidate profile not found');
+    }
+
+    const recommendationResult = await firstValueFrom(
+      this.ai.getJobRecommendations(candidate.id, topK),
+    );
+
+    if (!recommendationResult.recommendations?.length) {
+      return [];
+    }
+
+    const recommendedIds = recommendationResult.recommendations.map(
+      (item) => item.job_id,
+    );
+    const scoreByJobId = new Map(
+      recommendationResult.recommendations.map((item) => [
+        item.job_id,
+        item.match_score,
+      ]),
+    );
+
+    const jobs = await this.prisma.job.findMany({
+      where: {
+        id: { in: recommendedIds },
+        status: JobStatus.ACTIVE,
+        applications: {
+          none: {
+            candidateId: candidate.id,
+          },
+        },
+        savedBy: {
+          none: {
+            candidateId: candidate.id,
+          },
+        },
+      },
+      include: {
+        company: true,
+        recruiter: {
+          include: {
+            user: {
+              select: {
+                firstName: true,
+                lastName: true,
+                contactEmail: true,
+              },
+            },
+          },
+        },
+        _count: {
+          select: {
+            applications: true,
+          },
+        },
+      },
+    });
+
+    const jobById = new Map(jobs.map((job) => [job.id, job]));
+
+    return recommendedIds
+      .map((id) => jobById.get(id))
+      .filter(Boolean)
+      .map((job) => ({
+        ...job,
+        companyName: job!.company?.name,
+        recruiterName: [
+          job!.recruiter?.user?.firstName,
+          job!.recruiter?.user?.lastName,
+        ]
+          .filter(Boolean)
+          .join(' '),
+        recruiterEmail: job!.recruiter?.user?.contactEmail,
+        applicationCount: job!._count?.applications ?? 0,
+        matchScore: scoreByJobId.get(job!.id) ?? 0,
+      }));
   }
 }

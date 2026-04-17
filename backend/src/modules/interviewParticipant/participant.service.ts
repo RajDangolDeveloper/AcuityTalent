@@ -1,4 +1,3 @@
-import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateParticipantDto } from './dto/CreateParticipantDto';
 import { ConflictException, NotFoundException } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
@@ -8,6 +7,7 @@ import { FindAllParticipantDto } from './dto/FindAllParticipants.Dto';
 import { UserService } from '../user/user.service';
 import { InterviewsService } from '../interview/interview.service';
 import { FindParticipantDto } from './dto/FindParticipant.Dto';
+import { PrismaService } from '../../prisma/prisma.service';
 
 export class InterviewParticipantService {
   constructor(

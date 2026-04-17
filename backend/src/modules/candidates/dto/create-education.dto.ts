@@ -11,17 +11,17 @@ import { EducationLevel } from '@prisma/client';
 
 export class CreateEducationDto {
   @IsString()
-  institution: string;
+  institution!: string;
 
   @IsEnum(EducationLevel)
-  degree: EducationLevel;
+  degree!: EducationLevel;
 
   @IsOptional()
   @IsString()
   fieldOfStudy?: string;
 
   @IsDateString()
-  startDate: string;
+  startDate!: string;
 
   @IsOptional()
   @IsDateString()

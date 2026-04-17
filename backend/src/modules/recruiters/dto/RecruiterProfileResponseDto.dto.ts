@@ -1,3 +1,3 @@
-import { CreateCandidateProfileDto } from 'src/modules/candidates/dto/create-candidate-profile.dto';
+import { CreateCandidateProfileDto } from '../../candidates/dto/create-candidate-profile.dto';
 
 export class RecruiterProfileResponseDto extends CreateCandidateProfileDto {}

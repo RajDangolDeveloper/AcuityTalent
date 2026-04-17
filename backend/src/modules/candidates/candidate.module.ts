@@ -1,15 +1,15 @@
 import { Module } from '@nestjs/common';
 import { CandidateController } from './candidate.controller';
 import { CandidateService } from './candidate.service';
-import { PrismaService } from 'src/prisma/prisma.service';
 
-/**
- * CandidateModule - Encapsulates all candidate management functionality
- * Dependencies: Prisma (database)
- */
+import { AiService } from '../ai/ai.service';
+import { HttpModule } from '@nestjs/axios';
+import { PrismaService } from '../../prisma/prisma.service';
+
 @Module({
+  imports: [HttpModule],
   controllers: [CandidateController],
-  providers: [CandidateService, PrismaService],
+  providers: [CandidateService, PrismaService, AiService],
   exports: [CandidateService],
 })
 export class CandidateModule {}

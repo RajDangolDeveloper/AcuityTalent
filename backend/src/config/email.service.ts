@@ -1,7 +1,7 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { SendOtp } from 'src/modules/auth/dto/sendOtp.dto';
 import * as nodemailer from 'nodemailer';
+import { SendOtp } from '../modules/auth/dto/sendOtp.dto';
 
 @Injectable()
 export class EmailService {

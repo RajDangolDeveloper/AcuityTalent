@@ -3,6 +3,9 @@ export enum Role {
   RECRUITER = "RECRUITER",
   CANDIDATE = "CANDIDATE",
 }
+
+export type SubscriptionPlan = "NON_PREMIUM" | "PREMIUM";
+
 export interface UserResponseDto {
   id: number;
   email: string;
@@ -11,9 +14,20 @@ export interface UserResponseDto {
   contactPhone: string | null;
   contactEmail: string | null;
   role: Role;
+  subscriptionPlan?: SubscriptionPlan;
+  isPremium?: boolean;
   isOnboarded: boolean;
-  createdAt: string; // Dates are sent as ISO strings over JSON
+  createdAt: string;
   updatedAt: string;
+}
+
+export interface SubscriptionStatusResponse {
+  plan: SubscriptionPlan;
+  isPremium: boolean;
+  coverLetterGenerationsUsed: number;
+  coverLetterLimit: number | null;
+  pricePerMonth: number;
+  expiresAt: string | null;
 }
 export interface CreateUserDto {
   email: string;

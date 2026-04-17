@@ -13,6 +13,7 @@ import {
 } from "../types/interview";
 import { queryClient } from "@/library/queryClient";
 import { interviewQueryKeys } from "../constants/interview/query-keys";
+import { candidateQueryKeys } from "../constants/candidate/query-keys";
 
 export const useCreateInterview = () => {
   return useMutation({
@@ -21,6 +22,17 @@ export const useCreateInterview = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: interviewQueryKeys.interviews.all,
+      });
+      queryClient.invalidateQueries({ queryKey: ["job-applications"] });
+      queryClient.invalidateQueries({ queryKey: ["application-detail"] });
+      queryClient.invalidateQueries({
+        queryKey: candidateQueryKeys.candidate.applications.all(),
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["candidate-applications-interview-rate"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["recent-candidate-applications"],
       });
     },
     onError: () => {
@@ -127,9 +139,9 @@ export const useUpdateInterviewStatus = (
       queryClient.invalidateQueries({
         queryKey: interviewQueryKeys.interviews.detail(id),
       });
-      queryClient.invalidateQueries({
-        queryKey: interviewQueryKeys.interviews.upcoming(),
-      });
+      queryClient.invalidateQueries({ queryKey: ["interviews", "upcoming"] });
+      queryClient.invalidateQueries({ queryKey: ["job-applications"] });
+      queryClient.invalidateQueries({ queryKey: ["application-detail"] });
     },
     ...options,
   });
@@ -149,9 +161,9 @@ export const useMarkInterviewInProgress = (
       queryClient.invalidateQueries({
         queryKey: interviewQueryKeys.interviews.detail(id),
       });
-      queryClient.invalidateQueries({
-        queryKey: interviewQueryKeys.interviews.upcoming(),
-      });
+      queryClient.invalidateQueries({ queryKey: ["interviews", "upcoming"] });
+      queryClient.invalidateQueries({ queryKey: ["job-applications"] });
+      queryClient.invalidateQueries({ queryKey: ["application-detail"] });
     },
     ...options,
   });
@@ -178,8 +190,11 @@ export const useMarkInterviewCompleted = (
       queryClient.invalidateQueries({
         queryKey: interviewQueryKeys.interviews.detail(id),
       });
+      queryClient.invalidateQueries({ queryKey: ["interviews", "upcoming"] });
+      queryClient.invalidateQueries({ queryKey: ["job-applications"] });
+      queryClient.invalidateQueries({ queryKey: ["application-detail"] });
       queryClient.invalidateQueries({
-        queryKey: interviewQueryKeys.interviews.upcoming(),
+        queryKey: candidateQueryKeys.candidate.applications.all(),
       });
     },
     ...options,
@@ -226,9 +241,24 @@ export const useSendInterviewDecision = (
       return response.data;
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ["applications"] });
       queryClient.invalidateQueries({
-        queryKey: interviewQueryKeys.interviews.all,
+        queryKey: candidateQueryKeys.candidate.applications.all(),
+      });
+      queryClient.invalidateQueries({ queryKey: ["job-applications"] });
+      queryClient.invalidateQueries({ queryKey: ["application-detail"] });
+      queryClient.invalidateQueries({ queryKey: ["interviews"] });
+      queryClient.invalidateQueries({
+        queryKey: ["candidate-applications-response-rate"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["candidate-applications-interview-rate"],
+      });
+      queryClient.invalidateQueries({ queryKey: ["candidate-total-offers"] });
+      queryClient.invalidateQueries({
+        queryKey: ["recent-candidate-applications"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["total-candidate-applications"],
       });
     },
     ...options,

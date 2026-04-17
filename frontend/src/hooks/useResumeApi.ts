@@ -48,8 +48,12 @@ export const useCreateResume = () => {
       console.log(response);
       return response.data.data;
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["resumes"] });
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["resumes"] }),
+        queryClient.invalidateQueries({ queryKey: ["candidate-resumes"] }),
+        queryClient.invalidateQueries({ queryKey: ["candidate-profile"] }),
+      ]);
     },
   });
 };
@@ -64,9 +68,13 @@ export const useUpdateResume = () => {
       );
       return response.data.data;
     },
-    onSuccess: (updatedResume) => {
+    onSuccess: async (updatedResume) => {
       // Update cache
-      queryClient.invalidateQueries({ queryKey: ["resumes"] });
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["resumes"] }),
+        queryClient.invalidateQueries({ queryKey: ["candidate-resumes"] }),
+        queryClient.invalidateQueries({ queryKey: ["candidate-profile"] }),
+      ]);
       queryClient.setQueryData(["resume", updatedResume.id], updatedResume);
     },
   });
@@ -78,8 +86,12 @@ export const useDeleteResume = () => {
     mutationFn: async (resumeId: number) => {
       await apiClient.delete(`/resumes/${resumeId}`);
     },
-    onSuccess: (_, id) => {
-      queryClient.invalidateQueries({ queryKey: ["resumes"] });
+    onSuccess: async (_, id) => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["resumes"] }),
+        queryClient.invalidateQueries({ queryKey: ["candidate-resumes"] }),
+        queryClient.invalidateQueries({ queryKey: ["candidate-profile"] }),
+      ]);
       queryClient.removeQueries({ queryKey: ["resume", id] });
     },
   });
@@ -99,6 +111,8 @@ export const useDownloadResume = (resumeId: number) => {
 };
 
 export const useUploadResume = () => {
+  const queryClient = useQueryClient();
+
   return useMutation({
     mutationFn: async ({ file, userId, textContent }: UploadResumeParams) => {
       const formData = new FormData();
@@ -117,6 +131,13 @@ export const useUploadResume = () => {
         },
       );
       return response.data;
+    },
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["resumes"] }),
+        queryClient.invalidateQueries({ queryKey: ["candidate-resumes"] }),
+        queryClient.invalidateQueries({ queryKey: ["candidate-profile"] }),
+      ]);
     },
     onError: (error) => {
       console.error("Upload failed:", error);

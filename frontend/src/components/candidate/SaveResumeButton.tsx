@@ -81,6 +81,7 @@ const SaveResumeButton = ({
       formData.append("file", file);
       formData.append("userId", userId.toString());
       formData.append("textContent", JSON.stringify(textContent));
+      formData.append("resumeText", JSON.stringify(resumeData));
 
       const response = await apiClient.post("/resumes/upload", formData);
 

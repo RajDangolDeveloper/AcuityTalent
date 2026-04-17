@@ -12,6 +12,7 @@ export class ApplicationResponseDto {
   status: ApplicationStatus;
   coverLetter?: string;
   matchScore?: number;
+  riskScore?: number;
   appliedAt: Date;
   reviewedAt?: Date;
   updatedAt: Date;

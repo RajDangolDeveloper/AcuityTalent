@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import React from "react";
 import Link from "next/link";
@@ -19,8 +19,13 @@ import {
   useGetRecruiterJobs,
   useJobApplications,
 } from "@/src/hooks/useRecruiterApi";
+import { useSubscriptionStatus } from "@/src/hooks/useUserApi";
 
 export default function JobsPage() {
+  useEffect(() => {
+    document.title = "Applications - AcuityTalent";
+  }, []);
+
   const [selectedJobId, setSelectedJobId] = useState<number | null>(null);
   const [showGridModal, setShowGridModal] = useState(false);
   const [selectedCandidateId, setSelectedCandidateId] = useState<number | null>(
@@ -32,6 +37,8 @@ export default function JobsPage() {
   const { data: jobsData, isLoading: jobsLoading } = useGetRecruiterJobs(1, 50);
   const { data: candidatesData, isLoading: candidatesLoading } =
     useJobApplications(selectedJobId || 0, page);
+  const { data: subscription } = useSubscriptionStatus();
+  const isPremium = subscription?.isPremium ?? false;
 
   const jobs = jobsData?.data || [];
   const candidates = candidatesData?.data || [];
@@ -75,6 +82,16 @@ export default function JobsPage() {
     setSelectedCandidateId(candidateId);
   };
 
+  const getCandidateCategory = (
+    matchScore?: number,
+    riskScore?: number,
+  ): string => {
+    if (matchScore == null || riskScore == null) return "Uncategorized";
+    if (matchScore >= 75 && riskScore <= 33) return "High Potential";
+    if (matchScore >= 55 && riskScore <= 66) return "Balanced";
+    return "High Risk";
+  };
+
   if (selectedCandidateId) {
     return <CandidateDetailRedirect candidateId={selectedCandidateId} />;
   }
@@ -94,7 +111,7 @@ export default function JobsPage() {
       <div className="flex-1 flex">
         <div className="w-96 border-r border-gray-300 flex flex-col">
           <div className="p-6 border-b border-gray-300">
-            <h2 className="text-2xl font-bold text-gray-900">Jobs</h2>
+            <h2 className="text-2xl font-bold text-gray-900">Applications</h2>
           </div>
 
           <div className="flex-1 overflow-y-auto">
@@ -236,12 +253,37 @@ export default function JobsPage() {
                                 <h3 className="text-2xl font-bold text-gray-900">
                                   {candidate.candidateName}
                                 </h3>
-                                {candidate.matchScore !== undefined && (
-                                  <span className="bg-teal-100 text-teal-800 px-3 py-1 rounded-full text-sm font-semibold">
-                                    {Math.round(candidate.matchScore)}%
-                                    Compatible
-                                  </span>
-                                )}
+                                <div className="flex items-center gap-2 flex-wrap">
+                                  {isPremium &&
+                                    candidate.matchScore !== undefined && (
+                                      <span className="bg-teal-100 text-teal-800 px-3 py-1 rounded-full text-sm font-semibold">
+                                        {Math.round(candidate.matchScore)}%
+                                        Compatible
+                                      </span>
+                                    )}
+                                  {isPremium &&
+                                    candidate.riskScore !== undefined && (
+                                      <span
+                                        className={`px-3 py-1 rounded-full text-sm font-semibold ${
+                                          candidate.riskScore >= 67
+                                            ? "bg-red-100 text-red-800"
+                                            : candidate.riskScore >= 34
+                                              ? "bg-amber-100 text-amber-800"
+                                              : "bg-emerald-100 text-emerald-800"
+                                        }`}
+                                      >
+                                        {Math.round(candidate.riskScore)}% Risk
+                                      </span>
+                                    )}
+                                  {isPremium && (
+                                    <span className="bg-indigo-100 text-indigo-800 px-3 py-1 rounded-full text-sm font-semibold">
+                                      {getCandidateCategory(
+                                        candidate.matchScore,
+                                        candidate.riskScore,
+                                      )}
+                                    </span>
+                                  )}
+                                </div>
                               </div>
 
                               <div className="text-sm text-gray-600 mt-2 flex flex-col sm:flex-row sm:items-center sm:gap-4">
@@ -310,6 +352,7 @@ export default function JobsPage() {
                               candidate={candidate}
                               job={selectedJob}
                               showModal={true}
+                              showPremiumAnalytics={isPremium}
                             />
                           </div>
                         </Link>

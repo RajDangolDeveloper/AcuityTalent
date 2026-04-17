@@ -37,6 +37,7 @@ export interface Job {
   applicationDeadline?: string;
   viewsCount: number;
   applicationCount: number;
+  matchScore?: number;
   createdAt: string;
   updatedAt: string;
 }
@@ -73,6 +74,8 @@ export interface Resume {
   fileName: string;
   fileType: "PDF" | "DOCX" | "DOC" | "TXT";
   textContent: string;
+  resumeText: string;
+  aiScore?: number;
   uploadedAt: string;
 }
 

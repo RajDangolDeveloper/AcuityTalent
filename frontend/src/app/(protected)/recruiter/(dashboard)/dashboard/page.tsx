@@ -1,35 +1,93 @@
 "use client";
 
+import { useMemo } from "react";
 import Link from "next/link";
 import { Briefcase, Users, Calendar, TrendingUp, Plus } from "lucide-react";
 import { useGetRecruiterJobs } from "@/src/hooks/useRecruiterApi";
 
 export default function RecruiterDashboard() {
-  const { data: jobsData, isLoading } = useGetRecruiterJobs(1, 10);
+  const { data: jobsData, isLoading } = useGetRecruiterJobs(1, 50);
   const jobs = jobsData?.data || [];
+
+  const sortedJobs = useMemo(
+    () =>
+      [...jobs].sort(
+        (a, b) =>
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+      ),
+    [jobs],
+  );
+
+  const currentMonth = new Date().getMonth();
+  const currentYear = new Date().getFullYear();
+  const previousMonthDate = new Date(currentYear, currentMonth - 1, 1);
+
+  const jobsPostedThisMonth = useMemo(
+    () =>
+      sortedJobs.filter((job) => {
+        const createdAt = new Date(job.createdAt);
+        return (
+          createdAt.getFullYear() === currentYear &&
+          createdAt.getMonth() === currentMonth
+        );
+      }).length,
+    [currentMonth, currentYear, sortedJobs],
+  );
+
+  const jobsPostedLastMonth = useMemo(
+    () =>
+      sortedJobs.filter((job) => {
+        const createdAt = new Date(job.createdAt);
+        return (
+          createdAt.getFullYear() === previousMonthDate.getFullYear() &&
+          createdAt.getMonth() === previousMonthDate.getMonth()
+        );
+      }).length,
+    [previousMonthDate.getMonth(), previousMonthDate.getFullYear(), sortedJobs],
+  );
+
+  const totalApplicants = useMemo(
+    () => jobs.reduce((sum, job) => sum + (job.applicationCount ?? 0), 0),
+    [jobs],
+  );
+
+  const activeJobsCount = useMemo(
+    () => jobs.filter((job) => job.status === "ACTIVE").length,
+    [jobs],
+  );
+
+  const postingGrowthLabel =
+    jobsPostedLastMonth === 0
+      ? jobsPostedThisMonth > 0
+        ? "New"
+        : "0%"
+      : `${jobsPostedThisMonth >= jobsPostedLastMonth ? "+" : ""}${Math.round(
+          ((jobsPostedThisMonth - jobsPostedLastMonth) / jobsPostedLastMonth) *
+            100,
+        )}%`;
 
   const stats = [
     {
       label: "Active Jobs",
-      value: jobs.length,
+      value: activeJobsCount,
       icon: Briefcase,
       color: "bg-blue-100 text-blue-600",
     },
     {
       label: "Total Applicants",
-      value: jobs.reduce((sum, job) => sum + (job.applicationCount ?? 0), 0),
+      value: totalApplicants,
       icon: Users,
       color: "bg-green-100 text-green-600",
     },
     {
-      label: "This Month",
-      value: "12",
+      label: "Jobs This Month",
+      value: jobsPostedThisMonth,
       icon: Calendar,
       color: "bg-purple-100 text-purple-600",
     },
     {
-      label: "Growth",
-      value: "24%",
+      label: "Posting Growth",
+      value: postingGrowthLabel,
       icon: TrendingUp,
       color: "bg-orange-100 text-orange-600",
     },
@@ -94,7 +152,7 @@ export default function RecruiterDashboard() {
               </div>
             ) : (
               <div className="divide-y divide-gray-200">
-                {jobs.slice(0, 5).map((job) => (
+                {sortedJobs.slice(0, 5).map((job) => (
                   <Link
                     key={job.id}
                     href={`/recruiter/jobs?jobId=${job.id}`}

@@ -1,4 +1,3 @@
-import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateJobDto } from './dto/create-job.dto';
 import { UpdateJobDto } from './dto/update-job.dto';
 import { JobResponseDto } from './dto/job-response.dto';
@@ -10,10 +9,16 @@ import {
   NotFoundException,
   ForbiddenException,
 } from '@nestjs/common';
+import { PrismaService } from '../../prisma/prisma.service';
+import { AiService } from '../ai/ai.service';
+import { EmbeddingRequest } from '../ai/dto/embedding-request.dto';
 
 @Injectable()
 export class JobService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private ai: AiService,
+  ) {}
 
   async createJob(
     createJobDto: CreateJobDto,
@@ -26,18 +31,62 @@ export class JobService {
       throw new BadRequestException('Recruiter profile not found');
     }
 
+    const company = await this.prisma.company.findUnique({
+      where: {
+        id: recruiter.companyId,
+      },
+    });
+
+    if (!company) {
+      throw new NotFoundException('Company does not exist');
+    }
+
     const job = await this.prisma.job.create({
       data: {
         ...createJobDto,
         locationType: createJobDto.remoteAvailable
           ? LocationType.REMOTE
           : LocationType.ONSITE,
-        companyId: recruiter.companyId,
+        companyId: company.id,
         recruiterId: recruiter.id,
-        status: JobStatus.DRAFT,
+        status: JobStatus.ACTIVE,
+        postedDate: new Date(),
       },
     });
+
+    // Create job embedding on creation so recommendation flow can use it immediately.
+    await this.recomputeJobEmbedding(job.id);
+
     return job;
+  }
+
+  private async createJobEmbedding(jobId: number, embedding: number[]) {
+    const vectorValue = `[${embedding.join(',')}]`;
+
+    await this.prisma.$queryRaw`
+      WITH upsert AS (
+        INSERT INTO "JobEmbedding" (
+          "jobId",
+          "embedding",
+          "model",
+          "createdAt",
+          "updatedAt"
+        )
+        VALUES (
+          ${jobId},
+          ${vectorValue}::vector(768),
+          ${'all-mpnet-base-v2'},
+          NOW(),
+          NOW()
+        )
+        ON CONFLICT ("jobId")
+        DO UPDATE SET
+          "embedding" = EXCLUDED."embedding",
+          "model" = EXCLUDED."model",
+          "updatedAt" = NOW()
+      )
+      SELECT 1 FROM upsert
+    `;
   }
 
   async getAllJobs(query: GetJobsQueryDto): Promise<{
@@ -85,10 +134,15 @@ export class JobService {
         where,
         include: {
           company: true,
+          _count: {
+            select: {
+              applications: true,
+            },
+          },
           recruiter: {
             include: {
               user: {
-                select: { firstName: true, lastName: true },
+                select: { firstName: true, lastName: true, contactEmail: true },
               },
             },
           },
@@ -100,8 +154,21 @@ export class JobService {
       this.prisma.job.count({ where }),
     ]);
 
+    const mappedJobs = jobs.map((job) => ({
+      ...job,
+      companyName: job.company?.name,
+      recruiterName: [
+        job.recruiter?.user?.firstName,
+        job.recruiter?.user?.lastName,
+      ]
+        .filter(Boolean)
+        .join(' '),
+      recruiterEmail: job.recruiter?.user.contactEmail,
+      applicationCount: job._count?.applications ?? 0,
+    }));
+
     return {
-      data: jobs,
+      data: mappedJobs,
       total,
       page,
       pageSize: limit,
@@ -140,6 +207,11 @@ export class JobService {
         where,
         include: {
           company: true,
+          _count: {
+            select: {
+              applications: true,
+            },
+          },
         },
         skip,
         take: limit,
@@ -148,8 +220,14 @@ export class JobService {
       this.prisma.job.count({ where }),
     ]);
 
+    const mappedJobs = jobs.map((job) => ({
+      ...job,
+      companyName: job.company?.name,
+      applicationCount: job._count?.applications ?? 0,
+    }));
+
     return {
-      data: jobs,
+      data: mappedJobs,
       total,
       page,
       pageSize: limit,
@@ -217,6 +295,9 @@ export class JobService {
         },
       },
     });
+
+    await this.recomputeJobEmbedding(id);
+
     return updatedJob;
   }
 
@@ -233,16 +314,6 @@ export class JobService {
     });
     if (!job) {
       throw new NotFoundException('Job not found or access denied');
-    }
-
-    // Check if there are applications
-    const applicationsCount = await this.prisma.application.count({
-      where: { jobId: id },
-    });
-    if (applicationsCount > 0) {
-      throw new BadRequestException(
-        'Cannot delete job with existing applications',
-      );
     }
 
     await this.prisma.job.delete({
@@ -304,7 +375,48 @@ export class JobService {
     };
   }
 
-  async getJobRecommendations(){
-    
+  async getJobRecommendations() {}
+
+  private async recomputeJobEmbedding(jobId: number) {
+    try {
+      const job = await this.prisma.job.findUnique({
+        where: { id: jobId },
+        include: { company: true },
+      });
+
+      if (!job) {
+        return;
+      }
+
+      const embeddingRequest = new EmbeddingRequest();
+      embeddingRequest.text = [
+        job.title,
+        job.description,
+        job.requirements,
+        job.employmentType,
+        job.experienceLevel,
+        job.location,
+        job.salaryRange,
+        job.company?.name,
+      ]
+        .filter(Boolean)
+        .join(' ')
+        .trim();
+
+      if (!embeddingRequest.text) {
+        return;
+      }
+
+      const embeddingResult = await this.ai.generateEmbedding(embeddingRequest);
+
+      if (!embeddingResult.embedding?.length) {
+        return;
+      }
+
+      await this.createJobEmbedding(job.id, embeddingResult.embedding);
+    } catch (error) {
+      // Embedding failures should not block job create/update operations.
+      console.error('Failed to recompute job embedding:', error);
+    }
   }
 }

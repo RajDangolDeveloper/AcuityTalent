@@ -1,8 +1,7 @@
 import { Module } from '@nestjs/common';
-
-import { PrismaService } from 'src/prisma/prisma.service';
 import { RecruiterController } from './recruiter.controller';
 import { RecruiterService } from './recruiter.service';
+import { PrismaService } from '../../prisma/prisma.service';
 
 @Module({
   controllers: [RecruiterController],

@@ -5,13 +5,13 @@ import { IsString, IsDateString, IsOptional, IsBoolean } from 'class-validator';
  */
 export class CreateWorkExperienceDto {
   @IsString()
-  company: string;
+  company!: string;
 
   @IsString()
-  position: string;
+  position!: string;
 
   @IsDateString()
-  startDate: string;
+  startDate!: string;
 
   @IsOptional()
   @IsDateString()

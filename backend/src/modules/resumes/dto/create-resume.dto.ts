@@ -15,19 +15,19 @@ export class CreateResumeDto {
   @IsString()
   @MinLength(3)
   @MaxLength(255)
-  fileName: string;
+  fileName!: string;
 
   @IsString()
-  filePath: string; // S3 URL or local path
+  filePath!: string; // S3 URL or local path
 
   @IsString()
-  fileType: FileType; // PDF, DOCX, DOC, TXT
+  fileType!: FileType; // PDF, DOCX, DOC, TXT
 
   @IsInt()
-  fileSize: number; // in bytes
+  fileSize!: number; // in bytes
 
   @IsInt()
-  aiScore: number; // in percentage
+  aiScore!: number; // in percentage
 
   @IsOptional()
   @IsString()

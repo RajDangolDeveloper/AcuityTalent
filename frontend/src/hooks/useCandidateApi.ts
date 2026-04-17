@@ -15,8 +15,6 @@ import {
 } from "@/src/types/candidate";
 import { ApplicationsResponse } from "../types/application";
 import { candidateQueryKeys } from "../constants/candidate/query-keys";
-import { queryClient } from "@/library/queryClient";
-
 
 export const useGetCandidateApplications = () => {
   const params = { page: 1, limit: 50 };
@@ -34,6 +32,8 @@ export const useGetCandidateApplications = () => {
 };
 
 export const useCreateCandidateProfile = () => {
+  const queryClient = useQueryClient();
+
   return useMutation({
     mutationFn: async ({
       headline,
@@ -92,10 +92,15 @@ export const useCreateCandidateProfile = () => {
         throw error;
       }
     },
-    onSuccess: () => {
+    onSuccess: async () => {
       console.log("[useCreateProfile] Invalidating related queries");
-      // Invalidate related queries
-      queryClient.invalidateQueries({ queryKey: ["candidate-profile"] });
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["candidate-profile"] }),
+        queryClient.invalidateQueries({ queryKey: ["user"] }),
+        queryClient.invalidateQueries({
+          queryKey: ["candidate-recommended-jobs"],
+        }),
+      ]);
     },
   });
 };
@@ -144,6 +149,8 @@ export const useCandidateProfile = () => {
 };
 
 export const useUpdateCandidateProfile = () => {
+  const queryClient = useQueryClient();
+
   return useMutation({
     mutationFn: async (
       payload: Partial<{
@@ -173,8 +180,14 @@ export const useUpdateCandidateProfile = () => {
         throw error;
       }
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["candidate-profile"] });
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["candidate-profile"] }),
+        queryClient.invalidateQueries({ queryKey: ["user"] }),
+        queryClient.invalidateQueries({
+          queryKey: ["candidate-recommended-jobs"],
+        }),
+      ]);
     },
   });
 };
@@ -216,6 +229,8 @@ export const useCandidateWorkExperiences = () => {
 };
 
 export const useCreateWorkExperience = () => {
+  const queryClient = useQueryClient();
+
   return useMutation({
     mutationFn: async (payload: {
       company: string;
@@ -236,10 +251,13 @@ export const useCreateWorkExperience = () => {
         throw error;
       }
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["candidate-work-experiences"],
-      });
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: ["candidate-work-experiences"],
+        }),
+        queryClient.invalidateQueries({ queryKey: ["candidate-profile"] }),
+      ]);
     },
   });
 };
@@ -275,5 +293,17 @@ export const useGetCandidateById = (id: number | undefined) => {
     },
     // 💡 This is the magic: The query won't run if id is undefined
     enabled: typeof id === "number",
+  });
+};
+
+export const useCandidateRecommendedJobs = (topK: number = 10) => {
+  return useQuery({
+    queryKey: ["candidate-recommended-jobs", topK],
+    queryFn: async () => {
+      const response = await apiClient.get<SingleResponse<Job[]>>(
+        `/candidates/recommendations/jobs?topK=${topK}`,
+      );
+      return response.data.data;
+    },
   });
 };
