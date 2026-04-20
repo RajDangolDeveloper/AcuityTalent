@@ -22,7 +22,6 @@ export const useGetRecruiterJobs = (page: number = 1, limit: number = 10) => {
           params: { page, limit },
         },
       );
-      console.log(response);
       return response.data;
     },
   });
@@ -42,7 +41,6 @@ export const useJobApplications = (
       >(`/applications/job/${jobId}/candidates`, {
         params: { page, limit },
       });
-      console.log(response);
       return response.data;
     },
     enabled: !!jobId,
@@ -71,7 +69,6 @@ export const useCandidateProfile = (candidateId: number) => {
       const response = await apiClient.get<SingleResponse<CandidateProfile>>(
         `/candidates/${candidateId}`,
       );
-      console.log(response);
       return response.data.data;
     },
     enabled: !!candidateId,
@@ -106,7 +103,6 @@ export const useUpdateApplicationStatus = () => {
         endpoint,
         { status },
       );
-      console.log(response);
       return response.data.data;
     },
     onSuccess: async (_, variables) => {
@@ -157,7 +153,6 @@ export const useCreateJob = () => {
         "/jobs",
         jobData,
       );
-      console.log(response);
       return response.data.data;
     },
     onSuccess: async () => {
@@ -179,7 +174,6 @@ export const useGetRecruiterCompanies = () => {
       const response = await apiClient.get<SingleResponse<any>>(
         "/companies/recruiter",
       );
-      console.log(response);
       return response.data.data;
     },
   });

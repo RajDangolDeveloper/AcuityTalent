@@ -10,6 +10,7 @@ import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
 import { ForgetPasswordDto } from './dto/forgotPassword.dto';
 import { UpdatePasswordDto } from './dto/updatePassword.dto';
+import { ChangePasswordDto } from './dto/changePassword.dto';
 import { User } from '@prisma/client';
 import { SendOtp } from './dto/sendOtp.dto';
 import { VerifyOtpDto } from './dto/verifyOtp.dto';
@@ -48,6 +49,8 @@ export class AuthService {
           firstName: true,
           lastName: true,
           role: true,
+          subscriptionPlan: true,
+          subscriptionExpiresAt: true,
         },
       });
 
@@ -83,7 +86,6 @@ export class AuthService {
         access_token: accessToken,
       };
     } catch (error) {
-      console.log(error);
       throw new UnauthorizedException('Authenticated Failed');
     }
   }
@@ -111,6 +113,16 @@ export class AuthService {
         ...userData,
         passwordHash: hashedPassword,
       },
+      select: {
+        id: true,
+        email: true,
+        firstName: true,
+        lastName: true,
+        role: true,
+        isOnboarded: true,
+        subscriptionPlan: true,
+        subscriptionExpiresAt: true,
+      },
     });
 
     if (registerDto.role === 'CANDIDATE') {
@@ -118,9 +130,6 @@ export class AuthService {
       this.candidateService.createCandidateProfile(result.id, emptyProfile);
     }
 
-    const { passwordHash: _, ...userWithoutPassword } = result;
-
-    console.log();
 
     const accessToken = this.jwtService.sign({
       id: result.id,
@@ -130,7 +139,7 @@ export class AuthService {
     });
 
     return {
-      ...userWithoutPassword,
+      ...result,
       access_token: accessToken,
     };
   }
@@ -197,6 +206,38 @@ export class AuthService {
     });
 
     return updatedUser;
+  }
+
+  async changePassword(userId: number, changePasswordDto: ChangePasswordDto) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { id: true, passwordHash: true },
+    });
+
+    if (!user) {
+      throw new BadRequestException('User not found');
+    }
+
+    const isCurrentPasswordValid = await this.passwordService.comparePassword(
+      changePasswordDto.currentPassword,
+      user.passwordHash,
+    );
+
+    if (!isCurrentPasswordValid) {
+      throw new UnauthorizedException('Current password is incorrect');
+    }
+
+    const hashedPassword = await this.passwordService.hashPassword(
+      changePasswordDto.newPassword,
+    );
+
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { passwordHash: hashedPassword },
+      select: { id: true },
+    });
+
+    return { success: true, message: 'Password changed successfully' };
   }
 
   async createOtp(userEmail: string) {

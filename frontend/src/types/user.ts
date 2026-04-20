@@ -15,6 +15,7 @@ export interface UserResponseDto {
   contactEmail: string | null;
   role: Role;
   subscriptionPlan?: SubscriptionPlan;
+  subscriptionExpiresAt?: string | null;
   isPremium?: boolean;
   isOnboarded: boolean;
   createdAt: string;

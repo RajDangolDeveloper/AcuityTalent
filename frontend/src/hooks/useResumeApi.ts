@@ -15,7 +15,6 @@ export const useGetAllResumes = (params?: {
         "/resumes",
         { params },
       );
-      console.log(response.data);
       return response.data;
     },
   });
@@ -45,7 +44,6 @@ export const useCreateResume = () => {
           headers: { "Content-Type": "multipart/form-data" },
         },
       );
-      console.log(response);
       return response.data.data;
     },
     onSuccess: async () => {
@@ -121,7 +119,6 @@ export const useUploadResume = () => {
       if (textContent) {
         formData.append("textContent", textContent);
       }
-      console.log("Sending userId:", userId);
 
       const response = await apiClient.post<Resume>(
         "/resumes/upload",
@@ -140,7 +137,6 @@ export const useUploadResume = () => {
       ]);
     },
     onError: (error) => {
-      console.error("Upload failed:", error);
     },
   });
 };

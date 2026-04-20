@@ -16,6 +16,7 @@ import { RecruiterModule } from './modules/recruiters/recruiter.module';
 import { ResumeModule } from './modules/resumes/resume.module';
 import { SavedJobModule } from './modules/saved-jobs/saved-job.module';
 import { UserModule } from './modules/user/user.module';
+import { SubscriptionsModule } from './modules/subscriptions/subscriptions.module';
 import { PrismaService } from './prisma/prisma.service';
 
 @Module({
@@ -38,6 +39,7 @@ import { PrismaService } from './prisma/prisma.service';
     InterviewParticipantModule,
     AiModule,
     AdminModule,
+    SubscriptionsModule,
   ],
   controllers: [AppController],
   providers: [AppService, PrismaService, EmailService],

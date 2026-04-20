@@ -21,7 +21,6 @@ export const useCreateEducation = () => {
         );
         return response.data.data;
       } catch (error) {
-        console.error("[useCreateEducation] Error:", error);
         throw error;
       }
     },
@@ -54,7 +53,6 @@ export const useUpdateEducation = () => {
         );
         return response.data.data;
       } catch (error) {
-        console.error("[useUpdateEducation] Error:", error);
         throw error;
       }
     },
@@ -71,7 +69,6 @@ export const useDeleteEducation = () => {
       try {
         await apiClient.delete(`/candidates/education/${id}`);
       } catch (error) {
-        console.error("[useDeleteEducation] Error:", error);
         throw error;
       }
     },

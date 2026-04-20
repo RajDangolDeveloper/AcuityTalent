@@ -100,13 +100,9 @@ export class ApplicationService {
         );
         matchScore = response.similarity_score;
       } catch (err) {
-        console.error('Error calculating matching score:', err);
         matchScore = 0;
       }
     } else {
-      console.warn(
-        'Skipping AI match score: resume/job text does not satisfy minimum length requirements',
-      );
     }
 
     const application = await this.prisma.application.create({
@@ -588,7 +584,6 @@ export class ApplicationService {
           break;
       }
     } catch (error) {
-      console.error('Failed to send notification email:', error);
     }
   }
 
@@ -604,7 +599,6 @@ export class ApplicationService {
         candidateEmail: application.candidate.user.email,
       });
     } catch (error) {
-      console.error('Failed to send application notification email:', error);
     }
   }
 
@@ -689,7 +683,6 @@ export class ApplicationService {
 
       return Math.round(risk.risk_score * 100);
     } catch (error) {
-      console.error('Failed to compute candidate risk score:', error);
       return undefined;
     }
   }

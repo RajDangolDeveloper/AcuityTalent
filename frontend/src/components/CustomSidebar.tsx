@@ -92,7 +92,7 @@ export default function CustomSidebar({
           ${variantClasses} 
           ${className}
           ${collapsed ? "w-20" : "w-80"}
-          ${variant === "primary" ? "h-screen flex flex-col transition-all duration-300" : "h-full flex flex-col transition-all duration-300"}
+          ${variant === "primary" ? "h-dvh flex flex-col overflow-y-auto transition-all duration-300" : "h-full flex flex-col transition-all duration-300"}
           ${variant === "secondary" ? "overflow-y-auto scrollbar-hide" : ""}
         `}
       >

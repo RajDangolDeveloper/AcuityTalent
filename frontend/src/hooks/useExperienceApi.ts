@@ -24,7 +24,6 @@ export const useUpdateWorkExperience = () => {
         );
         return response.data.data;
       } catch (error) {
-        console.error("[useUpdateWorkExperience] Error:", error);
         throw error;
       }
     },
@@ -43,7 +42,6 @@ export const useDeleteWorkExperience = () => {
       try {
         await apiClient.delete(`/candidates/work-experience/${id}`);
       } catch (error) {
-        console.error("[useDeleteWorkExperience] Error:", error);
         throw error;
       }
     },

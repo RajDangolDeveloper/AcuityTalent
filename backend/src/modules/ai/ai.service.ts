@@ -241,7 +241,6 @@ export class AiService {
       map((res) => res.data),
       retry(3),
       catchError((err) => {
-        console.error('Error in getScore:', err);
         return of({ similarity_score: 0, status: 'error' });
       }),
     );
@@ -255,11 +254,6 @@ export class AiService {
       catchError((err) => {
         const status = err?.response?.status;
         const detail = err?.response?.data?.detail;
-        console.error('Error in getMatchingScore:', {
-          status,
-          detail,
-          message: err?.message,
-        });
         return of({ similarity_score: 0, status: 'error' });
       }),
     );
@@ -271,7 +265,6 @@ export class AiService {
       map((res) => res.data),
       retry(3),
       catchError((err) => {
-        console.error('Error in getResumeScore:', err);
         return of({ resume_score: 0, status: 'error' });
       }),
     );
@@ -285,7 +278,6 @@ export class AiService {
       map((res) => res.data),
       retry(3),
       catchError((err) => {
-        console.error('Error in generateCoverLetter:', err);
         return of({ cover_letter: '', status: 'error' });
       }),
     );
@@ -300,7 +292,6 @@ export class AiService {
       map((res) => this.normalizeRewriteResponse(res.data)),
       retry(3),
       catchError((err) => {
-        console.error('Error in improveText:', err);
         return of({ improved_text: '', status: 'error' });
       }),
     );
@@ -315,7 +306,6 @@ export class AiService {
       map((res) => this.normalizeReviewResponse(res.data)),
       retry(3),
       catchError((err) => {
-        console.error('Error in reviewResume:', err);
         return of({
           summary: '',
           strength: '',
@@ -335,7 +325,6 @@ export class AiService {
       map((res) => res.data),
       retry(3),
       catchError((err) => {
-        console.error('Error in getRiskAssessment:', err);
         const fallback: RiskAssessmentResponse = {
           risk_score: 0,
           risk_label: 'LOW',
@@ -363,7 +352,6 @@ export class AiService {
       }
       return await response.json();
     } catch (err) {
-      console.error('Error in generateEmbedding:', err);
       return { embedding: [], status: 'error' };
     }
   }
@@ -380,7 +368,6 @@ export class AiService {
       map((res) => res.data),
       retry(3),
       catchError((err) => {
-        console.error('Error in getJobRecommendations:', err);
         return of({
           recommendations: [],
           total_count: 0,
@@ -398,7 +385,6 @@ export class AiService {
     return this.httpService.get(url).pipe(
       map((res) => res.data),
       catchError((err) => {
-        console.error('Error in testDatabase:', err);
         return of({ users: 0, status: 'error' });
       }),
     );

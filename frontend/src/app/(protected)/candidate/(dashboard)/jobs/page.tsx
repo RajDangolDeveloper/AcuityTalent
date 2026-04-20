@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from "react";
 import Link from "next/link";
-import { Search, Briefcase, Bookmark, MoveUpRight } from "lucide-react";
+import { Search, Briefcase, Bookmark, MoveUpRight, Share2 } from "lucide-react";
 import {
   useCandidateSavedJobs,
   useCandidateResumes,
@@ -129,8 +129,26 @@ export default function CandidateJobsPage() {
     }
   };
 
+  const handleShareJob = async () => {
+    if (!selectedJob) return;
+
+    try {
+      const shareUrl = `${window.location.origin}/jobs/${selectedJob.id}`;
+      await navigator.clipboard.writeText(shareUrl);
+      Notification({
+        toastMessage: "Public job link copied to clipboard",
+        toastStatus: "success",
+      });
+    } catch (error) {
+      Notification({
+        toastMessage: "Failed to copy job link",
+        toastStatus: "error",
+      });
+    }
+  };
+
   return (
-    <div className="flex h-screen flex-col bg-gray-50">
+    <div className="flex min-h-dvh flex-col bg-gray-50">
       <div className="bg-white border-b border-gray-200 px-6 py-4">
         <div className="flex gap-3 items-center">
           <div className="flex gap-2 flex-1 items-center">
@@ -327,6 +345,9 @@ export default function CandidateJobsPage() {
                           {selectedJob.salaryRange}
                         </span>
                       )}
+                      <span className="px-3 py-1 border border-gray-300 rounded text-sm text-gray-700 font-medium">
+                        {selectedJob.remoteAvailable ? "Remote" : "On-site"}
+                      </span>
                       {selectedJob.location && (
                         <span className="px-3 py-1 border border-gray-300 rounded text-sm text-gray-700 font-medium">
                           {selectedJob.location}
@@ -362,6 +383,13 @@ export default function CandidateJobsPage() {
                         }`}
                       >
                         <Bookmark size={18} className="inline" />
+                      </button>
+                      <button
+                        onClick={handleShareJob}
+                        className="px-4 py-2 rounded font-semibold transition bg-gray-100 text-gray-700 hover:bg-gray-200 inline-flex items-center gap-2"
+                      >
+                        <Share2 size={18} />
+                        Share
                       </button>
                     </div>
                   </div>

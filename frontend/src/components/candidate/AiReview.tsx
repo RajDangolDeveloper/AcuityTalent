@@ -205,7 +205,6 @@ const AiReview: React.FC<AiReviewProps> = ({
         });
       }
     } catch (err) {
-      console.error("Failed to generate review:", err);
       const errorMessage =
         err instanceof Error ? err.message : "Failed to generate AI review";
       setError(errorMessage);
@@ -238,7 +237,7 @@ const AiReview: React.FC<AiReviewProps> = ({
               onClick={onClose}
               className="text-gray-500 hover:text-gray-700 transition-colors"
             >
-              ×
+              Ã—
             </button>
           )}
         </div>

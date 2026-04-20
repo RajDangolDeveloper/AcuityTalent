@@ -18,7 +18,7 @@ export default function ResumesPage() {
   const [deletingId, setDeletingId] = useState<number | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
-  // ✅ Hooks called at component level
+  // âœ… Hooks called at component level
   const deleteMutation = useDeleteResume();
 
   const handleDownload = async (resumeId: number, fileName: string) => {
@@ -36,7 +36,6 @@ export default function ResumesPage() {
       link.remove();
       URL.revokeObjectURL(url);
     } catch (err) {
-      console.error("Download failed", err);
     } finally {
       setDownloadingId(null);
     }
@@ -55,7 +54,6 @@ export default function ResumesPage() {
         setPreviewUrl(null);
       }
     } catch (err) {
-      console.error("Delete failed", err);
     } finally {
       setDeletingId(null);
     }
@@ -73,7 +71,6 @@ export default function ResumesPage() {
       );
       setPreviewUrl(url);
     } catch (err) {
-      console.error("Preview failed", err);
       setPreviewUrl(null);
     }
   };
@@ -146,7 +143,7 @@ export default function ResumesPage() {
                         {new Date(resume.uploadedAt).toLocaleDateString()}
                       </div>
                     </div>
-                    {/* ✅ Download only - Delete moved to detail view */}
+                    {/* âœ… Download only - Delete moved to detail view */}
                     <button
                       title="Download"
                       disabled={downloadingId === resume.id}
@@ -194,7 +191,7 @@ export default function ResumesPage() {
                 >
                   {selectedResume?.fileName}
                 </h3>
-                <span className="text-xs text-gray-400">•</span>
+                <span className="text-xs text-gray-400">â€¢</span>
                 <span className="text-xs text-gray-500">
                   {selectedResume &&
                     new Date(selectedResume.uploadedAt).toLocaleDateString()}
@@ -207,7 +204,7 @@ export default function ResumesPage() {
               </div>
 
               <div className="flex items-center gap-2">
-                {/* ✅ Edit Button - Navigates to edit route */}
+                {/* âœ… Edit Button - Navigates to edit route */}
                 <button
                   onClick={() =>
                     router.push(`/candidate/resumes/edit/${selectedResumeID}`)
@@ -218,7 +215,7 @@ export default function ResumesPage() {
                   Edit
                 </button>
 
-                {/* ✅ Delete Button - Now in detail view only */}
+                {/* âœ… Delete Button - Now in detail view only */}
                 <button
                   onClick={() =>
                     selectedResumeID && handleDelete(selectedResumeID)
@@ -244,7 +241,7 @@ export default function ResumesPage() {
                     src={`${previewUrl}#toolbar=0&navpanes=0&scrollbar=0`}
                     className="w-full h-full"
                     title="Resume Preview"
-                    // ✅ Hide UI chrome for content-only view
+                    // âœ… Hide UI chrome for content-only view
                     style={{
                       border: "none",
                       // Optional: Force PDF to show only content area

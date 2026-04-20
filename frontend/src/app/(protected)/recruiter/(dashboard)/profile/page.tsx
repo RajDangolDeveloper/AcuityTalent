@@ -44,7 +44,6 @@ export default function ProfilePage() {
       });
       alert("Profile updated successfully.");
     } catch (error) {
-      console.error("Failed to update profile:", error);
       alert("Unable to update profile. Please try again.");
     } finally {
       setIsSubmitting(false);

@@ -18,7 +18,6 @@ export const getAllJobs = (
   return useQuery({
     queryKey: ["candidate-jobs", page, limit, filters],
     queryFn: async () => {
-      console.log("[getAllJobs] Fetching jobs", { page, limit, filters });
       const params = new URLSearchParams();
       params.append("page", page.toString());
       params.append("limit", limit.toString());
@@ -35,10 +34,8 @@ export const getAllJobs = (
         const response = await apiClient.get<PaginatedResponse<Job>>(
           `/jobs?${params.toString()}`,
         );
-        console.log("[getAllJobs] Success:", response.data);
         return response.data;
       } catch (error) {
-        console.error("[getAllJobs] Error:", error);
         throw error;
       }
     },
@@ -50,17 +47,29 @@ export const useJobDetails = (jobId: number | null) => {
   return useQuery({
     queryKey: ["job-details", jobId],
     queryFn: async () => {
-      console.log("[useJobDetails] Fetching job details for jobId:", jobId);
       try {
         const response = await apiClient.get<SingleResponse<JobDetails>>(
           `/jobs/${jobId}`,
         );
-        console.log("[useJobDetails] Success:", response.data.data);
         return response.data.data;
       } catch (error) {
-        console.error("[useJobDetails] Error:", error);
         throw error;
       }
+    },
+    enabled: !!jobId,
+  });
+};
+
+export const usePublicJobDetails = (jobId: number | null) => {
+  return useQuery({
+    queryKey: ["public-job-details", jobId],
+    queryFn: async () => {
+      if (!jobId) return null;
+
+      const response = await apiClient.get<SingleResponse<JobDetails>>(
+        `/public/jobs/${jobId}`,
+      );
+      return response.data.data;
     },
     enabled: !!jobId,
   });
@@ -89,7 +98,6 @@ export const useUpdateJobStatus = () => {
       ]);
     },
     onError: (error) => {
-      console.error("Failed to update job status:", error);
     },
   });
 };
@@ -99,21 +107,17 @@ export const useSaveJob = () => {
 
   return useMutation({
     mutationFn: async (jobId: number) => {
-      console.log("[useSaveJob] Saving job", { jobId });
       try {
         const response = await apiClient.post<SingleResponse<SavedJob>>(
           "/saved-jobs",
           { jobId },
         );
-        console.log("[useSaveJob] Success:", response.data.data);
         return response.data.data;
       } catch (error) {
-        console.error("[useSaveJob] Error:", error);
         throw error;
       }
     },
     onSuccess: async () => {
-      console.log("[useSaveJob] Invalidating saved jobs query");
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ["candidate-saved-jobs"] }),
         queryClient.invalidateQueries({ queryKey: ["candidate-jobs"] }),
@@ -131,17 +135,13 @@ export const useRemoveSavedJob = () => {
 
   return useMutation({
     mutationFn: async (jobId: number) => {
-      console.log("[useRemoveSavedJob] Removing saved job", { jobId });
       try {
         await apiClient.delete(`/saved-jobs/${jobId}`);
-        console.log("[useRemoveSavedJob] Success");
       } catch (error) {
-        console.error("[useRemoveSavedJob] Error:", error);
         throw error;
       }
     },
     onSuccess: async () => {
-      console.log("[useRemoveSavedJob] Invalidating saved jobs query");
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ["candidate-saved-jobs"] }),
         queryClient.invalidateQueries({ queryKey: ["candidate-jobs"] }),

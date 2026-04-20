@@ -19,7 +19,6 @@ export const useGetCompaniesName = () => {
     queryFn: async () => {
       const response =
         await apiClient.get<PaginatedResponse<Company>>("/companies/names");
-      console.log(response);
       return response.data;
     },
   });
@@ -35,7 +34,6 @@ export const useGetCompanies = (page: number = 1, limit: number = 50) => {
           params: { page, limit },
         },
       );
-      console.log(response);
       return response.data;
     },
   });
@@ -48,7 +46,6 @@ export const useGetCompanyById = (id: number | null) => {
       const response = await apiClient.get<SingleResponse<Company>>(
         `/companies/${id}`,
       );
-      console.log(response);
       return response.data.data;
     },
     enabled: !!id,
@@ -63,7 +60,6 @@ export const useCreateCompany = () => {
         "/companies",
         data,
       );
-      console.log(response);
       return response.data.data;
     },
     onSuccess: async () => {
@@ -91,7 +87,6 @@ export const useUpdateCompany = () => {
         `/companies/${id}`,
         data,
       );
-      console.log(response);
       return response.data.data;
     },
     onSuccess: async (_, variables) => {
@@ -112,7 +107,6 @@ export const useDeleteCompany = () => {
   return useMutation({
     mutationFn: async (id: number) => {
       const response = await apiClient.delete(`/companies/${id}`);
-      console.log(response);
     },
     onSuccess: async (_, id) => {
       await Promise.all([

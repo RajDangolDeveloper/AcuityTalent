@@ -46,10 +46,6 @@ export const authOptions: NextAuthOptions = {
           const response = await apiClient.post("/auth/login", user);
 
           if (response.status !== 200 && response.status !== 201) {
-            console.warn(
-              "Login API returned non-success status:",
-              response.status,
-            );
             return null;
           }
 
@@ -62,8 +58,7 @@ export const authOptions: NextAuthOptions = {
             isOnboarded: userData.isOnboarded,
             access_token: userData.access_token,
           };
-        } catch (error) {
-          console.error("Login API failed:", error);
+        } catch {
           return null;
         }
       },
@@ -78,8 +73,6 @@ export const authOptions: NextAuthOptions = {
         token.isOnboarded = user.isOnboarded;
       }
 
-      console.log("jwt callback", { trigger, tokenId: token.id });
-
       if (trigger === "update" && token.id) {
         try {
           const response = await apiClient.get("/users/current", {
@@ -91,12 +84,7 @@ export const authOptions: NextAuthOptions = {
           if (freshUser) {
             token.isOnboarded = freshUser.isOnboarded;
           }
-        } catch (error) {
-          console.error(
-            "Failed to fetch fresh user data for session update:",
-            error,
-          );
-        }
+        } catch {}
       }
 
       return token;

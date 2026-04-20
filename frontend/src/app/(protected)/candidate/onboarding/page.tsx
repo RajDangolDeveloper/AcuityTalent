@@ -112,9 +112,9 @@ function Step2({ data, setData }: { data: any; setData: any }) {
 
   const expOptions = [
     "Less than 1 year",
-    "1–2 years",
-    "3–5 years",
-    "6–10 years",
+    "1â€“2 years",
+    "3â€“5 years",
+    "6â€“10 years",
     "10+ years",
   ];
   const locOptions = ["Remote", "On-site", "Hybrid", "Open to all"];
@@ -134,17 +134,17 @@ function Step2({ data, setData }: { data: any; setData: any }) {
     "Other",
   ];
   const salaryOptions = [
-    "$30k–$50k",
-    "$50k–$80k",
-    "$80k–$120k",
-    "$120k–$180k",
+    "$30kâ€“$50k",
+    "$50kâ€“$80k",
+    "$80kâ€“$120k",
+    "$120kâ€“$180k",
     "$180k+",
   ];
 
   return (
     <div>
       <h1 className="text-3xl font-extrabold text-gray-900 m-0 mb-8 leading-tight font-['Playfair_Display',Georgia,serif]">
-        More about you.. Professionally ✨
+        More about you.. Professionally âœ¨
       </h1>
 
       <h2 className="text-base font-bold text-gray-900 m-0 mb-4">Experience</h2>
@@ -193,7 +193,7 @@ function Step2({ data, setData }: { data: any; setData: any }) {
               ))}
             </select>
             <span className="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-gray-500 text-xs">
-              ▾
+              â–¾
             </span>
           </div>
         </div>
@@ -229,7 +229,7 @@ function Step2({ data, setData }: { data: any; setData: any }) {
                     onClick={() => removeSkill(s)}
                     className="bg-transparent border-none cursor-pointer p-0 text-[#4b3fa0] text-sm leading-none hover:text-[#3d3578]"
                   >
-                    ×
+                    Ã—
                   </button>
                 </span>
               ))}
@@ -262,7 +262,7 @@ function Step2({ data, setData }: { data: any; setData: any }) {
               ))}
             </select>
             <span className="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-gray-500 text-xs">
-              ▾
+              â–¾
             </span>
           </div>
         </div>
@@ -286,7 +286,7 @@ function Step2({ data, setData }: { data: any; setData: any }) {
               ))}
             </select>
             <span className="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-gray-500 text-xs">
-              ▾
+              â–¾
             </span>
           </div>
         </div>
@@ -312,7 +312,7 @@ function Step2({ data, setData }: { data: any; setData: any }) {
               ))}
             </select>
             <span className="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-gray-500 text-xs">
-              ▾
+              â–¾
             </span>
           </div>
         </div>
@@ -336,7 +336,7 @@ function Step2({ data, setData }: { data: any; setData: any }) {
               ))}
             </select>
             <span className="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-gray-500 text-xs">
-              ▾
+              â–¾
             </span>
           </div>
         </div>
@@ -404,7 +404,7 @@ function Step3({
             className={`w-full pl-4 pr-10 py-3.5 border-[1.5px] border-[#e2e2e2] rounded-xl text-sm bg-white outline-none appearance-none cursor-pointer transition-colors focus:border-[#4b3fa0] ${data.position ? "text-gray-900" : "text-gray-400"}`}
           />
           <span className="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-gray-500 text-xs">
-            ▾
+            â–¾
           </span>
         </div>
       </div>
@@ -412,7 +412,7 @@ function Step3({
       <h2 className="text-base font-bold text-gray-900 m-0 mb-4">Socials</h2>
       <div className="flex flex-col gap-3">
         <div className="flex items-center border-[1.5px] border-[#e2e2e2] rounded-xl px-4 py-3 gap-2.5 bg-white transition-colors focus-within:border-[#4b3fa0]">
-          <span className="text-lg shrink-0">🐙</span>
+          <span className="text-lg shrink-0">ðŸ™</span>
           <input
             type="text"
             placeholder="Github Link"
@@ -422,7 +422,7 @@ function Step3({
           />
         </div>
         <div className="flex items-center border-[1.5px] border-[#e2e2e2] rounded-xl px-4 py-3 gap-2.5 bg-white transition-colors focus-within:border-[#4b3fa0]">
-          <span className="text-lg shrink-0">🔗</span>
+          <span className="text-lg shrink-0">ðŸ”—</span>
           <input
             type="text"
             placeholder="LinkedIn Url"
@@ -471,9 +471,9 @@ export default function Onboarding() {
 
   const expMap: Record<string, number> = {
     "Less than 1 year": 0,
-    "1–2 years": 1,
-    "3–5 years": 4,
-    "6–10 years": 8,
+    "1â€“2 years": 1,
+    "3â€“5 years": 4,
+    "6â€“10 years": 8,
     "10+ years": 10,
   };
 
@@ -495,10 +495,10 @@ export default function Onboarding() {
   };
 
   const salaryMap: Record<string, number> = {
-    "$30k–$50k": 40000,
-    "$50k–$80k": 65000,
-    "$80k–$120k": 100000,
-    "$120k–$180k": 150000,
+    "$30kâ€“$50k": 40000,
+    "$50kâ€“$80k": 65000,
+    "$80kâ€“$120k": 100000,
+    "$120kâ€“$180k": 150000,
     "$180k+": 200000,
   };
 
@@ -566,7 +566,6 @@ export default function Onboarding() {
 
         router.push("/candidate/dashboard");
       } catch (error) {
-        console.error("Failed to submit onboarding data", error);
         alert("Failed to submit onboarding data. Please try again.");
       }
     }

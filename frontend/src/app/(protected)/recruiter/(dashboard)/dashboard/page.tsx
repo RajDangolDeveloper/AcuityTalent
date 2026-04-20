@@ -94,7 +94,7 @@ export default function RecruiterDashboard() {
   ];
 
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="flex min-h-dvh bg-gray-50">
       <div className="flex-1 overflow-y-auto">
         <div className="p-8">
           <div className="flex items-center justify-between mb-8">

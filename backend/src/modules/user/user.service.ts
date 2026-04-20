@@ -19,6 +19,8 @@ const userSelectFields = {
   contactEmail: true,
   role: true,
   isOnboarded: true,
+  subscriptionPlan: true,
+  subscriptionExpiresAt: true,
   createdAt: true,
   updatedAt: true,
 };

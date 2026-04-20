@@ -102,7 +102,6 @@ const ResumeDetails: React.FC<ResumeDetailsProps> = ({ resume, onChange }) => {
         toastStatus: "success",
       });
     } catch (error) {
-      console.error("Failed to improve text:", error);
       Notification({
         toastMessage: "Failed to improve text",
         toastStatus: "error",

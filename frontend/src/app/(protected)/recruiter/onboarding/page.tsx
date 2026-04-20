@@ -96,7 +96,6 @@ const OnboardingFlow = () => {
       setSelectedCompanyName(formData.name);
       setStep(1);
     } catch (error) {
-      console.error("Failed to create company:", error);
       alert("Failed to create company. Please try again.");
     }
   };
@@ -117,7 +116,6 @@ const OnboardingFlow = () => {
     try {
       if (!session?.user?.id) return;
       const userId = session.user.id;
-      console.log(userId);
 
       await createProfile({
         userId: session.user.id,
@@ -129,7 +127,6 @@ const OnboardingFlow = () => {
 
       router.push("/recruiter/dashboard");
     } catch (error) {
-      console.error("Failed to submit onboarding data:", error);
       alert("Failed to submit onboarding data. Please try again.");
     }
   };

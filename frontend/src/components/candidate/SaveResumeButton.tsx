@@ -87,10 +87,8 @@ const SaveResumeButton = ({
 
       if (!response.status) throw new Error("Upload failed");
       const result = await response.data;
-      console.log("Resume saved:", result);
       alert("Resume saved successfully!");
     } catch (error) {
-      console.error("Failed to save resume:", error);
       alert("Error saving resume. Please try again.");
     } finally {
       setIsSaving(false);

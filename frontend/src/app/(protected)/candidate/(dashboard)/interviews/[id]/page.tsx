@@ -40,9 +40,8 @@ export default function InterviewRoomPage() {
         setLocalStream(audioOnlyStream);
         setIsVideoEnabled(false);
         return audioOnlyStream;
-      } catch (audioErr) {
-        console.error("Failed to get media stream:", audioErr);
-        throw audioErr;
+      } catch {
+        throw new Error("Failed to get media stream");
       }
     }
   }, []);
@@ -61,9 +60,7 @@ export default function InterviewRoomPage() {
     if (interview) {
       try {
         await markCompleted.mutateAsync({ id: interview.id });
-      } catch (err) {
-        console.error("Failed to mark completed:", err);
-      }
+      } catch {}
     }
     localStream?.getTracks().forEach((track) => track.stop());
     socketRef.current?.disconnect();
@@ -138,7 +135,7 @@ export default function InterviewRoomPage() {
     : "Not specified";
 
   return (
-    <div className="flex flex-col h-screen bg-gray-900 text-white">
+    <div className="flex flex-col min-h-dvh bg-gray-900 text-white">
       <div className="bg-gray-800 px-4 py-3 flex items-center justify-between border-b border-gray-700">
         <div>
           <h1 className="text-lg font-semibold">Candidate Interview Room</h1>

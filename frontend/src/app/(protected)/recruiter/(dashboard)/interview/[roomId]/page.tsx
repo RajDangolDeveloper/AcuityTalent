@@ -43,9 +43,7 @@ export default function RecruiterInterviewRoomPage() {
         });
         setLocalStream(audioOnlyStream);
         setIsVideoEnabled(false);
-      } catch (audioErr) {
-        console.error("Failed to get media stream:", audioErr);
-      }
+      } catch {}
     }
   }, []);
 
@@ -63,9 +61,7 @@ export default function RecruiterInterviewRoomPage() {
     if (interview) {
       try {
         await markCompleted.mutateAsync({ id: interview.id });
-      } catch (err) {
-        console.error("Failed to mark completed:", err);
-      }
+      } catch {}
     }
 
     localStream?.getTracks().forEach((track) => track.stop());
@@ -144,7 +140,7 @@ export default function RecruiterInterviewRoomPage() {
 
   return (
     <>
-      <div className="flex flex-col h-screen bg-gray-900 text-white">
+      <div className="flex flex-col min-h-dvh bg-gray-900 text-white">
         <div className="bg-gray-800 px-4 py-3 flex items-center justify-between border-b border-gray-700">
           <div>
             <h1 className="text-lg font-semibold">

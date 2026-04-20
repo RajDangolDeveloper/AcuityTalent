@@ -10,6 +10,7 @@ import {
   useGetRecruiterJobs,
   useJobApplications,
 } from "@/src/hooks/useRecruiterApi";
+import { useGetCurrentUser } from "@/src/hooks/useUserApi";
 import {
   Briefcase,
   Calendar,
@@ -20,9 +21,14 @@ import {
   MapPin,
   Pencil,
   X,
+  Lock,
+  ArrowUpRight,
+  Share2,
 } from "lucide-react";
 import Markdown from "react-markdown";
 import { useUpdateJobStatus } from "@/src/hooks/useJobApi";
+import { isPremiumUser } from "@/src/utils/subscription";
+import Notification from "@/src/element/Notification";
 
 export default function JobsPage() {
   const [selectedJobId, setSelectedJobId] = useState<number | null>(null);
@@ -34,13 +40,20 @@ export default function JobsPage() {
   const statusOrder = ["ACTIVE", "DRAFT", "CLOSED", "ARCHIVED"];
 
   const { data: jobsData, isLoading: jobsLoading } = useGetRecruiterJobs(1, 50);
+  const { data: currentUser } = useGetCurrentUser();
 
   const { data: candidatesData, isLoading: candidatesLoading } =
     useJobApplications(selectedJobId || 0, page);
 
   const jobs = jobsData?.data || [];
 
-  const groupedJobs = jobs.reduce(
+  // Count active jobs for quota checking
+  const activeJobCount = jobs.filter((job) => job.status === "ACTIVE").length;
+  const maxActiveJobs = isPremiumUser(currentUser) ? -1 : 2; // -1 = unlimited for premium
+  const canCreateMoreJobs =
+    maxActiveJobs === -1 || activeJobCount < maxActiveJobs;
+
+  const groupedJobs = jobs.reduce<Record<string, typeof jobs>>(
     (acc, job) => {
       const status = job.status;
       if (!acc[status]) acc[status] = [];
@@ -97,13 +110,31 @@ export default function JobsPage() {
     }
   };
 
+  const handleShareJob = async () => {
+    if (!selectedJob) return;
+
+    try {
+      const shareUrl = `${window.location.origin}/jobs/${selectedJob.id}`;
+      await navigator.clipboard.writeText(shareUrl);
+      Notification({
+        toastMessage: "Public job link copied to clipboard",
+        toastStatus: "success",
+      });
+    } catch (error) {
+      Notification({
+        toastMessage: "Failed to copy job link",
+        toastStatus: "error",
+      });
+    }
+  };
+
   if (selectedCandidateId) {
     return <CandidateDetailRedirect candidateId={selectedCandidateId} />;
   }
 
   if (jobsLoading) {
     return (
-      <div className="flex h-screen bg-white">
+      <div className="flex min-h-dvh bg-white">
         <div className="flex-1 w-full flex items-center justify-center">
           <p className="text-gray-500">Loading jobs...</p>
         </div>
@@ -112,7 +143,7 @@ export default function JobsPage() {
   }
 
   return (
-    <div className="flex h-screen bg-white">
+    <div className="flex min-h-dvh bg-white">
       <div className="flex-1 flex">
         <div className="w-96 border-r border-gray-300 flex flex-col">
           <div className="p-6 border-b border-gray-300">
@@ -199,6 +230,12 @@ export default function JobsPage() {
                       <span>{selectedJob.salaryRange}</span>
                     </div>
                   )}
+                  <div className="flex items-center gap-2 text-sm font-semibold">
+                    <Briefcase className="h-4 w-4" />
+                    <span>
+                      {selectedJob.remoteAvailable ? "Remote" : "On-site"}
+                    </span>
+                  </div>
                   {selectedJob.experienceLevel && (
                     <div className="flex items-center gap-2 text-sm font-semibold">
                       <GraduationCap className="h-4 w-4" />
@@ -232,6 +269,12 @@ export default function JobsPage() {
                 </select>
               </div>
               <div className="absolute top-5 right-5 flex justify-center items-center gap-4">
+                <button
+                  onClick={handleShareJob}
+                  className="font-bold hover:bg-gray-50 transition-colors text-lg"
+                >
+                  <Share2 size={20} />
+                </button>
                 <button
                   onClick={() => {
                     redirect(`jobs/edit/${selectedJobId}`);
@@ -267,11 +310,45 @@ export default function JobsPage() {
           </div>
         )}
       </div>
-      <Link href="/recruiter/jobs/create">
-        <button className="absolute bottom-2 right-2 p-4 rounded-md bg-primary-500 text-gray-100 font-semibold">
+      <Link
+        href="/recruiter/jobs/create"
+        className={canCreateMoreJobs ? "" : "pointer-events-none"}
+      >
+        <button
+          disabled={!canCreateMoreJobs}
+          className={`absolute bottom-2 right-2 p-4 rounded-md font-semibold transition-all flex items-center gap-2 ${
+            canCreateMoreJobs
+              ? "bg-primary-500 text-gray-100 hover:bg-primary-600"
+              : "bg-gray-400 text-gray-200 cursor-not-allowed"
+          }`}
+        >
+          {!canCreateMoreJobs && <Lock className="w-4 h-4" />}
           Create Job
         </button>
       </Link>
+
+      {/* Quota Info and Upgrade Prompt */}
+      {!isPremiumUser(currentUser) && (
+        <div className="absolute bottom-20 right-2 bg-yellow-50 border border-yellow-200 rounded-md p-4 w-64">
+          <div className="flex items-start gap-2">
+            <div className="flex-1">
+              <h3 className="font-semibold text-yellow-900">
+                Active Jobs: {activeJobCount}/2
+              </h3>
+              <p className="text-sm text-yellow-800 mt-1">
+                {!canCreateMoreJobs
+                  ? "You've reached the limit for free plans. Upgrade to post unlimited jobs."
+                  : "Free plan limited to 2 active jobs."}
+              </p>
+              <Link href="/recruiter/settings">
+                <button className="mt-2 text-sm font-semibold text-yellow-600 hover:text-yellow-700 flex items-center gap-1">
+                  Upgrade to Premium <ArrowUpRight className="w-3 h-3" />
+                </button>
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -2,6 +2,7 @@ import {
   Injectable,
   NotFoundException,
   BadRequestException,
+  ForbiddenException,
 } from '@nestjs/common';
 import {
   Interview,
@@ -9,6 +10,7 @@ import {
   ApplicationStatus,
   ParticipantRole,
   ParticipantStatus,
+  Role,
 } from '@prisma/client';
 import { v4 as uuidv4 } from 'uuid';
 import { CreateInterviewDto } from './dto/createInterview.dto';
@@ -131,7 +133,6 @@ export class InterviewsService {
       },
     });
 
-    // Keep application state in sync with interview scheduling.
     await this.prisma.application.update({
       where: { id: createInterviewDto.applicationId },
       data: {
@@ -140,8 +141,8 @@ export class InterviewsService {
       },
     });
 
-    try {
-      await this.emailService.sendInterviewScheduledEmail({
+    await this.emailService
+      .sendInterviewScheduledEmail({
         email: application.candidate.user.email,
         candidateName:
           `${application.candidate.user.firstName || ''} ${application.candidate.user.lastName || ''}`.trim() ||
@@ -151,13 +152,54 @@ export class InterviewsService {
         interviewType: createInterviewDto.interviewType,
         scheduledAt,
         meetingLink: createInterviewDto.meetingLink,
-      });
-    } catch (error) {
-      // Email failures should not block scheduling.
-      console.error('Failed to send interview scheduled email:', error);
-    }
+      })
+      .catch(() => undefined);
 
     return interview;
+  }
+
+  async assertInterviewWriteAccess(
+    interviewId: number,
+    userId: number,
+    role: Role,
+  ): Promise<void> {
+    if (role === Role.ADMIN) {
+      return;
+    }
+
+    const interview = await this.prisma.interview.findUnique({
+      where: { id: interviewId },
+      select: {
+        id: true,
+        interviewer: {
+          select: {
+            userId: true,
+          },
+        },
+        application: {
+          select: {
+            candidate: {
+              select: {
+                userId: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    if (!interview) {
+      throw new NotFoundException(`Interview with ID ${interviewId} not found`);
+    }
+
+    const isInterviewer = interview.interviewer?.userId === userId;
+    const isCandidate = interview.application?.candidate?.userId === userId;
+
+    if (!isInterviewer && !isCandidate) {
+      throw new ForbiddenException(
+        'You are not authorized to modify this interview',
+      );
+    }
   }
 
   async sendDecision(

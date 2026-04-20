@@ -24,7 +24,7 @@ export default async function ProtectedLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex min-w-dvw">
+    <div className="flex min-w-dvw h-dvh overflow-hidden">
       <CustomSidebar variant="primary">
         <TopItems>
           <SidebarItem href="/" label="Home" icon={<Home size={20} />} />
@@ -62,7 +62,7 @@ export default async function ProtectedLayout({
 
         <BottomItems>
           <SidebarItem
-            href="/settings"
+            href="/candidate/settings"
             label="Settings"
             icon={<Settings size={20} />}
           />
@@ -73,7 +73,7 @@ export default async function ProtectedLayout({
           icon={<LogOut size={20} />}
         />
       </CustomSidebar>
-      <div className="flex-1 overflow-auto">{children}</div>
+      <div className="flex-1 h-dvh overflow-y-auto">{children}</div>
     </div>
   );
 }

@@ -18,7 +18,7 @@ export default function ResumesPage() {
   ];
 
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="flex min-h-dvh bg-gray-50">
       <div className="flex-1 overflow-y-auto">
         <div className="p-8">
           <h1 className="text-4xl font-bold text-gray-900 mb-2">Resumes</h1>

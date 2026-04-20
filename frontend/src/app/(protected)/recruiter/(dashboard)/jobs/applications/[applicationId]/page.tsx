@@ -1,42 +1,83 @@
 "use client";
 
-import { useParams } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import React from "react";
+import Link from "next/link";
+import CandidateCard from "@/src/components/recruiter/CandidateCard";
+import JobCard from "@/src/components/recruiter/JobCard";
 import {
   Mail,
-  Phone,
   MapPin,
   Briefcase,
   Calendar,
-  Download,
-  ArrowLeft,
+  X,
+  ChevronDown,
+  ChevronRight,
 } from "lucide-react";
-import apiClient from "@/src/app/api/api-client";
 import {
-  useApplicationDetail,
-  useUpdateApplicationStatus,
   useGetRecruiterJobs,
-  useGetCurrentRecruiterProfile,
+  useJobApplications,
 } from "@/src/hooks/useRecruiterApi";
-import { useGetCandidateById } from "@/src/hooks/useCandidateApi";
-import { useGetCurrentUser } from "@/src/hooks/useUserApi";
-import CreateInterviewModal from "@/src/components/interview/CreateInterviewModal";
-import { useState } from "react";
 
-export default function ApplicationDetailPage() {
-  const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
-  const params = useParams();
-  const applicationId = params?.applicationId
-    ? Number(params.applicationId)
-    : null;
+export default function JobsPage() {
+  useEffect(() => {
+    document.title = "Applications - AcuityTalent";
+  }, []);
 
-  const { data: application, isLoading } = useApplicationDetail(
-    applicationId || 0,
+  const [selectedJobId, setSelectedJobId] = useState<number | null>(null);
+  const [showGridModal, setShowGridModal] = useState(false);
+  const [selectedCandidateId, setSelectedCandidateId] = useState<number | null>(
+    null,
   );
-  const { data: jobsData } = useGetRecruiterJobs(1, 50);
-  const updateStatus = useUpdateApplicationStatus();
-  const candidateAccountQuery = useGetCurrentUser();
-  const candidateProfileQuery = useGetCandidateById(application?.candidateId);
-  const recruiterProfileQuery = useGetCurrentRecruiterProfile();
+  const [page, setPage] = useState(1);
+  const statusOrder = ["ACTIVE", "DRAFT", "CLOSED", "ARCHIVED"];
+
+  const { data: jobsData, isLoading: jobsLoading } = useGetRecruiterJobs(1, 50);
+  const { data: candidatesData, isLoading: candidatesLoading } =
+    useJobApplications(selectedJobId || 0, page);
+
+  const jobs = jobsData?.data || [];
+  const candidates = candidatesData?.data || [];
+  const selectedJob = jobs.find((j) => j.id === selectedJobId);
+
+  const groupedJobs = jobs.reduce(
+    (acc, job) => {
+      const status = job.status;
+      if (!acc[status]) acc[status] = [];
+      acc[status].push(job);
+      return acc;
+    },
+    {} as Record<string, typeof jobs>,
+  );
+
+  const statusLabels: Record<string, string> = {
+    ACTIVE: "Active Jobs",
+    DRAFT: "Draft Jobs",
+    CLOSED: "Closed Jobs",
+    ARCHIVED: "Archived Jobs",
+  };
+
+  const statusStyles: Record<string, string> = {
+    ACTIVE: "bg-cyan-600 hover:bg-cyan-500",
+    DRAFT: "bg-gray-600 hover:bg-gray-500",
+    CLOSED: "bg-red-600 hover:bg-red-500",
+    ARCHIVED: "bg-yellow-600 hover:bg-yellow-500",
+  };
+
+  const [expandedStatuses, setExpandedStatuses] = useState<
+    Record<string, boolean>
+  >(() => ({
+    ACTIVE: true, // expand Active by default
+  }));
+
+  const toggleStatus = (status: string) => {
+    setExpandedStatuses((prev) => ({ ...prev, [status]: !prev[status] }));
+  };
+
+  const handleSelectCandidateFromModal = (candidateId: number) => {
+    setSelectedCandidateId(candidateId);
+  };
 
   const getCandidateCategory = (
     matchScore?: number,
@@ -48,395 +89,292 @@ export default function ApplicationDetailPage() {
     return "High Risk";
   };
 
-  const handleResumeDownload = async () => {
-    if (!application?.id) return;
+  if (selectedCandidateId) {
+    return <CandidateDetailRedirect candidateId={selectedCandidateId} />;
+  }
 
-    try {
-      const response = await apiClient.get(
-        `/applications/${application.id}/resume/download`,
-        {
-          responseType: "blob",
-        },
-      );
-
-      const contentDisposition = response.headers["content-disposition"] || "";
-      const fileNameMatch = contentDisposition.match(
-        /filename=\"?([^\";]+)\"?/i,
-      );
-      const fileName =
-        fileNameMatch?.[1] || application.resumeFileName || "resume.pdf";
-
-      const blob = new Blob([response.data], {
-        type: response.headers["content-type"] || "application/pdf",
-      });
-      const downloadUrl = window.URL.createObjectURL(blob);
-      const anchor = document.createElement("a");
-      anchor.href = downloadUrl;
-      anchor.download = fileName;
-      document.body.appendChild(anchor);
-      anchor.click();
-      anchor.remove();
-      window.URL.revokeObjectURL(downloadUrl);
-    } catch (error) {
-      console.error("Failed to download resume:", error);
-    }
-  };
-
-  const handleStatusUpdate = async (status: string) => {
-    if (!application) return;
-    try {
-      await updateStatus.mutateAsync({
-        applicationId: application.id,
-        status: status as any,
-      });
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  // If no application ID in params, show message
-  if (!applicationId) {
+  if (jobsLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-8">
-        <div className="bg-white border border-gray-200 rounded-xl p-8 text-center shadow-sm">
-          <p className="text-gray-600 text-lg font-medium">
-            No application selected
-          </p>
+      <div className="flex min-h-dvh bg-white">
+        <div className="flex-1 w-full flex items-center justify-center">
+          <p className="text-gray-500">Loading jobs...</p>
         </div>
       </div>
     );
   }
-
-  // Loading state
-  if (isLoading || !application) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-8">
-        <div className="bg-white border border-gray-200 rounded-xl p-8 text-center shadow-sm">
-          <p className="text-gray-600 font-medium animate-pulse">
-            Loading application details...
-          </p>
-        </div>
-      </div>
-    );
-  }
-
-  const candidateAccount = candidateAccountQuery.data;
-  const candidateProfile = candidateProfileQuery.data;
-  const jobs = jobsData?.data || [];
-  const job = jobs.find((j: any) => j.id === application.jobId);
 
   return (
-    <div
-      className="h-screen bg-gray-50 overflow-y-auto font-sans relative"
-      style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
-    >
-      <div className="p-8 max-w-4xl mx-auto">
-        {/* Back Button */}
-        <button
-          onClick={() => {
-            if (typeof window !== "undefined") window.history.back();
-          }}
-          className="mb-6 p-2 hover:bg-gray-200 rounded-lg transition-colors inline-flex items-center gap-2"
-          aria-label="Go back"
-        >
-          <ArrowLeft className="w-5 h-5 text-gray-600" />
-          <span className="text-sm font-medium text-gray-600">
-            Back to Dashboard
-          </span>
-        </button>
-
-        {/* Candidate Card */}
-        <div className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm relative">
-          {/* Status Banner */}
-          {application.status && application.status !== "APPLIED" && (
-            <div
-              className={`w-full py-2 text-center text-sm font-medium text-white
-              ${application.status === "ACCEPTED" ? "bg-[#26a69a]" : ""}
-              ${application.status === "REJECTED" ? "bg-red-500" : ""}
-              ${application.status === "SHORTLISTED" ? "bg-[#cddc39] text-gray-800" : ""}
-              ${application.status === "INTERVIEWING" ? "bg-[#483d8b]" : ""}
-            `}
-            >
-              Current Status: {application.status}
-            </div>
-          )}
-
-          {/* Top Section */}
-          <div className="p-8">
-            {/* Name and Badge */}
-            <div className="flex items-start justify-between mb-4">
-              <div>
-                <h2 className="text-3xl font-bold text-gray-900">
-                  {candidateAccount?.firstName +
-                    " " +
-                    candidateAccount?.lastName || ""}
-                </h2>
-              </div>
-              <div className="flex items-center gap-2">
-                {application.matchScore != null && (
-                  <span className="bg-teal-50 text-teal-700 border border-teal-200 px-3 py-1 rounded-full text-sm font-semibold shadow-sm">
-                    {application.matchScore}% Compatible
-                  </span>
-                )}
-                {application.matchScore === null && (
-                  <span className="bg-teal-50 text-teal-700 border border-teal-200 px-3 py-1 rounded-full text-sm font-semibold shadow-sm">
-                    No Compatibility Score
-                  </span>
-                )}
-                {application.riskScore != null && (
-                  <span
-                    className={`px-3 py-1 rounded-full text-sm font-semibold shadow-sm border ${
-                      application.riskScore >= 67
-                        ? "bg-red-50 text-red-700 border-red-200"
-                        : application.riskScore >= 34
-                          ? "bg-amber-50 text-amber-700 border-amber-200"
-                          : "bg-emerald-50 text-emerald-700 border-emerald-200"
-                    }`}
-                  >
-                    {application.riskScore}% Risk
-                  </span>
-                )}
-                {
-                  <span className="bg-indigo-50 text-indigo-700 border border-indigo-200 px-3 py-1 rounded-full text-sm font-semibold shadow-sm">
-                    {getCandidateCategory(
-                      application.matchScore,
-                      application.riskScore,
-                    )}
-                  </span>
-                }
-              </div>
-            </div>
-
-            {/* Contact Info */}
-            <div className="flex flex-wrap gap-y-2 gap-x-6 text-sm text-gray-600 mb-6">
-              {candidateProfile?.email && (
-                <div className="flex items-center gap-2">
-                  <Mail className="w-4 h-4 text-gray-400" />
-                  <span>{candidateProfile?.email || ""}</span>
-                </div>
-              )}
-              {candidateProfile?.phone && (
-                <div className="flex items-center gap-2">
-                  <Phone className="w-4 h-4 text-gray-400" />
-                  <span>{candidateProfile?.phone || ""}</span>
-                </div>
-              )}
-              {candidateProfile?.location && (
-                <div className="flex items-center gap-2">
-                  <MapPin className="w-4 h-4 text-gray-400" />
-                  <span>{candidateProfile?.location || ""}</span>
-                </div>
-              )}
-            </div>
-
-            {/* Summary */}
-            {candidateProfile?.summary && (
-              <div className="mt-6 bg-gray-50 rounded-lg p-5 border border-gray-100">
-                <h3 className="font-semibold text-gray-900 mb-2 flex items-center gap-2">
-                  <Briefcase className="w-4 h-4 text-[#483d8b]" /> Professional
-                  Summary
-                </h3>
-                <p className="text-gray-600 text-sm leading-relaxed">
-                  {candidateProfile?.summary || ""}
-                </p>
-              </div>
-            )}
-
-            {application.coverLetter && (
-              <div className="mt-6 bg-gray-50 rounded-lg p-5 border border-gray-100">
-                <h3 className="font-semibold text-gray-900 mb-2">
-                  Cover Letter
-                </h3>
-                <p className="text-gray-700 text-sm whitespace-pre-wrap leading-relaxed">
-                  {application.coverLetter}
-                </p>
-              </div>
-            )}
-
-            {/* Experience and Applied */}
-            <div className="flex items-center gap-12 mt-8">
-              {candidateProfile?.yearsOfExperience !== undefined && (
-                <div>
-                  <p className="text-gray-500 text-sm font-medium mb-1">
-                    Experience
-                  </p>
-                  <p className="text-xl font-bold text-gray-900">
-                    {candidateProfile?.yearsOfExperience || ""} Years
-                  </p>
-                </div>
-              )}
-              <div>
-                <p className="text-gray-500 text-sm font-medium mb-1 flex items-center gap-1.5">
-                  <Calendar className="w-4 h-4" /> Applied On
-                </p>
-                <p className="text-xl font-bold text-gray-900">
-                  {new Date(application.appliedAt).toLocaleDateString("en-US", {
-                    year: "numeric",
-                    month: "short",
-                    day: "numeric",
-                  })}
-                </p>
-              </div>
-            </div>
+    <div className="flex min-h-dvh bg-white">
+      <div className="flex-1 flex">
+        <div className="w-96 border-r border-gray-300 flex flex-col">
+          <div className="p-6 border-b border-gray-300">
+            <h2 className="text-2xl font-bold text-gray-900">Applications</h2>
           </div>
 
-          {/* Divider */}
-          <div className="border-t border-gray-100" />
+          <div className="flex-1 overflow-y-auto">
+            {jobs.length === 0 ? (
+              <div className="p-6 text-center text-gray-500">No jobs found</div>
+            ) : (
+              statusOrder.map((status) => {
+                const statusJobs = groupedJobs[status];
+                if (!statusJobs || statusJobs.length === 0) return null; // skip empty statuses
 
-          {/* Content Sections */}
-          {candidateProfile?.skills > 0 &&
-            candidateProfile?.workExperience > 0 && (
-              <div className="p-8 space-y-10">
-                {/* Skills */}
-                {candidateProfile?.skills &&
-                  candidateProfile?.skills.length > 0 && (
-                    <section>
-                      <h3 className="text-lg font-bold text-gray-900 mb-4">
-                        Skills
-                      </h3>
-                      <div className="flex flex-wrap gap-2.5">
-                        {candidateProfile?.skills.map(
-                          (skill: string, index: number) => (
-                            <span
-                              key={index}
-                              className="bg-indigo-50 border border-[#483d8b]/20 text-[#483d8b] px-3.5 py-1.5 rounded-full text-sm font-medium"
-                            >
-                              {skill}
-                            </span>
-                          ),
-                        )}
-                      </div>
-                    </section>
-                  )}
+                const isExpanded = expandedStatuses[status] || false;
+                const label = statusLabels[status] || status;
 
-                {/* Work Experience */}
-                {candidateProfile?.workExperience &&
-                  candidateProfile?.workExperience.length > 0 && (
-                    <section>
-                      <h3 className="text-lg font-bold text-gray-900 mb-5">
-                        Work Experience
-                      </h3>
-                      <div className="space-y-6">
-                        {candidateProfile?.workExperience.map((exp: any) => {
-                          const start = new Date(exp.startDate).getFullYear();
-                          const end = exp.currentlyWorking
-                            ? "Present"
-                            : exp.endDate
-                              ? new Date(exp.endDate).getFullYear()
-                              : "";
-                          return (
-                            <div key={exp.id} className="relative pl-6">
-                              <div className="absolute left-[3px] top-2 bottom-0 w-0.5 bg-gray-200" />
-                              <div className="absolute -left-1.5 top-1.5 w-3.5 h-3.5 rounded-full border-2 border-white bg-[#483d8b] shadow-sm" />
+                return (
+                  <div key={status} className="mb-4 rounded">
+                    <div
+                      className={`flex items-center justify-between px-6 py-3 cursor-pointer text-gray-200 ${
+                        statusStyles[status]
+                      }`}
+                      onClick={() => toggleStatus(status)}
+                    >
+                      <span className="font-medium">
+                        {label} ({statusJobs.length})
+                      </span>
+                      <span className="text-xl">
+                        {isExpanded ? <ChevronRight /> : <ChevronDown />}
+                      </span>
+                    </div>
 
-                              <h4 className="text-base font-bold text-gray-900">
-                                {exp.position}
-                              </h4>
-                              <p className="text-sm text-[#483d8b] font-semibold mt-0.5">
-                                {exp.companyName}{" "}
-                                <span className="text-gray-400 font-normal mx-1">
-                                  •
-                                </span>{" "}
-                                <span className="text-gray-500 font-normal">
-                                  {start} - {end}
-                                </span>
-                              </p>
-                              <p className="text-sm text-gray-600 mt-2.5 leading-relaxed">
-                                {exp.description}
-                              </p>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </section>
-                  )}
-
-                {candidateProfile?.education &&
-                  candidateProfile?.education.length > 0 && (
-                    <section>
-                      <h3 className="text-lg font-bold text-gray-900 mb-4">
-                        Education
-                      </h3>
-                      <div className="space-y-4">
-                        {candidateProfile?.education.map((edu: any) => (
-                          <div
-                            key={edu.id}
-                            className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm hover:border-gray-300 transition-colors"
-                          >
-                            <div className="flex justify-between items-start mb-1">
-                              <h4 className="font-semibold text-gray-900">
-                                {edu.degree}
-                              </h4>
-                              <span className="text-xs font-medium text-gray-500 bg-gray-100 px-2.5 py-1 rounded-full">
-                                Class of{" "}
-                                {new Date(
-                                  edu.endDate || edu.startDate,
-                                ).getFullYear()}
-                              </span>
-                            </div>
-                            <p className="text-sm text-[#483d8b] font-medium mb-2">
-                              {edu.institution}
-                            </p>
-                            {edu.description && (
-                              <p className="text-sm text-gray-600 leading-relaxed">
-                                {edu.description}
-                              </p>
-                            )}
-                          </div>
+                    {isExpanded && (
+                      <div className="p-2 space-y-2">
+                        {statusJobs.map((job) => (
+                          <JobCard
+                            key={job.id}
+                            job={job}
+                            isSelected={selectedJobId === job.id}
+                            onClick={() => {
+                              setSelectedJobId(job.id);
+                              setPage(1);
+                            }}
+                          />
                         ))}
                       </div>
-                    </section>
-                  )}
-              </div>
+                    )}
+                  </div>
+                );
+              })
             )}
-
-          <div className="border-t border-gray-200 p-6 bg-gray-50 flex flex-wrap gap-4 items-center justify-between">
-            <button
-              onClick={handleResumeDownload}
-              disabled={!application.resumeId}
-              className="px-6 py-2.5 bg-white border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 hover:text-gray-900 transition-colors shadow-sm inline-flex items-center focus:ring-2 focus:ring-offset-2 focus:ring-gray-200"
-            >
-              <Download className="mr-2 w-4 h-4" />
-              Download Resume
-            </button>
-            <div className="flex flex-wrap gap-3">
-              <button
-                onClick={() => setIsScheduleModalOpen(true)}
-                className="px-5 py-2.5 border border-[#483d8b] text-[#483d8b] font-semibold rounded-lg hover:bg-indigo-50 transition-colors focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-              >
-                Interview
-              </button>
-              <button
-                onClick={() => handleStatusUpdate("SHORTLISTED")}
-                className="px-5 py-2.5 bg-[#d4e157] text-gray-800 font-semibold rounded-lg hover:bg-[#cddc39] transition-colors focus:ring-2 focus:ring-offset-2 focus:ring-[#d4e157]"
-              >
-                Shortlist
-              </button>
-              <button
-                onClick={() => handleStatusUpdate("REJECTED")}
-                className="px-5 py-2.5 bg-white border border-red-200 text-red-600 font-semibold rounded-lg hover:bg-red-50 transition-colors focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-              >
-                Reject
-              </button>
-              <button
-                onClick={() => handleStatusUpdate("ACCEPTED")}
-                className="px-5 py-2.5 bg-[#26a69a] text-white font-semibold rounded-lg hover:bg-teal-500 transition-colors shadow-sm focus:ring-2 focus:ring-offset-2 focus:ring-teal-500"
-              >
-                Accept
-              </button>
-            </div>
           </div>
         </div>
-      </div>
 
-      {application?.id && recruiterProfileQuery.data?.id && (
-        <CreateInterviewModal
-          isOpen={isScheduleModalOpen}
-          onClose={() => setIsScheduleModalOpen(false)}
-          applicationId={application.id}
-          interviewerId={recruiterProfileQuery.data.id}
-        />
-      )}
+        {/* Candidates Panel */}
+        {selectedJob ? (
+          <div className="flex-1 flex flex-col">
+            <div className="p-6 border-b border-gray-300 bg-gray-50">
+              <div className="flex items-center justify-between mb-2">
+                <h2 className="text-2xl font-bold text-gray-900">
+                  {selectedJob.title}
+                </h2>
+                <span className="text-sm text-gray-600">
+                  {selectedJob.applicationCount} applicants
+                </span>
+              </div>
+
+              {/* Job Details Tags */}
+              <div className="flex flex-wrap gap-3 mt-3">
+                {/* jobType: show Remote or On-site */}
+                <span className="flex items-center gap-2 bg-gray-100 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium">
+                  <MapPin size={16} />
+                  {String(selectedJob.location).toLowerCase().includes("remote")
+                    ? "Remote"
+                    : "On-site"}
+                </span>
+
+                {/* employmentType */}
+                {selectedJob.employmentType && (
+                  <span className="flex items-center gap-2 bg-gray-100 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium">
+                    <Briefcase size={16} />
+                    {selectedJob.employmentType === "FULL_TIME"
+                      ? "Full-time"
+                      : selectedJob.employmentType}
+                  </span>
+                )}
+
+                {/* salaryRange */}
+                {selectedJob.salaryRange !== undefined && (
+                  <span className="flex items-center gap-2 bg-gray-100 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium">
+                    ${selectedJob.salaryRange}
+                  </span>
+                )}
+
+                {/* experience level placeholder */}
+                <span className="flex items-center gap-2 bg-gray-100 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium">
+                  3-5 Years
+                </span>
+
+                {/* postedDate */}
+                {selectedJob.createdAt && (
+                  <span className="flex items-center gap-2 bg-gray-100 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium">
+                    <Calendar size={16} />
+                    {new Date(selectedJob.createdAt).toLocaleDateString()}
+                  </span>
+                )}
+              </div>
+            </div>
+
+            <div className="flex-1 flex flex-col">
+              {/* Content */}
+              {candidatesLoading ? (
+                <div className="flex-1 w-full flex items-center justify-center">
+                  <p className="text-gray-500">Loading candidates...</p>
+                </div>
+              ) : candidates.length === 0 ? (
+                <div className="flex-1 w-full flex items-center justify-center">
+                  <p className="text-gray-500">No applications yet</p>
+                </div>
+              ) : (
+                <div
+                  className="flex-1 gap-4 overflow-y-auto"
+                  style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+                >
+                  {!showGridModal ? (
+                    // List View as wide horizontal cards
+                    <div className="flex flex-col px-4 py-4 gap-4 overflow-y-auto">
+                      {candidates.map((candidate) => (
+                        <Link
+                          key={candidate.id}
+                          href={`/recruiter/jobs/applications/${candidate.id}`}
+                        >
+                          <div className="bg-white border border-gray-300 rounded-lg p-5 flex items-start gap-6 hover:shadow-md transition-colors relative">
+                            {/* Avatar */}
+                            <div className="w-20 h-20 rounded-full bg-gray-200 flex items-center justify-center text-gray-400 text-2xl font-light shrink-0">
+                              {(candidate.candidateName || "").charAt(0) || "A"}
+                            </div>
+
+                            {/* Main content */}
+                            <div className="flex-1">
+                              <div className="flex items-center justify-between">
+                                <h3 className="text-2xl font-bold text-gray-900">
+                                  {candidate.candidateName}
+                                </h3>
+                                <div className="flex items-center gap-2 flex-wrap">
+                                  {candidate.matchScore !== undefined && (
+                                    <span className="bg-teal-100 text-teal-800 px-3 py-1 rounded-full text-sm font-semibold">
+                                      {Math.round(candidate.matchScore)}%
+                                      Compatible
+                                    </span>
+                                  )}
+                                  {candidate.riskScore !== undefined && (
+                                    <span
+                                      className={`px-3 py-1 rounded-full text-sm font-semibold ${
+                                        candidate.riskScore >= 67
+                                          ? "bg-red-100 text-red-800"
+                                          : candidate.riskScore >= 34
+                                            ? "bg-amber-100 text-amber-800"
+                                            : "bg-emerald-100 text-emerald-800"
+                                      }`}
+                                    >
+                                      {Math.round(candidate.riskScore)}% Risk
+                                    </span>
+                                  )}
+                                  {
+                                    <span className="bg-indigo-100 text-indigo-800 px-3 py-1 rounded-full text-sm font-semibold">
+                                      {getCandidateCategory(
+                                        candidate.matchScore,
+                                        candidate.riskScore,
+                                      )}
+                                    </span>
+                                  }
+                                </div>
+                              </div>
+
+                              <div className="text-sm text-gray-600 mt-2 flex flex-col sm:flex-row sm:items-center sm:gap-4">
+                                <div className="flex items-center gap-2">
+                                  <Mail className="w-4 h-4 text-gray-400" />
+                                  <span>{candidate.candidateEmail}</span>
+                                </div>
+                                {candidate.phone && (
+                                  <div className="flex items-center gap-2">
+                                    <span className="mx-2">|</span>
+                                    <span>{candidate.phone}</span>
+                                  </div>
+                                )}
+                              </div>
+
+                              {candidate.location && (
+                                <div className="text-sm text-gray-600 mt-2">
+                                  {candidate.location}
+                                </div>
+                              )}
+
+                              <div className="mt-4 flex items-center gap-8 text-sm text-gray-900 font-medium">
+                                <div>
+                                  Experience :{" "}
+                                  <span className="font-bold">
+                                    {candidate.yearsOfExperience} Years
+                                  </span>
+                                </div>
+                                <div>
+                                  Applied :{" "}
+                                  <span className="font-bold">
+                                    {new Date(
+                                      candidate.appliedAt,
+                                    ).toLocaleDateString()}
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Right preview box */}
+                            <button
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                              }}
+                              className="p-1.5 bg-white rounded-lg  transition-colors"
+                              aria-label="Remove candidate"
+                            >
+                              <X className="w-5 h-5 text-black" />
+                            </button>
+                          </div>
+                        </Link>
+                      ))}
+                    </div>
+                  ) : (
+                    // Grid View
+                    <div className="p-4 grid grid-cols-2 gap-4">
+                      {candidates.map((candidate) => (
+                        <Link
+                          key={candidate.id}
+                          href={`/recruiter/jobs/applications/${candidate.id}`}
+                        >
+                          <div className="hover:shadow-lg transition-shadow">
+                            <CandidateCard
+                              candidate={candidate}
+                              job={selectedJob}
+                              showModal={true}
+                              showPremiumAnalytics={true}
+                            />
+                          </div>
+                        </Link>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+        ) : (
+          <div className="flex-1 w-full flex items-center justify-center">
+            <p className="text-gray-400 text-lg">
+              Select a job to view candidates
+            </p>
+          </div>
+        )}
+      </div>
     </div>
   );
+}
+
+function CandidateDetailRedirect({ candidateId }: { candidateId: number }) {
+  const router = useRouter();
+
+  React.useEffect(() => {
+    router.push(`/recruiter/jobs/applications/${candidateId}`);
+  }, [candidateId, router]);
+
+  return null;
 }

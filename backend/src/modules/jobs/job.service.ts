@@ -12,12 +12,14 @@ import {
 import { PrismaService } from '../../prisma/prisma.service';
 import { AiService } from '../ai/ai.service';
 import { EmbeddingRequest } from '../ai/dto/embedding-request.dto';
+import { EntitlementsService } from '../subscriptions/entitlements.service';
 
 @Injectable()
 export class JobService {
   constructor(
     private prisma: PrismaService,
     private ai: AiService,
+    private entitlements: EntitlementsService,
   ) {}
 
   async createJob(
@@ -39,6 +41,13 @@ export class JobService {
 
     if (!company) {
       throw new NotFoundException('Company does not exist');
+    }
+
+    // Check if recruiter can create another job based on subscription tier
+    const entitlementCheck =
+      await this.entitlements.canRecruiterCreateJob(recruiterId);
+    if (!entitlementCheck.allowed) {
+      throw new ForbiddenException(entitlementCheck.message);
     }
 
     const job = await this.prisma.job.create({
@@ -229,25 +238,28 @@ export class JobService {
   }
 
   async getJobById(id: number): Promise<JobResponseDto> {
-    const job = await this.prisma.job.findUnique({
-      where: { id },
-      include: {
-        company: true,
-        recruiter: {
-          include: {
-            user: {
-              select: { firstName: true, lastName: true },
-            },
-          },
-        },
-      },
-    });
+    const job = await this.findJobWithRelations(id);
 
     if (!job) {
       throw new NotFoundException('Job not found');
     }
 
     // Increment view count
+    await this.prisma.job.update({
+      where: { id },
+      data: { viewsCount: { increment: 1 } },
+    });
+
+    return job;
+  }
+
+  async getPublicJobById(id: number): Promise<JobResponseDto> {
+    const job = await this.findJobWithRelations(id);
+
+    if (!job || job.status !== JobStatus.ACTIVE) {
+      throw new NotFoundException('Job not found');
+    }
+
     await this.prisma.job.update({
       where: { id },
       data: { viewsCount: { increment: 1 } },
@@ -273,6 +285,19 @@ export class JobService {
     });
     if (!job) {
       throw new NotFoundException('Job not found or access denied');
+    }
+
+    const activatesJob =
+      updateJobDto.status === JobStatus.ACTIVE &&
+      job.status !== JobStatus.ACTIVE;
+
+    if (activatesJob) {
+      const entitlementCheck =
+        await this.entitlements.canRecruiterCreateJob(recruiterId);
+
+      if (!entitlementCheck.allowed) {
+        throw new ForbiddenException(entitlementCheck.message);
+      }
     }
 
     const updatedJob = await this.prisma.job.update({
@@ -371,6 +396,22 @@ export class JobService {
 
   async getJobRecommendations() {}
 
+  private async findJobWithRelations(id: number) {
+    return this.prisma.job.findUnique({
+      where: { id },
+      include: {
+        company: true,
+        recruiter: {
+          include: {
+            user: {
+              select: { firstName: true, lastName: true },
+            },
+          },
+        },
+      },
+    });
+  }
+
   private async recomputeJobEmbedding(jobId: number) {
     try {
       const job = await this.prisma.job.findUnique({
@@ -410,7 +451,6 @@ export class JobService {
       await this.createJobEmbedding(job.id, embeddingResult.embedding);
     } catch (error) {
       // Embedding failures should not block job create/update operations.
-      console.error('Failed to recompute job embedding:', error);
     }
   }
 }

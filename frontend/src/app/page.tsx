@@ -28,7 +28,7 @@ const categories = [
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen bg-transparent overflow-hidden">
+    <div className="min-h-screen bg-transparent overflow-x-hidden">
       <HomeNavigationBar />
 
       <section className="flex justify-center items-center max-h-[950px] relative px-48 pb-48">

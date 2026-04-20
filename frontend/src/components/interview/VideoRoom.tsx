@@ -72,7 +72,6 @@ export default function VideoRoom({
         peer.replaceTrack(previousTrack, nextTrack, localStream as MediaStream);
         return;
       } catch (err) {
-        console.error("SimplePeer replaceTrack failed, trying fallback:", err);
       }
     }
 
@@ -81,7 +80,6 @@ export default function VideoRoom({
         peer.removeTrack(previousTrack, localStream as MediaStream);
         return;
       } catch (err) {
-        console.error("SimplePeer removeTrack failed, trying fallback:", err);
       }
     }
 
@@ -90,7 +88,6 @@ export default function VideoRoom({
         peer.addTrack(nextTrack, localStream as MediaStream);
         return;
       } catch (err) {
-        console.error("SimplePeer addTrack failed, trying fallback:", err);
       }
     }
 
@@ -106,7 +103,6 @@ export default function VideoRoom({
         pc.addTrack(nextTrack, localStream as MediaStream);
       }
     } catch (err) {
-      console.error("Fallback outgoing video track update failed:", err);
     }
   };
 
@@ -208,7 +204,6 @@ export default function VideoRoom({
       try {
         peer.signal(signal);
       } catch (err) {
-        console.error("Failed to apply queued WebRTC signal:", err);
       }
     });
   };
@@ -226,7 +221,6 @@ export default function VideoRoom({
     try {
       peer.signal(signal);
     } catch (err) {
-      console.error(`Failed to apply ${kind}:`, err);
       queueIncomingSignal(kind, signal);
     }
   };
@@ -297,7 +291,6 @@ export default function VideoRoom({
         localVideoRef.current.play().catch(() => undefined);
       }
     } catch (err) {
-      console.error("Failed to stop screen share:", err);
       setIsScreenSharing(false);
     }
   };
@@ -318,7 +311,6 @@ export default function VideoRoom({
 
       const screenTrack = displayStream.getVideoTracks()[0];
       if (!screenTrack) {
-        console.error("No video track found in display stream");
         displayStream.getTracks().forEach((track) => track.stop());
         return;
       }
@@ -365,7 +357,6 @@ export default function VideoRoom({
     } catch (err: any) {
       // User cancelled screen share
       if (err.name !== "NotAllowedError") {
-        console.error("Failed to start screen share:", err);
       }
       setIsScreenSharing(false);
     }
@@ -449,7 +440,6 @@ export default function VideoRoom({
     });
 
     peer.on("error", (err) => {
-      console.error("Peer error:", err);
     });
 
     peerRef.current = peer;
@@ -487,7 +477,6 @@ export default function VideoRoom({
 
     const socketUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
     if (!socketUrl) {
-      console.error("NEXT_PUBLIC_BACKEND_URL is not configured");
       return;
     }
 
@@ -678,7 +667,6 @@ export default function VideoRoom({
 
       await stageRef.current.requestFullscreen();
     } catch (err) {
-      console.error("Failed to toggle fullscreen:", err);
     }
   };
 
@@ -710,7 +698,6 @@ export default function VideoRoom({
                   try {
                     await navigator.clipboard.writeText(roomId);
                   } catch (err) {
-                    console.error("Failed to copy meeting ID:", err);
                   }
                 }}
                 className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-slate-200 transition hover:bg-white/10"

@@ -51,7 +51,7 @@ export default function CreateResumePage() {
   const uploadResume = useUploadResume();
 
   return (
-    <div className="flex flex-col h-screen min-w-full justify-center items-center">
+    <div className="flex flex-col min-h-dvh min-w-full justify-center items-center">
       <div className="bg-primary-600 w-full flex justify-center items-center relative">
         <div className="bg-primary-600 w-full grid grid-cols-3 items-center px-6 py-2">
           <div />
@@ -101,7 +101,7 @@ export default function CreateResumePage() {
         </div>
       </div>
       {/* main content */}
-      <div className="flex flex-1 overflow-hidden w-full">
+      <div className="flex flex-1 w-full min-h-0">
         <div className="w-1/2 overflow-auto border-r">
           {(activeTab === "edit" || activeTab === "ai") && (
             <InputResumeDetails resume={resumeData} onChange={setResumeData} />

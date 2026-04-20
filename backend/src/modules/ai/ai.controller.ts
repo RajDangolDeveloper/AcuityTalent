@@ -26,6 +26,7 @@ import { RiskAssessmentRequest } from './dto/risk-assessment-request.dto';
 import { RiskAssessmentResponse } from './dto/risk-assessment-response.dto';
 import { firstValueFrom } from 'rxjs';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { PremiumGuard } from './guards/premium.guard';
 
 @Controller('ai')
 export class AiController {
@@ -59,7 +60,7 @@ export class AiController {
    * Generate a professional cover letter
    */
   @Post('generate-cover-letter')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, PremiumGuard)
   async generateCoverLetter(
     @Req() req: any,
     @Body() data: CoverLetterRequest,
@@ -71,6 +72,7 @@ export class AiController {
    * Improve text (rewrite professionally)
    */
   @Post('improve-text')
+  @UseGuards(JwtAuthGuard, PremiumGuard)
   async improveText(@Body() data: RewriteRequest): Promise<RewriteResponse> {
     return firstValueFrom(this.aiService.improveText(data));
   }
@@ -79,6 +81,7 @@ export class AiController {
    * Review and provide feedback on a resume
    */
   @Post('review-resume')
+  @UseGuards(JwtAuthGuard, PremiumGuard)
   async reviewResume(@Body() data: ReviewRequest): Promise<ReviewResponse> {
     return firstValueFrom(this.aiService.reviewResume(data));
   }
@@ -94,7 +97,6 @@ export class AiController {
   async generateEmbedding(
     @Body() data: EmbeddingRequest,
   ): Promise<EmbeddingResponse> {
-    console.log(data);
     return this.aiService.generateEmbedding(data);
   }
 

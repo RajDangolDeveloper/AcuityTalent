@@ -7,15 +7,7 @@ import { Pool } from 'pg';
 // 1. LOAD ENV FIRST (Strictly before any other imports)
 dotenv.config({ path: resolve(process.cwd(), '.env') });
 
-// 2. LOG FOR DEBUGGING (To see if it's actually working)
-console.log('--- Environment Check ---');
-console.log('DATABASE_URL found:', process.env.DATABASE_URL ? '✅' : '❌');
-console.log(
-  'PASSWORD_SECRET found:',
-  process.env.PASSWORD_SECRET ? '✅' : '❌',
-);
-
-// 3. NOW IMPORT PRISMA
+// 2. NOW IMPORT PRISMA
 import {
   PrismaClient,
   Role,
@@ -43,8 +35,6 @@ async function main() {
   if (!process.env.DATABASE_URL || !process.env.PASSWORD_SECRET) {
     throw new Error('Missing environment variables. Seed aborted.');
   }
-
-  console.log('--- Starting Seed Process ---');
 
   const hashPassword = async (password: string) => {
     const pepper = process.env.PASSWORD_SECRET;
@@ -345,20 +335,11 @@ async function main() {
       jobId: job.id,
     },
   });
-
-  console.log('✅ Seeding Completed Successfully');
-  console.log('--- Login Credentials ---');
-  console.log('Admin Email: admin@acuitytech.com');
-  console.log('Email: admin@acuitytech.com');
-  console.log('Password: Password123!');
-  console.log('Email: candidate@example.com');
-  console.log('Password: Password123!');
 }
 
 main()
   .then(async () => await prisma.$disconnect())
-  .catch(async (e) => {
-    console.error('❌ Seed failed:', e);
+  .catch(async () => {
     await prisma.$disconnect();
     process.exit(1);
   });

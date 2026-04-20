@@ -88,12 +88,10 @@ export const useCreateCandidateProfile = () => {
         );
         return response.data.data;
       } catch (error) {
-        console.error("[useCreateProfile] Error:", error);
         throw error;
       }
     },
     onSuccess: async () => {
-      console.log("[useCreateProfile] Invalidating related queries");
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ["candidate-profile"] }),
         queryClient.invalidateQueries({ queryKey: ["user"] }),
@@ -110,18 +108,12 @@ export const useCandidateSavedJobs = (page: number = 1, limit: number = 10) => {
   return useQuery({
     queryKey: ["candidate-saved-jobs", page, limit],
     queryFn: async () => {
-      console.log("[useCandidateSavedJobs] Fetching saved jobs", {
-        page,
-        limit,
-      });
       try {
         const response = await apiClient.get<PaginatedResponse<SavedJob>>(
           `/saved-jobs?page=${page}&limit=${limit}`,
         );
-        console.log("[useCandidateSavedJobs] Success:", response.data);
         return response.data;
       } catch (error) {
-        console.error("[useCandidateSavedJobs] Error:", error);
         throw error;
       }
     },
@@ -133,15 +125,12 @@ export const useCandidateProfile = () => {
   return useQuery({
     queryKey: ["candidate-profile"],
     queryFn: async () => {
-      console.log("[useCandidateProfile] Fetching candidate profile");
       try {
         const response = await apiClient.get<SingleResponse<CandidateProfile>>(
           "/candidates/profile",
         );
-        console.log("[useCandidateProfile] Success:", response.data.data);
         return response.data.data;
       } catch (error) {
-        console.error("[useCandidateProfile] Error:", error);
         throw error;
       }
     },
@@ -176,7 +165,6 @@ export const useUpdateCandidateProfile = () => {
         >("/candidates/profile", payload);
         return response.data.data;
       } catch (error) {
-        console.error("[useUpdateCandidateProfile] Error:", error);
         throw error;
       }
     },
@@ -197,13 +185,10 @@ export const useCandidateResumes = () => {
   return useQuery({
     queryKey: ["candidate-resumes"],
     queryFn: async () => {
-      console.log("[useCandidateResumes] Fetching candidate resumes");
       try {
         const response = await apiClient.get<{ data: Resume[] }>("/resumes");
-        console.log("[useCandidateResumes] Success:", response.data.data);
         return response.data.data;
       } catch (error) {
-        console.error("[useCandidateResumes] Error:", error);
         throw error;
       }
     },
@@ -214,14 +199,12 @@ export const useCandidateWorkExperiences = () => {
   return useQuery({
     queryKey: ["candidate-work-experiences"],
     queryFn: async () => {
-      console.log("[useCandidateWorkExperiences] Fetching work experiences");
       try {
         const response = await apiClient.get<SingleResponse<WorkExperience[]>>(
           "/candidates/work-experience",
         );
         return response.data.data;
       } catch (error) {
-        console.error("[useCandidateWorkExperiences] Error:", error);
         throw error;
       }
     },
@@ -247,7 +230,6 @@ export const useCreateWorkExperience = () => {
         );
         return response.data.data;
       } catch (error) {
-        console.error("[useCreateWorkExperience] Error:", error);
         throw error;
       }
     },
@@ -267,14 +249,12 @@ export const useCandidateEducations = () => {
   return useQuery({
     queryKey: ["candidate-educations"],
     queryFn: async () => {
-      console.log("[useCandidateEducations] Fetching educations");
       try {
         const response = await apiClient.get<SingleResponse<Education[]>>(
           "/candidates/education",
         );
         return response.data.data;
       } catch (error) {
-        console.error("[useCandidateEducations] Error:", error);
         throw error;
       }
     },
@@ -291,7 +271,7 @@ export const useGetCandidateById = (id: number | undefined) => {
       );
       return response.data.data;
     },
-    // 💡 This is the magic: The query won't run if id is undefined
+    // ðŸ’¡ This is the magic: The query won't run if id is undefined
     enabled: typeof id === "number",
   });
 };

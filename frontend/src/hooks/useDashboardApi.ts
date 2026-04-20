@@ -20,7 +20,6 @@ export const useGetCandidateRecentApplication = () => {
       const { data } = await apiClient.get(
         "/applications/candidate/recentApplications",
       );
-      console.log(data);
       return data;
     },
   });

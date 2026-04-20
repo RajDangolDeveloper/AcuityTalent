@@ -229,7 +229,7 @@ export default function ApplicationsPage() {
   ).length;
 
   return (
-    <div className="flex flex-col h-screen bg-gray-50/60">
+    <div className="flex flex-col min-h-dvh bg-gray-50/60">
       {/* Top bar */}
       <div className="px-8 py-5 border-b border-gray-200 bg-white flex items-center justify-between flex-shrink-0">
         <div>

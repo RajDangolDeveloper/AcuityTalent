@@ -56,7 +56,6 @@ export default function ViewCompanyPage() {
       });
       setIsEditing(false);
     } catch (error) {
-      console.error("Failed to update company:", error);
     }
   };
 
@@ -131,9 +130,9 @@ export default function ViewCompanyPage() {
                         {company.websiteUrl}
                       </a>
                     )}
-                    <span>•</span>
+                    <span>â€¢</span>
                     <span>{company.industry || "N/A"}</span>
-                    <span>•</span>
+                    <span>â€¢</span>
                     <span>{company.officeAddress || "N/A"}</span>
                   </div>
                 </div>
@@ -196,16 +195,16 @@ export default function ViewCompanyPage() {
                       <option value="" disabled>
                         Select company size
                       </option>
-                      <option value="ONE_TO_TEN">1‑10 employees</option>
-                      <option value="ELEVEN_TO_FIFTY">11‑50 employees</option>
+                      <option value="ONE_TO_TEN">1â€‘10 employees</option>
+                      <option value="ELEVEN_TO_FIFTY">11â€‘50 employees</option>
                       <option value="FIFTY_ONE_TO_TWO_HUNDRED">
-                        51‑200 employees
+                        51â€‘200 employees
                       </option>
                       <option value="TWO_HUNDRED_ONE_TO_FIVE_HUNDRED">
-                        201‑500 employees
+                        201â€‘500 employees
                       </option>
                       <option value="FIVE_HUNDRED_ONE_TO_ONE_THOUSAND">
-                        501‑1000 employees
+                        501â€‘1000 employees
                       </option>
                       <option value="ONE_THOUSAND_PLUS">1000+ employees</option>
                     </select>

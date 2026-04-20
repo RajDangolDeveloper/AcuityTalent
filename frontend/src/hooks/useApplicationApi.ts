@@ -18,11 +18,6 @@ export const useCreateApplication = () => {
       resumeId: number;
       coverLetter?: string;
     }) => {
-      console.log("[useCreateApplication] Creating application", {
-        jobId,
-        resumeId,
-        coverLetter,
-      });
       try {
         const response = await apiClient.post<
           SingleResponse<CandidateApplication>
@@ -31,15 +26,12 @@ export const useCreateApplication = () => {
           resumeId,
           coverLetter: coverLetter || "",
         });
-        console.log("[useCreateApplication] Success:", response.data.data);
         return response.data.data;
       } catch (error) {
-        console.error("[useCreateApplication] Error:", error);
         throw error;
       }
     },
     onSuccess: async () => {
-      console.log("[useCreateApplication] Invalidating related queries");
       await Promise.all([
         queryClient.invalidateQueries({
           queryKey: candidateQueryKeys.candidate.applications.all(),

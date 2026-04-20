@@ -179,7 +179,7 @@ export default function CandidateProfilePage() {
   };
 
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="flex min-h-dvh bg-gray-50">
       <div className="flex-1 overflow-y-auto">
         <div className="max-w-10/12 mx-auto my-8 bg-white rounded-2xl shadow-sm border border-gray-200">
           <div className="h-24 w-full rounded-t-2xl bg-[#433875]" />

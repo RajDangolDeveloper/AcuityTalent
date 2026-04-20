@@ -95,7 +95,7 @@ export default function JobsPage() {
 
   if (jobsLoading) {
     return (
-      <div className="flex h-screen bg-white">
+      <div className="flex min-h-dvh bg-white">
         <div className="flex-1 w-full flex items-center justify-center">
           <p className="text-gray-500">Loading jobs...</p>
         </div>
@@ -104,7 +104,7 @@ export default function JobsPage() {
   }
 
   return (
-    <div className="flex h-screen bg-white">
+    <div className="flex min-h-dvh bg-white">
       <div className="flex-1 flex">
         <div className="w-96 border-r border-gray-300 flex flex-col">
           <div className="p-6 border-b border-gray-300">
@@ -323,7 +323,6 @@ export default function JobsPage() {
                               onClick={(e) => {
                                 e.preventDefault();
                                 e.stopPropagation();
-                                console.log(`Remove candidate ${candidate.id}`);
                               }}
                               className="p-1.5 bg-white rounded-lg  transition-colors"
                               aria-label="Remove candidate"
