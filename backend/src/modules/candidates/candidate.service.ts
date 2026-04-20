@@ -432,6 +432,59 @@ export class CandidateService {
     await this.createCandidateEmbedding(dto);
   }
 
+  private async getFallbackRecommendedJobs(candidateId: number, topK: number) {
+    const jobs = await this.prisma.job.findMany({
+      where: {
+        status: JobStatus.ACTIVE,
+        applications: {
+          none: {
+            candidateId,
+          },
+        },
+        savedBy: {
+          none: {
+            candidateId,
+          },
+        },
+      },
+      include: {
+        company: true,
+        recruiter: {
+          include: {
+            user: {
+              select: {
+                firstName: true,
+                lastName: true,
+                contactEmail: true,
+              },
+            },
+          },
+        },
+        _count: {
+          select: {
+            applications: true,
+          },
+        },
+      },
+      orderBy: [{ postedDate: 'desc' }, { createdAt: 'desc' }],
+      take: topK,
+    });
+
+    return jobs.map((job) => ({
+      ...job,
+      companyName: job.company?.name,
+      recruiterName: [
+        job.recruiter?.user?.firstName,
+        job.recruiter?.user?.lastName,
+      ]
+        .filter(Boolean)
+        .join(' '),
+      recruiterEmail: job.recruiter?.user?.contactEmail,
+      applicationCount: job._count?.applications ?? 0,
+      matchScore: 0,
+    }));
+  }
+
   async getRecommendedJobs(userId: number, topK: number = 10) {
     const candidate = await this.prisma.candidateProfile.findUnique({
       where: { userId },
@@ -441,12 +494,26 @@ export class CandidateService {
       throw new NotFoundException('Candidate profile not found');
     }
 
+    const existingEmbedding =
+      await this.prisma.candidateProfileEmbedding.findUnique({
+        where: { candidateProfileId: candidate.id },
+        select: { id: true },
+      });
+
+    if (!existingEmbedding) {
+      try {
+        await this.recomputeCandidateEmbedding(candidate.id);
+      } catch {
+        // If embedding generation fails, fallback recommendations still keep dashboard useful.
+      }
+    }
+
     const recommendationResult = await firstValueFrom(
       this.ai.getJobRecommendations(candidate.id, topK),
     );
 
     if (!recommendationResult.recommendations?.length) {
-      return [];
+      return this.getFallbackRecommendedJobs(candidate.id, topK);
     }
 
     const recommendedIds = recommendationResult.recommendations.map(
@@ -462,17 +529,6 @@ export class CandidateService {
     const jobs = await this.prisma.job.findMany({
       where: {
         id: { in: recommendedIds },
-        status: JobStatus.ACTIVE,
-        applications: {
-          none: {
-            candidateId: candidate.id,
-          },
-        },
-        savedBy: {
-          none: {
-            candidateId: candidate.id,
-          },
-        },
       },
       include: {
         company: true,
@@ -497,7 +553,7 @@ export class CandidateService {
 
     const jobById = new Map(jobs.map((job) => [job.id, job]));
 
-    return recommendedIds
+    const recommendedJobs = recommendedIds
       .map((id) => jobById.get(id))
       .filter(Boolean)
       .map((job) => ({
@@ -513,5 +569,11 @@ export class CandidateService {
         applicationCount: job!._count?.applications ?? 0,
         matchScore: scoreByJobId.get(job!.id) ?? 0,
       }));
+
+    if (!recommendedJobs.length) {
+      return this.getFallbackRecommendedJobs(candidate.id, topK);
+    }
+
+    return recommendedJobs;
   }
 }

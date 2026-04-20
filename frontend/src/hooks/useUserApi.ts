@@ -1,11 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import apiClient from "../app/api/api-client";
-import {
-  UserResponseDto,
-  CreateUserDto,
-  UpdateUserDto,
-  SubscriptionStatusResponse,
-} from "../types/user";
+import { UserResponseDto, CreateUserDto, UpdateUserDto } from "../types/user";
 
 export const useGetAllUsers = () => {
   return useQuery({
@@ -23,39 +18,6 @@ export const useGetCurrentUser = () => {
     queryFn: async () => {
       const response = await apiClient.get<UserResponseDto>("/users/current");
       return response.data;
-    },
-  });
-};
-
-export const useSubscriptionStatus = () => {
-  return useQuery({
-    queryKey: ["subscription-status"],
-    queryFn: async () => {
-      const response = await apiClient.get<SubscriptionStatusResponse>(
-        "/users/subscription/status",
-      );
-      return response.data;
-    },
-  });
-};
-
-export const useInitiateEsewaPayment = () => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async () => {
-      const response = await apiClient.post<{
-        paymentUrl: string;
-        amount: number;
-        transactionRef: string;
-      }>("/users/subscription/esewa/initiate");
-      return response.data;
-    },
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({
-        queryKey: ["subscription-status"],
-      });
-      await queryClient.invalidateQueries({ queryKey: ["user"] });
     },
   });
 };

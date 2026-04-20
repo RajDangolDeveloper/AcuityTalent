@@ -20,15 +20,6 @@ export interface UserResponseDto {
   createdAt: string;
   updatedAt: string;
 }
-
-export interface SubscriptionStatusResponse {
-  plan: SubscriptionPlan;
-  isPremium: boolean;
-  coverLetterGenerationsUsed: number;
-  coverLetterLimit: number | null;
-  pricePerMonth: number;
-  expiresAt: string | null;
-}
 export interface CreateUserDto {
   email: string;
   password: string; // Plaintext on the way in

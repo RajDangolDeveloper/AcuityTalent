@@ -20,14 +20,12 @@ import { TemplateKey } from "@/src/types/resume";
 import SaveResumeButton from "@/src/components/candidate/SaveResumeButton";
 import { useSession } from "next-auth/react";
 import { useParams } from "next/navigation";
-import { useSubscriptionStatus } from "@/src/hooks/useUserApi";
 
 export default function UpdateResumePage() {
   const params = useParams();
 
   const resumeId = params?.id ? parseInt(params.id as string) : null;
   const session = useSession();
-  const { data: subscription } = useSubscriptionStatus();
   const [activeTab, setActiveTab] = useState<"edit" | "customize" | "ai">(
     "edit",
   );
@@ -35,9 +33,7 @@ export default function UpdateResumePage() {
     useState<keyof typeof templates>("modern");
 
   const templateKeys = Object.keys(templates) as Array<keyof typeof templates>;
-  const availableTemplates = subscription?.isPremium
-    ? templateKeys
-    : templateKeys.slice(0, 3);
+  const availableTemplates = templateKeys;
 
   useEffect(() => {
     if (!availableTemplates.includes(selectedTemplate)) {
@@ -180,7 +176,7 @@ export default function UpdateResumePage() {
               </PdfDownloadButton>
             </div>
           )}
-          {activeTab === "ai" && <AiReview />}
+          {activeTab === "ai" && <AiReview resumeData={resumeData} />}
         </div>
       </div>
     </div>

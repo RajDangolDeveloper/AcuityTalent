@@ -1,7 +1,6 @@
 import {
   Body,
   Controller,
-  ForbiddenException,
   Get,
   Param,
   Post,
@@ -27,14 +26,10 @@ import { RiskAssessmentRequest } from './dto/risk-assessment-request.dto';
 import { RiskAssessmentResponse } from './dto/risk-assessment-response.dto';
 import { firstValueFrom } from 'rxjs';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { UserService } from '../user/user.service';
 
 @Controller('ai')
 export class AiController {
-  constructor(
-    private readonly aiService: AiService,
-    private readonly userService: UserService,
-  ) {}
+  constructor(private readonly aiService: AiService) {}
 
   /**
    * Calculate similarity score between resume and job description
@@ -69,19 +64,7 @@ export class AiController {
     @Req() req: any,
     @Body() data: CoverLetterRequest,
   ): Promise<CoverLetterResponse> {
-    const limit = await this.userService.canGenerateAiCoverLetter(req.user.id);
-
-    if (!limit.allowed) {
-      throw new ForbiddenException(
-        'Cover letter generation limit reached for non-premium users',
-      );
-    }
-
-    const result = await firstValueFrom(
-      this.aiService.generateCoverLetter(data),
-    );
-    await this.userService.incrementCoverLetterGeneration(req.user.id);
-    return result;
+    return firstValueFrom(this.aiService.generateCoverLetter(data));
   }
 
   /**

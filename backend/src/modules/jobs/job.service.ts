@@ -63,29 +63,23 @@ export class JobService {
   private async createJobEmbedding(jobId: number, embedding: number[]) {
     const vectorValue = `[${embedding.join(',')}]`;
 
-    await this.prisma.$queryRaw`
-      WITH upsert AS (
-        INSERT INTO "JobEmbedding" (
-          "jobId",
-          "embedding",
-          "model",
-          "createdAt",
-          "updatedAt"
-        )
-        VALUES (
-          ${jobId},
-          ${vectorValue}::vector(768),
-          ${'all-mpnet-base-v2'},
-          NOW(),
-          NOW()
-        )
-        ON CONFLICT ("jobId")
-        DO UPDATE SET
-          "embedding" = EXCLUDED."embedding",
-          "model" = EXCLUDED."model",
-          "updatedAt" = NOW()
-      )
-      SELECT 1 FROM upsert
+    await this.prisma.jobEmbedding.upsert({
+      where: { jobId },
+      create: {
+        jobId,
+        model: 'all-mpnet-base-v2',
+      },
+      update: {
+        model: 'all-mpnet-base-v2',
+      },
+    });
+
+    await this.prisma.$executeRaw`
+      UPDATE "JobEmbedding"
+      SET
+        "embedding" = ${vectorValue}::vector(768),
+        "updatedAt" = NOW()
+      WHERE "jobId" = ${jobId}
     `;
   }
 

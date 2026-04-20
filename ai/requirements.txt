@@ -3,8 +3,7 @@ uvicorn
 torch 
 sentence-transformers
 spacy
-qwen-api
-dashscope
+requests
 python-dotenv
 pydantic-settings
 fastapi 

@@ -8,7 +8,6 @@ import { FileDown, Trash2, Pencil, Loader2, FileText } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
-import { useSubscriptionStatus } from "@/src/hooks/useUserApi";
 
 export default function ResumesPage() {
   const router = useRouter();
@@ -18,7 +17,6 @@ export default function ResumesPage() {
   const [downloadingId, setDownloadingId] = useState<number | null>(null);
   const [deletingId, setDeletingId] = useState<number | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const { data: subscription } = useSubscriptionStatus();
 
   // ✅ Hooks called at component level
   const deleteMutation = useDeleteResume();
@@ -201,7 +199,7 @@ export default function ResumesPage() {
                   {selectedResume &&
                     new Date(selectedResume.uploadedAt).toLocaleDateString()}
                 </span>
-                {subscription?.isPremium && selectedResume && (
+                {selectedResume && (
                   <span className="rounded-full bg-indigo-50 px-2 py-0.5 text-xs font-medium text-indigo-700">
                     Resume Score: {selectedResume.aiScore}%
                   </span>

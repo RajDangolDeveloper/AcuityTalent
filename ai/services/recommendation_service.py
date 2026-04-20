@@ -2,10 +2,29 @@ from dotenv import load_dotenv
 load_dotenv()
 
 import numpy as np
+import logging
 from sklearn.metrics.pairwise import cosine_similarity
 
 
+logger = logging.getLogger(__name__)
+
+
 class RecommendationService:
+
+    @staticmethod
+    def _extract_embedding_vector(entity):
+        if entity is None:
+            return None
+
+        vector = getattr(entity, 'embedding_vector', None)
+        if vector is not None:
+            return vector
+
+        embedding_relation = getattr(entity, 'embedding', None)
+        if embedding_relation is not None and hasattr(embedding_relation, 'embedding'):
+            return embedding_relation.embedding
+
+        return None
 
     @staticmethod
     def calculate_match_score(candidate, job, weights=None):
@@ -30,8 +49,11 @@ class RecommendationService:
         
         try:
             # 1. Semantic similarity (60% weight) - using embeddings from database
-            candidate_emb = np.array(candidate.embedding) if hasattr(candidate, 'embedding') and candidate.embedding else np.zeros(768)
-            job_emb = np.array(job.embedding) if hasattr(job, 'embedding') and job.embedding else np.zeros(768)
+            candidate_emb_source = RecommendationService._extract_embedding_vector(candidate)
+            job_emb_source = RecommendationService._extract_embedding_vector(job)
+
+            candidate_emb = np.array(candidate_emb_source) if candidate_emb_source is not None else np.zeros(768)
+            job_emb = np.array(job_emb_source) if job_emb_source is not None else np.zeros(768)
             
             if candidate_emb.sum() > 0 and job_emb.sum() > 0:
                 semantic_score = float(cosine_similarity(
@@ -76,5 +98,5 @@ class RecommendationService:
             return max(0.0, min(1.0, total_score))  # Clamp between 0 and 1
             
         except Exception as e:
-            print(f"Error calculating match score: {e}")
+            logger.exception("Error calculating match score")
             return 0.5  # Default score on error

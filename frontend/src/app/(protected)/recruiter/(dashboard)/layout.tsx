@@ -8,7 +8,6 @@ import CustomSidebar, {
 import {
   BriefcaseBusiness,
   Building2,
-  CreditCard,
   LayoutDashboard,
   LogOut,
   MessagesSquare,
@@ -55,11 +54,6 @@ export default async function ProtectedLayout({
             href="/recruiter/profile"
             label="Profile"
             icon={<User size={20} />}
-          />
-          <SidebarItem
-            href="/plans"
-            label="Plans"
-            icon={<CreditCard size={20} />}
           />
         </TopItems>
 

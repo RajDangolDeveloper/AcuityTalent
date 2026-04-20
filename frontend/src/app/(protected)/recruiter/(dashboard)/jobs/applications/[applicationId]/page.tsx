@@ -19,7 +19,6 @@ import {
 } from "@/src/hooks/useRecruiterApi";
 import { useGetCandidateById } from "@/src/hooks/useCandidateApi";
 import { useGetCurrentUser } from "@/src/hooks/useUserApi";
-import { useSubscriptionStatus } from "@/src/hooks/useUserApi";
 import CreateInterviewModal from "@/src/components/interview/CreateInterviewModal";
 import { useState } from "react";
 
@@ -38,8 +37,6 @@ export default function ApplicationDetailPage() {
   const candidateAccountQuery = useGetCurrentUser();
   const candidateProfileQuery = useGetCandidateById(application?.candidateId);
   const recruiterProfileQuery = useGetCurrentRecruiterProfile();
-  const { data: subscription } = useSubscriptionStatus();
-  const isPremium = subscription?.isPremium ?? false;
 
   const getCandidateCategory = (
     matchScore?: number,
@@ -176,17 +173,17 @@ export default function ApplicationDetailPage() {
                 </h2>
               </div>
               <div className="flex items-center gap-2">
-                {isPremium && application.matchScore != null && (
+                {application.matchScore != null && (
                   <span className="bg-teal-50 text-teal-700 border border-teal-200 px-3 py-1 rounded-full text-sm font-semibold shadow-sm">
                     {application.matchScore}% Compatible
                   </span>
                 )}
-                {isPremium && application.matchScore === null && (
+                {application.matchScore === null && (
                   <span className="bg-teal-50 text-teal-700 border border-teal-200 px-3 py-1 rounded-full text-sm font-semibold shadow-sm">
                     No Compatibility Score
                   </span>
                 )}
-                {isPremium && application.riskScore != null && (
+                {application.riskScore != null && (
                   <span
                     className={`px-3 py-1 rounded-full text-sm font-semibold shadow-sm border ${
                       application.riskScore >= 67
@@ -199,14 +196,14 @@ export default function ApplicationDetailPage() {
                     {application.riskScore}% Risk
                   </span>
                 )}
-                {isPremium && (
+                {
                   <span className="bg-indigo-50 text-indigo-700 border border-indigo-200 px-3 py-1 rounded-full text-sm font-semibold shadow-sm">
                     {getCandidateCategory(
                       application.matchScore,
                       application.riskScore,
                     )}
                   </span>
-                )}
+                }
               </div>
             </div>
 

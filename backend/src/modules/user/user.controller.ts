@@ -15,7 +15,6 @@ import {
   UploadedFile,
   HttpStatus,
 } from '@nestjs/common';
-import type { Response } from 'express';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import * as fs from 'fs';
@@ -78,32 +77,6 @@ export class UserController {
       statusCode: HttpStatus.OK,
       data: user,
     };
-  }
-
-  @Get('subscription/status')
-  async getSubscriptionStatus(@Req() req: any) {
-    return this.userService.getSubscriptionStatus(req.user.id);
-  }
-
-  @Post('subscription/esewa/initiate')
-  async initiateEsewaPayment(@Req() req: any) {
-    return this.userService.initiateEsewaPayment(req.user.id);
-  }
-
-  @Get('subscription/esewa/success')
-  async completeEsewaPayment(
-    @Req() req: any,
-    @Query('tx') tx: string,
-    @Res() res: Response,
-  ) {
-    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
-
-    const result = await this.userService.completeEsewaPayment(req.user.id, tx);
-    const status = result.success ? 'success' : 'failed';
-
-    return res.redirect(
-      `${frontendUrl}/plans?payment=${status}${tx ? `&tx=${tx}` : ''}`,
-    );
   }
 
   @Get('all')

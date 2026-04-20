@@ -47,14 +47,6 @@ export const HomeNavigationBar = () => {
         )}
         {session && (
           <Link
-            href="/plans"
-            className="px-6 text-xl text-gray-200 rounded-md decoration-2"
-          >
-            Plans
-          </Link>
-        )}
-        {session && (
-          <Link
             href={`/${session.user.role.toLowerCase()}/dashboard`}
             className="px-6 text-xl text-gray-200 rounded-md decoration-2"
           >

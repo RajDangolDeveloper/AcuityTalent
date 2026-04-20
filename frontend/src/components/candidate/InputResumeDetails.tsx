@@ -2,6 +2,7 @@ import React from "react";
 import apiClient from "@/src/app/api/api-client";
 import Notification from "@/src/element/Notification";
 import { Sparkles } from "lucide-react";
+import AiUsageBlock, { AiUsage } from "@/src/components/ai/AiUsageBlock";
 
 export interface ResumeData {
   fullName?: string;
@@ -39,9 +40,22 @@ interface ResumeDetailsProps {
   onChange: (r: ResumeData) => void;
 }
 
+interface ImproveTextResponse {
+  improved_text?: string;
+  raw_response?: string;
+  usage?: AiUsage;
+  response?: {
+    response?: string;
+    usage?: AiUsage;
+  };
+}
+
 const ResumeDetails: React.FC<ResumeDetailsProps> = ({ resume, onChange }) => {
   const [improvingField, setImprovingField] = React.useState<string | null>(
     null,
+  );
+  const [latestAiUsage, setLatestAiUsage] = React.useState<AiUsage | undefined>(
+    undefined,
   );
 
   const update = (patch: Partial<ResumeData>) => {
@@ -65,7 +79,7 @@ const ResumeDetails: React.FC<ResumeDetailsProps> = ({ resume, onChange }) => {
 
     try {
       setImprovingField(fieldId);
-      const response = await apiClient.post<{ improved_text: string }>(
+      const response = await apiClient.post<ImproveTextResponse>(
         "/ai/improve-text",
         {
           text: normalized,
@@ -73,7 +87,11 @@ const ResumeDetails: React.FC<ResumeDetailsProps> = ({ resume, onChange }) => {
         },
       );
 
-      const improved = response.data?.improved_text?.trim();
+      const improved =
+        response.data?.improved_text?.trim() ||
+        response.data?.raw_response?.trim() ||
+        response.data?.response?.response?.trim();
+      setLatestAiUsage(response.data?.usage || response.data?.response?.usage);
       if (!improved) {
         throw new Error("No improved text was returned");
       }
@@ -271,6 +289,8 @@ const ResumeDetails: React.FC<ResumeDetailsProps> = ({ resume, onChange }) => {
           />
         </div>
       </div>
+
+      <AiUsageBlock usage={latestAiUsage} />
 
       {/* personal details */}
       <section className="p-5 border border-gray-300 drop-shadow-xl rounded-md ">

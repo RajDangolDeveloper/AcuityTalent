@@ -43,8 +43,39 @@ docker compose down -v
 
 - Backend uses `AI_SERVICE_URL` and defaults to `http://127.0.0.1:8000/api` for non-Docker local runs.
 - Backend and AI both connect to the `db` service via the internal Docker network.
-- Optional AI keys can be passed via environment variables when starting compose:
+
+### Environment Variables
+
+For the AI service, set these variables:
 
 ```bash
-QWEN_API_KEY=your_key DASHSCOPE_API_KEY=your_key docker compose up --build
+CLOUDFLARE_ACCOUNT_ID=your_account_id
+CLOUDFLARE_API_TOKEN=your_token
+```
+
+Optional AI tuning variables:
+
+```bash
+CLOUDFLARE_AI_BASE_URL=https://api.cloudflare.com/client/v4
+CLOUDFLARE_AI_MODEL=@cf/meta/llama-3-8b-instruct
+CLOUDFLARE_MAX_OUTPUT_TOKENS=1024
+CLOUDFLARE_TEMPERATURE=0.7
+CLOUDFLARE_TOP_P=0.9
+CLOUDFLARE_TIMEOUT_SECONDS=120
+```
+
+Common app variables:
+
+```bash
+DATABASE_URL=postgresql://prisma:password@localhost:5432/acuitytalentdb
+AI_SERVICE_URL=http://127.0.0.1:8000/api
+FRONTEND_URL=http://localhost:3000
+BACKEND_URL=http://localhost:4000
+DEBUG=True
+```
+
+Optional environment variables when starting compose:
+
+```bash
+CLOUDFLARE_ACCOUNT_ID=your_account_id CLOUDFLARE_API_TOKEN=your_token docker compose up --build
 ```

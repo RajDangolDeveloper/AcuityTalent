@@ -26,6 +26,7 @@ from services.nlp_service import nlp_handler
 from services.scorer_service import ResumeScorer
 from services.qwen_services import (
     CoverLetterService,
+    LLMClientError,
     ProfessionalRewriteService,
     ResumeReviewService,
 )
@@ -33,8 +34,10 @@ from services.recommendation_service import RecommendationService
 import numpy as np
 from datetime import datetime, timezone
 import re
+import logging
 
 router = APIRouter()
+logger = logging.getLogger(__name__)
 
 resume_scorer = ResumeScorer()
 cover_letter_service = CoverLetterService()
@@ -158,50 +161,92 @@ def _risk_label(score: float) -> str:
 
 @router.post("/getscore", response_model=MatchResponse)
 async def get_score(data: MatchRequest):
+    logger.info("POST /getscore resume_chars=%d job_chars=%d", len(data.resume_text or ""), len(data.job_description or ""))
     score = nlp_handler.calculate_similarity(data.resume_text, data.job_description)
+    logger.info("POST /getscore success similarity_score=%.4f", score)
     return {"similarity_score": score, "status": "success"}
 
 
 @router.post("/matching-score", response_model=MatchResponse)
 async def get_matching_score(data: MatchRequest):
+    logger.info("POST /matching-score resume_chars=%d job_chars=%d", len(data.resume_text or ""), len(data.job_description or ""))
     score = nlp_handler.calculate_similarity(data.resume_text, data.job_description)
+    logger.info("POST /matching-score success similarity_score=%.4f", score)
     return {"similarity_score": score, "status": "success"}
 
 
 @router.post("/resume-score", response_model=ScoreResponse)
 async def get_resume_score(data: ScoreRequest):
+    logger.info("POST /resume-score resume_chars=%d job_chars=%d", len(data.resume_text or ""), len(data.job_description or ""))
     result = resume_scorer.score_resume(data.resume_text, data.job_description)
+    logger.info("POST /resume-score success total_score=%.2f", result["total_score"])
     return {"resume_score": result["total_score"], "status": "success"}
 
 
 @router.post("/generate-cover-letter", response_model=CoverLetterResponse)
 async def generate_cover_letter(data: CoverLetterRequest):
-    cover_letter = cover_letter_service.generate_cover_letter(
-        data.resume_text, data.job_description
+    logger.info(
+        "POST /generate-cover-letter resume_chars=%d job_chars=%d",
+        len(data.resume_text or ""),
+        len(data.job_description or ""),
     )
-    return {"cover_letter": cover_letter, "status": "success"}
+    try:
+        cover_letter = cover_letter_service.generate_cover_letter(
+            data.resume_text, data.job_description
+        )
+        logger.info("POST /generate-cover-letter success output_chars=%d", len(cover_letter or ""))
+        return {"cover_letter": cover_letter, "status": "success"}
+    except LLMClientError as exc:
+        logger.error("POST /generate-cover-letter failed status_code=%d detail=%s", exc.status_code, exc.message)
+        raise HTTPException(status_code=exc.status_code, detail=exc.message) from exc
 
 
 @router.post("/improve-text", response_model=RewriteResponse)
 async def improve_text(data: RewriteRequest):
-    improved = rewrite_service.improve_text(data.text, data.topic)
-    return {"improved_text": improved, "status": "success"}
+    logger.info("POST /improve-text text_chars=%d topic_present=%s", len(data.text or ""), bool(data.topic))
+    try:
+        improved = rewrite_service.improve_text(data.text, data.topic)
+        logger.info("POST /improve-text success output_chars=%d", len(improved or ""))
+        return {"improved_text": improved, "status": "success"}
+    except LLMClientError as exc:
+        logger.error("POST /improve-text failed status_code=%d detail=%s", exc.status_code, exc.message)
+        raise HTTPException(status_code=exc.status_code, detail=exc.message) from exc
 
 
 @router.post("/review-resume", response_model=ReviewResponse)
 async def review_resume(data: ReviewRequest):
-    parts = resume_review_service.review_resume(data.resume_text)
-    return {
-        "summary": parts.get("summary", ""),
-        "strength": parts.get("strength", ""),
-        "changes": parts.get("changes", ""),
-        "tips": parts.get("tips", ""),
-        "status": "success",
-    }
+    logger.info("POST /review-resume resume_chars=%d", len(data.resume_text or ""))
+    try:
+        parts = resume_review_service.review_resume(data.resume_text)
+        logger.info(
+            "POST /review-resume success summary_chars=%d strength_chars=%d changes_chars=%d tips_chars=%d",
+            len(parts.get("summary", "")),
+            len(parts.get("strength", "")),
+            len(parts.get("changes", "")),
+            len(parts.get("tips", "")),
+        )
+        return {
+            "summary": parts.get("summary", ""),
+            "strength": parts.get("strength", ""),
+            "changes": parts.get("changes", ""),
+            "tips": parts.get("tips", ""),
+            "status": "success",
+        }
+    except LLMClientError as exc:
+        logger.error("POST /review-resume failed status_code=%d detail=%s", exc.status_code, exc.message)
+        raise HTTPException(status_code=exc.status_code, detail=exc.message) from exc
 
 
 @router.post("/risk-assessment", response_model=RiskAssessmentResponse)
 async def calculate_risk_assessment(data: RiskAssessmentRequest):
+    logger.info(
+        "POST /risk-assessment skills_count=%d has_expected_salary=%s has_offered_salary=%s work_history_count=%d interviews_count=%d",
+        len(data.candidate_skills or []),
+        data.expected_salary is not None,
+        data.offered_salary is not None,
+        len(data.work_history or []),
+        len(data.interviews or []),
+    )
     weights = {
         "stability": 0.4,
         "skill_gap": 0.3,
@@ -222,6 +267,7 @@ async def calculate_risk_assessment(data: RiskAssessmentRequest):
     )
 
     total_risk = _clamp_0_1(total_risk)
+    logger.info("POST /risk-assessment success risk_score=%.4f risk_label=%s", total_risk, _risk_label(total_risk))
 
     return {
         "risk_score": round(total_risk, 4),
@@ -235,7 +281,9 @@ async def calculate_risk_assessment(data: RiskAssessmentRequest):
 
 @router.get("/testdatabase")
 def test(db: Session = Depends(get_db)):
+    logger.info("GET /testdatabase")
     users = db.query(User).limit(5).all()
+    logger.info("GET /testdatabase success users=%d", len(users))
     return {"users": len(users), "status": "success"}
 
 @router.get("/candidates/{candidate_id}/recommendations", response_model=JobRecommendationsListResponse)
@@ -244,6 +292,7 @@ def recommend_jobs_for_candidate(
     top_k: int = Query(10, ge=1, le=100),
     db: Session = Depends(get_db)
 ):
+    logger.info("GET /candidates/%s/recommendations top_k=%d", candidate_id, top_k)
     try:
         # 1. Fetch Candidate Profile and their Embedding
         candidate = db.query(CandidateProfile).filter(CandidateProfile.id == candidate_id).first()
@@ -260,12 +309,13 @@ def recommend_jobs_for_candidate(
         # 2. Database Pre-filter (Vector Search)
         # Fetch top 50 matches via SQL vector distance, then refine them in Python
         candidate_vector = candidate_emb_record.embedding
+        candidate_vector_list = candidate_vector.tolist() if hasattr(candidate_vector, 'tolist') else list(candidate_vector)
         
         stmt = (
             select(Job, JobEmbedding.embedding)
             .join(JobEmbedding, Job.id == JobEmbedding.jobId)
             .where(JobEmbedding.embedding.isnot(None))
-            .order_by(JobEmbedding.embedding.cosine_distance(candidate_vector))
+            .order_by(JobEmbedding.embedding.cosine_distance(candidate_vector_list))
             .limit(50)
         )
         
@@ -277,13 +327,14 @@ def recommend_jobs_for_candidate(
         # 3. Apply Weighted Scoring Logic
         scored_jobs = []
         candidate_vec_np = _to_vector_array(candidate_vector)
+        candidate_vec_list = candidate_vec_np.tolist()
 
         for job_record, job_vector in results:
             job_vec_np = _to_vector_array(job_vector)
-            
-            # Temporarily attach vectors to objects for scoring function
-            job_record.embedding = job_vec_np
-            candidate.embedding = candidate_vec_np
+
+            # Attach vectors on dedicated attributes so ORM relationships stay intact.
+            job_record.embedding_vector = job_vec_np
+            candidate.embedding_vector = candidate_vec_list
             
             # Calculate weighted match score
             score = RecommendationService.calculate_match_score(candidate, job_record)
@@ -299,17 +350,24 @@ def recommend_jobs_for_candidate(
         # 4. Final Sort by Weighted Score
         scored_jobs.sort(key=lambda x: x['match_score'], reverse=True)
 
+        logger.info(
+            "GET /candidates/%s/recommendations success prefiltered=%d returned=%d",
+            candidate_id,
+            len(scored_jobs),
+            len(scored_jobs[:top_k]),
+        )
+
         return {"recommendations": scored_jobs[:top_k], "total_count": len(scored_jobs), "status": "success"}
 
     except HTTPException:
         raise
     except Exception as e:
-        print(f"Error in recommendation endpoint: {e}")
-        import traceback
-        traceback.print_exc()
+        logger.exception("Recommendation endpoint failed candidate_id=%s", candidate_id)
         raise HTTPException(status_code=500, detail=f"Recommendation error: {str(e)}")
 
 @router.post("/embeddings", response_model=EmbeddingResponse)
 def create_embedding(request: EmbeddingRequest):
+    logger.info("POST /embeddings text_chars=%d", len(request.text or ""))
     embedding = createTextEmbedding(request.text) 
+    logger.info("POST /embeddings success vector_length=%d", len(embedding))
     return EmbeddingResponse(embedding=embedding)

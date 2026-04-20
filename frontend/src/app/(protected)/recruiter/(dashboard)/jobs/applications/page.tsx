@@ -19,7 +19,6 @@ import {
   useGetRecruiterJobs,
   useJobApplications,
 } from "@/src/hooks/useRecruiterApi";
-import { useSubscriptionStatus } from "@/src/hooks/useUserApi";
 
 export default function JobsPage() {
   useEffect(() => {
@@ -37,8 +36,6 @@ export default function JobsPage() {
   const { data: jobsData, isLoading: jobsLoading } = useGetRecruiterJobs(1, 50);
   const { data: candidatesData, isLoading: candidatesLoading } =
     useJobApplications(selectedJobId || 0, page);
-  const { data: subscription } = useSubscriptionStatus();
-  const isPremium = subscription?.isPremium ?? false;
 
   const jobs = jobsData?.data || [];
   const candidates = candidatesData?.data || [];
@@ -254,35 +251,33 @@ export default function JobsPage() {
                                   {candidate.candidateName}
                                 </h3>
                                 <div className="flex items-center gap-2 flex-wrap">
-                                  {isPremium &&
-                                    candidate.matchScore !== undefined && (
-                                      <span className="bg-teal-100 text-teal-800 px-3 py-1 rounded-full text-sm font-semibold">
-                                        {Math.round(candidate.matchScore)}%
-                                        Compatible
-                                      </span>
-                                    )}
-                                  {isPremium &&
-                                    candidate.riskScore !== undefined && (
-                                      <span
-                                        className={`px-3 py-1 rounded-full text-sm font-semibold ${
-                                          candidate.riskScore >= 67
-                                            ? "bg-red-100 text-red-800"
-                                            : candidate.riskScore >= 34
-                                              ? "bg-amber-100 text-amber-800"
-                                              : "bg-emerald-100 text-emerald-800"
-                                        }`}
-                                      >
-                                        {Math.round(candidate.riskScore)}% Risk
-                                      </span>
-                                    )}
-                                  {isPremium && (
+                                  {candidate.matchScore !== undefined && (
+                                    <span className="bg-teal-100 text-teal-800 px-3 py-1 rounded-full text-sm font-semibold">
+                                      {Math.round(candidate.matchScore)}%
+                                      Compatible
+                                    </span>
+                                  )}
+                                  {candidate.riskScore !== undefined && (
+                                    <span
+                                      className={`px-3 py-1 rounded-full text-sm font-semibold ${
+                                        candidate.riskScore >= 67
+                                          ? "bg-red-100 text-red-800"
+                                          : candidate.riskScore >= 34
+                                            ? "bg-amber-100 text-amber-800"
+                                            : "bg-emerald-100 text-emerald-800"
+                                      }`}
+                                    >
+                                      {Math.round(candidate.riskScore)}% Risk
+                                    </span>
+                                  )}
+                                  {
                                     <span className="bg-indigo-100 text-indigo-800 px-3 py-1 rounded-full text-sm font-semibold">
                                       {getCandidateCategory(
                                         candidate.matchScore,
                                         candidate.riskScore,
                                       )}
                                     </span>
-                                  )}
+                                  }
                                 </div>
                               </div>
 
@@ -352,7 +347,7 @@ export default function JobsPage() {
                               candidate={candidate}
                               job={selectedJob}
                               showModal={true}
-                              showPremiumAnalytics={isPremium}
+                              showPremiumAnalytics={true}
                             />
                           </div>
                         </Link>

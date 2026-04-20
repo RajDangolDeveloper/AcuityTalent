@@ -4,15 +4,26 @@ load_dotenv()
 import spacy
 from spacy.matcher import PhraseMatcher
 from sentence_transformers import SentenceTransformer, util
+import logging
+
+
+logger = logging.getLogger(__name__)
 
 class ResumeScorer:
     def __init__(self):
+        logger.info("Initializing ResumeScorer")
         self.nlp = spacy.load("en_core_web_md")
         self.similarity_model = SentenceTransformer('all-MiniLM-L6-v2')
+        logger.info("ResumeScorer initialized with spaCy en_core_web_md and all-MiniLM-L6-v2")
 
 
         
     def score_resume(self, resume_text: str, jd_text: str):
+        logger.info(
+            "ResumeScorer.score_resume resume_chars=%d jd_chars=%d",
+            len(resume_text or ""),
+            len(jd_text or ""),
+        )
     
         keyword_score = self._get_keyword_score(resume_text, jd_text) * 0.40
         
@@ -23,6 +34,14 @@ class ResumeScorer:
         parse_score = self._get_parse_score(resume_text) * 0.10
         
         total = keyword_score + title_score + edu_score + parse_score
+        logger.info(
+            "ResumeScorer.score_resume success total=%.2f keyword=%.2f title=%.2f edu=%.2f parse=%.2f",
+            total,
+            keyword_score,
+            title_score,
+            edu_score,
+            parse_score,
+        )
         return {
             "total_score": round(total, 2),
             "breakdown": {
