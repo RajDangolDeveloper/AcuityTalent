@@ -8,7 +8,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#ffffff",
     fontFamily: "Helvetica",
     borderLeftWidth: 8,
-    borderLeftColor: "#16a34a", // green-600
+    borderLeftColor: "#16a34a", 
   },
   container: {
     maxWidth: 800,
@@ -27,7 +27,7 @@ const styles = StyleSheet.create({
   name: {
     fontSize: 24,
     fontWeight: "bold",
-    color: "#1f2937", // gray-800
+    color: "#1f2937", 
     marginBottom: 4,
   },
   contactInfo: {
@@ -35,7 +35,7 @@ const styles = StyleSheet.create({
   },
   contactLine: {
     fontSize: 10,
-    color: "#4b5563", // gray-600
+    color: "#4b5563", 
     marginBottom: 2,
   },
   sectionTitleLeft: {
@@ -43,7 +43,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     textTransform: "uppercase",
     letterSpacing: 1,
-    color: "#16a34a", // green-700 (original used green-700)
+    color: "#16a34a", 
     marginBottom: 8,
   },
   skillsContainer: {
@@ -52,25 +52,25 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   skillBadge: {
-    backgroundColor: "#dcfce7", // green-100
+    backgroundColor: "#dcfce7", 
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 4,
     fontSize: 10,
     fontWeight: "medium",
-    color: "#166534", // green-800
+    color: "#166534", 
   },
   sectionTitleRight: {
     fontSize: 16,
     fontWeight: "bold",
     borderBottomWidth: 2,
-    borderBottomColor: "#16a34a", // green-600
+    borderBottomColor: "#16a34a", 
     paddingBottom: 2,
     marginBottom: 8,
   },
   summaryText: {
     fontSize: 10,
-    color: "#374151", // gray-700
+    color: "#374151", 
     lineHeight: 1.5,
     marginBottom: 8,
   },
@@ -129,7 +129,7 @@ const styles = StyleSheet.create({
 export const SpecialistPDFTemplate: React.FC<{ data: ResumeData }> = ({
   data,
 }) => {
-  // Extract optional fields to local constants for type safety
+  
   const skills = data.skills;
   const experience = data.experience;
   const education = data.education;
@@ -140,7 +140,7 @@ export const SpecialistPDFTemplate: React.FC<{ data: ResumeData }> = ({
       <Page size="A4" style={styles.page}>
         <View style={styles.container}>
           <View style={styles.row}>
-            {/* Left Column */}
+            {}
             <View style={styles.leftColumn}>
               <Text style={styles.name}>{data.fullName}</Text>
               <View style={styles.contactInfo}>
@@ -171,7 +171,7 @@ export const SpecialistPDFTemplate: React.FC<{ data: ResumeData }> = ({
               )}
             </View>
 
-            {/* Right Column */}
+            {}
             <View style={styles.rightColumn}>
               {summary && (
                 <View>

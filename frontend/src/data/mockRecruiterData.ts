@@ -1,5 +1,5 @@
-// Temporary mock data for visualizing jobs and candidates
-// Import these in pages/components while backend is not available
+
+
 
 import type { Job, CandidateApplication } from "@/src/types/recruiter";
 
@@ -80,7 +80,7 @@ export const mockCandidates: CandidateApplication[] = [
     status: "APPLIED",
     matchScore: 90,
     appliedAt: "2025-10-11T09:00:00Z",
-    // sample public video for hover preview
+    
     videoUrl: "https://www.w3schools.com/html/mov_bbb.mp4",
   } as any,
   {
@@ -127,15 +127,15 @@ export const mockCandidates: CandidateApplication[] = [
   } as any,
 ];
 
-/**
- * Return mock candidates for a given job id (simple mapping for visualization)
- */
+
+
+
 export function getMockCandidatesForJob(jobId: number): CandidateApplication[] {
-  // Simple deterministic mapping: rotate through the mockCandidates
+  
   const results: CandidateApplication[] = [];
   for (let i = 0; i < (Math.abs(jobId) % 4) + 1; i++) {
     const source = mockCandidates[(jobId + i) % mockCandidates.length];
-    // clone and tweak appliedAt to vary
+    
     results.push({
       ...source,
       id: source.id + jobId * 10,

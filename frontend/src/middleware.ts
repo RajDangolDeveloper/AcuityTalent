@@ -79,17 +79,17 @@ export default withAuth(
     callbacks: {
       authorized: ({ token, req }) => {
         const { pathname } = req.nextUrl;
-        // Public routes (no token required)
+        
         if (
           pathname.includes("/login") ||
           pathname.includes("/register") ||
           pathname === "/" ||
-          pathname.startsWith("/api/auth") // Important: allow NextAuth API routes
+          pathname.startsWith("/api/auth") 
         ) {
           return true;
         }
 
-        // Protected routes require token
+        
         if (
           pathname.startsWith("/dashboard") ||
           pathname.startsWith("/admin") ||
@@ -98,10 +98,10 @@ export default withAuth(
           pathname.startsWith("/profile") ||
           pathname.startsWith("/settings")
         ) {
-          return !!token; // Must have valid token
+          return !!token; 
         }
 
-        // Default: allow
+        
         return true;
       },
     },

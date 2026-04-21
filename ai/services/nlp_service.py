@@ -10,10 +10,10 @@ class NLPService:
         embeddings = self.model.encode([text1, text2], convert_to_tensor=True)
         score = util.cos_sim(embeddings[0], embeddings[1])
         percent = score.item() * 100
-        # convert cosine similarity (0–1) into a percentage 0–100
+
         return math.floor(percent)
     
     
 
-# Singleton instance
+
 nlp_handler = NLPService("sentence-transformers/all-mpnet-base-v2")

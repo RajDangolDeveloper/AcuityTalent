@@ -10,7 +10,7 @@ datasource db {
   extensions = [vector]
 }
 
-// User Role Enum
+
 enum Role {
   CANDIDATE
   RECRUITER
@@ -41,17 +41,17 @@ enum ParticipantRole {
   OBSERVER
 }
 
-// Company Size Enum
+
 enum CompanySize {
-  ONE_TO_TEN // "1-10"
-  ELEVEN_TO_FIFTY // "11-50"
-  FIFTY_ONE_TO_TWO_HUNDRED // "51-200"
-  TWO_HUNDRED_ONE_TO_FIVE_HUNDRED // "201-500"
-  FIVE_HUNDRED_ONE_TO_THOUSAND // "501-1000"
-  THOUSAND_PLUS // "1000+"
+  ONE_TO_TEN 
+  ELEVEN_TO_FIFTY 
+  FIFTY_ONE_TO_TWO_HUNDRED 
+  TWO_HUNDRED_ONE_TO_FIVE_HUNDRED 
+  FIVE_HUNDRED_ONE_TO_THOUSAND 
+  THOUSAND_PLUS 
 }
 
-// Industry Enum (common industries)
+
 enum Industry {
   TECHNOLOGY
   HEALTHCARE
@@ -79,7 +79,7 @@ enum LocationType {
   ONSITE
 }
 
-// Employment Type Enum
+
 enum EmploymentType {
   FULL_TIME
   PART_TIME
@@ -89,7 +89,7 @@ enum EmploymentType {
   FREELANCE
 }
 
-// Experience Level Enum
+
 enum ExperienceLevel {
   ENTRY
   MID
@@ -97,7 +97,7 @@ enum ExperienceLevel {
   EXECUTIVE
 }
 
-// Job Status Enum
+
 enum JobStatus {
   DRAFT
   ACTIVE
@@ -105,7 +105,7 @@ enum JobStatus {
   ARCHIVED
 }
 
-// Application Status Enum
+
 enum ApplicationStatus {
   APPLIED
   REVIEWED
@@ -135,7 +135,7 @@ enum InterviewStatus {
   NO_SHOW
 }
 
-// Education Level Enum
+
 enum EducationLevel {
   HIGH_SCHOOL
   ASSOCIATE
@@ -147,7 +147,7 @@ enum EducationLevel {
   OTHER
 }
 
-// Resume File Type Enum
+
 enum FileType {
   PDF
   DOCX
@@ -163,7 +163,7 @@ model User {
   lastName     String?
   profilePictureUrl String?
   contactPhone String?
-  contactEmail String? // Can be different from login email
+  contactEmail String? 
   role         Role
   subscriptionPlan SubscriptionPlan @default(NON_PREMIUM)
   coverLetterGenerationCount Int @default(0)
@@ -173,7 +173,7 @@ model User {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @default(now()) @updatedAt
 
-  // Existing Relationships
+  
   otps      Otp[]
   recruiter RecruiterProfile?
   candidate CandidateProfile?
@@ -207,7 +207,7 @@ model Otp {
   expiresAt DateTime
   createdAt DateTime @default(now())
 
-  // Relationships
+  
   user User @relation(fields: [email], references: [email], onDelete: Cascade)
 
   @@index([email])
@@ -229,10 +229,10 @@ model Company {
   createdAt        DateTime     @default(now())
   updatedAt        DateTime     @default(now()) @updatedAt
 
-  // Relationships
+  
   recruiters RecruiterProfile[]
-  employees  CandidateProfile[] // Candidates currently working at this company
-  jobs       Job[] // Jobs posted by this company
+  employees  CandidateProfile[] 
+  jobs       Job[] 
 
   owner            User      @relation(fields: [ownerId], references: [id], onDelete: Cascade)
 
@@ -249,7 +249,7 @@ model RecruiterProfile {
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
-  // Relationships
+  
   user                User        @relation(fields: [userId], references: [id], onDelete: Cascade)
   company             Company     @relation(fields: [companyId], references: [id], onDelete: Cascade)
   jobs                Job[]
@@ -267,20 +267,20 @@ model CandidateProfile {
   currentCompanyId  Int?
   experienceYears   Int?
   highestDegree     EducationLevel?
-  skills            String[] // Changed to array type
+  skills            String[] 
   preferredLocation String?
   preferredJobType  EmploymentType?
   expectedSalary    Float?
   embedding         CandidateProfileEmbedding?
   linkedinUrl       String?
   githubUrl         String?
-  phone             String? // Candidate contact phone
-  location          String? // Current location
-  summary           String? // Professional summary
+  phone             String? 
+  location          String? 
+  summary           String? 
   createdAt         DateTime                   @default(now())
   updatedAt         DateTime                   @updatedAt
 
-  // Relationships
+  
   user             User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
   currentCompany   Company?               @relation(fields: [currentCompanyId], references: [id], onDelete: SetNull)
   resumes          Resume[]
@@ -291,7 +291,7 @@ model CandidateProfile {
   interviewsJoined InterviewParticipant[]
 
   @@index([userId])
-  @@index([skills]) // PostgreSQL supports GIN indexes on arrays
+  @@index([skills]) 
   @@index([experienceYears])
   @@index([highestDegree])
 }
@@ -321,7 +321,7 @@ model WorkExperience {
   description String?
   createdAt   DateTime  @default(now())
 
-  // Relationships
+  
   candidate CandidateProfile @relation(fields: [candidateId], references: [id], onDelete: Cascade)
 
   @@index([candidateId])
@@ -339,7 +339,7 @@ model Education {
   description  String?
   createdAt    DateTime       @default(now())
 
-  // Relationships
+  
   candidate CandidateProfile @relation(fields: [candidateId], references: [id], onDelete: Cascade)
 
   @@index([candidateId])
@@ -347,8 +347,8 @@ model Education {
 
 model Job {
   id                  Int              @id @default(autoincrement())
-  companyId           Int // Direct company reference
-  recruiterId         Int // Recruiter who posted the job
+  companyId           Int 
+  recruiterId         Int 
   title               String
   description         String
   requirements        String?
@@ -366,7 +366,7 @@ model Job {
   createdAt           DateTime         @default(now())
   updatedAt           DateTime         @updatedAt
 
-  // Relationships
+  
   company      Company          @relation(fields: [companyId], references: [id], onDelete: Cascade)
   recruiter    RecruiterProfile @relation(fields: [recruiterId], references: [id], onDelete: Cascade)
   applications Application[]
@@ -398,17 +398,17 @@ model JobEmbedding {
 model Resume {
   id          Int       @id @default(autoincrement())
   candidateId Int
-  filePath    String // S3 URL or local path
+  filePath    String 
   fileName    String
   fileType    FileType
-  fileSize    Int // in bytes
-  aiScore     Int // in percentage
-  resumeText  String? // Full Json stringified for Editing purposes
-  textContent String? // Extracted text for search
+  fileSize    Int 
+  aiScore     Int 
+  resumeText  String? 
+  textContent String? 
   uploadedAt  DateTime? @default(now())
   createdAt   DateTime  @default(now())
 
-  // Relationships
+  
   candidate    CandidateProfile @relation(fields: [candidateId], references: [id], onDelete: Cascade)
   applications Application[] 
 
@@ -424,12 +424,12 @@ model Application {
   coverLetter  String?
   status       ApplicationStatus @default(APPLIED)
   hadInterview Boolean           @default(false)
-  matchScore   Float? // AI matching score (0-100)
+  matchScore   Float? 
   appliedAt    DateTime          @default(now())
   reviewedAt   DateTime?
   updatedAt    DateTime          @updatedAt
 
-  // Relationships
+  
   candidate CandidateProfile @relation(fields: [candidateId], references: [id], onDelete: Cascade)
   job       Job              @relation(fields: [jobId], references: [id], onDelete: Cascade)
   resume    Resume           @relation(fields: [resumeId], references: [id], onDelete: Cascade)
@@ -450,7 +450,7 @@ model SavedJob {
   jobId       Int
   createdAt   DateTime @default(now())
 
-  // Relationships
+  
   candidate CandidateProfile @relation(fields: [candidateId], references: [id], onDelete: Cascade)
   job       Job              @relation(fields: [jobId], references: [id], onDelete: Cascade)
 
@@ -464,7 +464,7 @@ model InterviewParticipant {
   interviewId Int
   userId      Int
 
-  // WAITING (in queue), ACTIVE (in the video call), LEFT (finished)
+  
   role     ParticipantRole   @default(CANDIDATE)
   status   ParticipantStatus @default(WAITING)
   joinedAt DateTime?          @default(now())
@@ -487,7 +487,7 @@ model Interview {
   actualStartAt DateTime?
   actualEndAt   DateTime?
 
-  // EXISTING FIELDS
+  
   interviewType InterviewType
   status        InterviewStatus       
   scheduledAt   DateTime

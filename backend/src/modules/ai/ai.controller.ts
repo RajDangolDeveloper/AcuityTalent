@@ -32,33 +32,33 @@ import { PremiumGuard } from './guards/premium.guard';
 export class AiController {
   constructor(private readonly aiService: AiService) {}
 
-  /**
-   * Calculate similarity score between resume and job description
-   */
+  
+
+
   @Post('getscore')
   async getScore(@Body() data: MatchRequest): Promise<MatchResponse> {
     return firstValueFrom(this.aiService.getScore(data));
   }
 
-  /**
-   * Get matching score between resume and job description
-   */
+  
+
+
   @Post('matching-score')
   async getMatchingScore(@Body() data: MatchRequest): Promise<MatchResponse> {
     return firstValueFrom(this.aiService.getMatchingScore(data));
   }
 
-  /**
-   * Score a resume based on job description
-   */
+  
+
+
   @Post('resume-score')
   async getResumeScore(@Body() data: ScoreRequest): Promise<ScoreResponse> {
     return firstValueFrom(this.aiService.getResumeScore(data));
   }
 
-  /**
-   * Generate a professional cover letter
-   */
+  
+
+
   @Post('generate-cover-letter')
   @UseGuards(JwtAuthGuard, PremiumGuard)
   async generateCoverLetter(
@@ -68,18 +68,18 @@ export class AiController {
     return firstValueFrom(this.aiService.generateCoverLetter(data));
   }
 
-  /**
-   * Improve text (rewrite professionally)
-   */
+  
+
+
   @Post('improve-text')
   @UseGuards(JwtAuthGuard, PremiumGuard)
   async improveText(@Body() data: RewriteRequest): Promise<RewriteResponse> {
     return firstValueFrom(this.aiService.improveText(data));
   }
 
-  /**
-   * Review and provide feedback on a resume
-   */
+  
+
+
   @Post('review-resume')
   @UseGuards(JwtAuthGuard, PremiumGuard)
   async reviewResume(@Body() data: ReviewRequest): Promise<ReviewResponse> {
@@ -110,9 +110,9 @@ export class AiController {
     );
   }
 
-  /**
-   * Test database connection
-   */
+  
+
+
   @Get('testdatabase')
   async testDatabase(): Promise<any> {
     return firstValueFrom(this.aiService.testDatabase());

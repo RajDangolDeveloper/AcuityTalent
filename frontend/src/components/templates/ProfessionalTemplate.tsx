@@ -6,7 +6,7 @@ export const ProfessionalTemplate: React.FC<{ data: ResumeData }> = ({
 }) => {
   return (
     <div className="max-w-4xl min-h-screen mx-auto bg-white p-8 border-t-4 border-blue-600 shadow">
-      {/* Header */}
+      {}
       <div className="mb-6">
         <h1 className="text-3xl font-light text-gray-800">{data.fullName}</h1>
         <div className="flex flex-wrap gap-x-4 text-sm text-gray-600 mt-2">

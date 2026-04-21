@@ -6,7 +6,7 @@ import { Badge } from "./Badge";
 
 interface CandidateCardProps {
   candidate: CandidateApplication;
-  job?: any; // Optional job info
+  job?: any; 
   isSelected?: boolean;
   onClick?: () => void;
   showModal?: boolean;
@@ -27,10 +27,10 @@ export default function CandidateCard({
 
   const content = (
     <div className="flex items-start gap-4">
-      {/* Avatar */}
+      {}
       <div className="w-16 h-16 rounded-full bg-gray-300 shrink-0"></div>
 
-      {/* Content */}
+      {}
       <div className="flex-1 min-w-0">
         <div className="flex items-start justify-between gap-2">
           <div className="flex-1">
@@ -83,7 +83,7 @@ export default function CandidateCard({
         )}
       </div>
 
-      {/* Close button for modal */}
+      {}
       {showModal && (
         <button
           onClick={handleClose}

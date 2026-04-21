@@ -1,8 +1,8 @@
 import { EducationLevel } from '@prisma/client';
 
-/**
- * DTO for education response
- */
+
+
+
 export class EducationResponseDto {
   id: number;
   candidateId: number;

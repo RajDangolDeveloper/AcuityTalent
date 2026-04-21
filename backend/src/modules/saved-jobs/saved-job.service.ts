@@ -15,7 +15,7 @@ export class SavedJobService {
     userId: number,
     createDto: CreateSavedJobDto,
   ): Promise<SavedJobResponseDto> {
-    // Check if candidate profile exists
+    
     const candidate = await this.prisma.candidateProfile.findUnique({
       where: { userId },
     });
@@ -23,7 +23,7 @@ export class SavedJobService {
       throw new NotFoundException('Candidate profile not found');
     }
 
-    // Check if job exists
+    
     const job = await this.prisma.job.findUnique({
       where: { id: createDto.jobId },
     });
@@ -31,7 +31,7 @@ export class SavedJobService {
       throw new NotFoundException('Job not found');
     }
 
-    // Check if already saved
+    
     const existing = await this.prisma.savedJob.findUnique({
       where: {
         candidateId_jobId: {

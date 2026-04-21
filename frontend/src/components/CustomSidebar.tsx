@@ -65,12 +65,12 @@ export const BottomItems = ({ children }: SidebarSectionProps) => (
   <div className="flex flex-col">{children}</div>
 );
 
-// Main Sidebar Component
+
 interface CustomSidebarProps {
   variant?: "primary" | "secondary";
   className?: string;
   children: ReactNode;
-  defaultCollapsed?: boolean; // optional initial state
+  defaultCollapsed?: boolean; 
 }
 
 export default function CustomSidebar({
@@ -98,7 +98,7 @@ export default function CustomSidebar({
       >
         {children}
 
-        {/* Toggle button for primary variant */}
+        {}
         {variant === "primary" && (
           <button
             onClick={toggleCollapse}

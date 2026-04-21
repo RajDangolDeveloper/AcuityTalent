@@ -67,7 +67,7 @@ export const useUpdateResume = () => {
       return response.data.data;
     },
     onSuccess: async (updatedResume) => {
-      // Update cache
+      
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ["resumes"] }),
         queryClient.invalidateQueries({ queryKey: ["candidate-resumes"] }),

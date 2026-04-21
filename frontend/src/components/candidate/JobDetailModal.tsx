@@ -38,12 +38,12 @@ export default function JobDetailModal({
   const [coverLetter, setCoverLetter] = useState("");
   const [showApplyForm, setShowApplyForm] = useState(false);
 
-  // Mutations
+  
   const createApplicationMutation = useCreateApplication();
   const saveJobMutation = useSaveJob();
   const removeSavedJobMutation = useRemoveSavedJob();
 
-  // Queries
+  
   const { data: resumes = [] } = useCandidateResumes();
 
   if (!isOpen) return null;
@@ -64,7 +64,7 @@ export default function JobDetailModal({
         coverLetter,
       });
 
-      // Also save the job automatically
+      
       if (!isSaved) {
         await saveJobMutation.mutateAsync(job.id);
       }
@@ -74,7 +74,7 @@ export default function JobDetailModal({
         toastStatus: "success",
       });
 
-      // Reset form and close modal
+      
       setSelectedResumeId(null);
       setCoverLetter("");
       setShowApplyForm(false);
@@ -115,7 +115,7 @@ export default function JobDetailModal({
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
       <div className="bg-white rounded-lg max-w-3xl w-full max-h-[90vh] overflow-y-auto">
-        {/* Header */}
+        {}
         <div className="sticky top-0 bg-white border-b border-gray-200 p-6 flex items-start justify-between">
           <div className="flex-1">
             <h2 className="text-3xl font-bold text-gray-900 mb-2">
@@ -131,9 +131,9 @@ export default function JobDetailModal({
           </button>
         </div>
 
-        {/* Content */}
+        {}
         <div className="p-6">
-          {/* Meta Information */}
+          {}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
             <div className="bg-blue-50 p-4 rounded-lg">
               <div className="flex items-center gap-2 text-blue-600 mb-1">
@@ -179,7 +179,7 @@ export default function JobDetailModal({
             )}
           </div>
 
-          {/* About the Job */}
+          {}
           <div className="mb-6">
             <h3 className="text-2xl font-bold text-gray-900 mb-4">
               About the Job
@@ -189,7 +189,7 @@ export default function JobDetailModal({
             </div>
           </div>
 
-          {/* Requirements */}
+          {}
           {job.requirements && (
             <div className="mb-6">
               <h3 className="text-2xl font-bold text-gray-900 mb-4">
@@ -201,7 +201,7 @@ export default function JobDetailModal({
             </div>
           )}
 
-          {/* Job Posted Info */}
+          {}
           <div className="bg-gray-50 p-4 rounded-lg mb-6 text-sm text-gray-600">
             <p>
               Posted on{" "}
@@ -218,7 +218,7 @@ export default function JobDetailModal({
             )}
           </div>
 
-          {/* Apply Section */}
+          {}
           {!isApplied ? (
             !showApplyForm ? (
               <div className="flex gap-3">
@@ -246,7 +246,7 @@ export default function JobDetailModal({
                   Apply for this position
                 </h3>
 
-                {/* Resume Selection */}
+                {}
                 <div className="mb-6">
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
                     Select Resume <span className="text-red-500">*</span>
@@ -277,7 +277,7 @@ export default function JobDetailModal({
                   )}
                 </div>
 
-                {/* Cover Letter */}
+                {}
                 <div className="mb-6">
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
                     Cover Letter (Optional)
@@ -291,7 +291,7 @@ export default function JobDetailModal({
                   />
                 </div>
 
-                {/* Action Buttons */}
+                {}
                 <div className="flex gap-3">
                   <button
                     onClick={handleApply}

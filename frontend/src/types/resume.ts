@@ -16,7 +16,7 @@ export interface Resume {
   fileSize: number;
   aiScore: number;
   textContent?: string | null;
-  uploadedAt?: string | null; // ISO date string
+  uploadedAt?: string | null; 
   createdAt: string;
 }
 
@@ -32,7 +32,7 @@ export interface UpdateResumeDto {
 export interface UploadResumeParams {
   file: File;
   userId: number;
-  textContent?: string; // optional if not always needed
+  textContent?: string; 
 }
 
 export type TemplateKey = keyof typeof templates;

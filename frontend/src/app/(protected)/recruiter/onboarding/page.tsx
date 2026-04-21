@@ -52,7 +52,7 @@ const OnboardingFlow = () => {
     "OTHER",
   ];
 
-  // New State for Company Creation
+  
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -133,7 +133,7 @@ const OnboardingFlow = () => {
 
   return (
     <div className="min-h-screen bg-[linear-gradient(135deg,#380294_0%,#4d1b96_50%,#52507d_100%)] flex items-center justify-center p-4 relative font-sans">
-      {/* Step 1: Find Business */}
+      {}
       {step === 1 && (
         <div className="bg-white rounded-xl shadow-[0_10px_40px_rgba(0,0,0,0.2)] p-10 w-full max-w-[440px]">
           <h1 className="text-[32px] font-bold text-black mb-8">

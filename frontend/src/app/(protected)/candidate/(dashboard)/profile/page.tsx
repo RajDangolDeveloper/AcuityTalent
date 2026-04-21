@@ -193,7 +193,7 @@ export default function CandidateProfilePage() {
               </div>
             </div>
 
-            {/* Personal & Preferences */}
+            {}
             <div className="bg-white rounded-xl border border-gray-200 p-6 space-y-6">
               <div className="grid grid-cols-3 gap-4">
                 <div>
@@ -429,7 +429,7 @@ export default function CandidateProfilePage() {
               </div>
             </div>
 
-            {/* Experience */}
+            {}
             <div className="mt-8 bg-white rounded-xl border border-gray-200 p-6 space-y-4">
               <h2 className="text-lg font-semibold text-gray-900">
                 Experience
@@ -594,7 +594,7 @@ export default function CandidateProfilePage() {
               </div>
             </div>
 
-            {/* Education */}
+            {}
             <div className="mt-8 bg-white rounded-xl border border-gray-200 p-6 space-y-4">
               <h2 className="text-lg font-semibold text-gray-900">Education</h2>
               <div className="space-y-3">

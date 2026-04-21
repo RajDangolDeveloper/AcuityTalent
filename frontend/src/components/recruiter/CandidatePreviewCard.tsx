@@ -21,7 +21,7 @@ export default function CandidatePreviewCard({ candidate, onClick }: Props) {
         if (p && typeof p.catch === "function") p.catch(() => {});
       }
     } catch (e) {
-      // ignore
+      
     }
   };
 
@@ -32,7 +32,7 @@ export default function CandidatePreviewCard({ candidate, onClick }: Props) {
         videoRef.current.currentTime = 0;
       }
     } catch (e) {
-      // ignore
+      
     }
   };
 
@@ -80,9 +80,9 @@ export default function CandidatePreviewCard({ candidate, onClick }: Props) {
       </div>
 
       <div className="w-48 h-28 bg-gray-100 rounded-md overflow-hidden flex-shrink-0">
-        {/** If videoUrl exists, embed video; otherwise placeholder box */}
-        {/** expecting candidate.videoUrl (optional) */}
-        {"" as any /* placeholder to avoid TS errors if property missing */}
+        {}
+        {}
+        {"" as any }
         {(candidate as any).videoUrl ? (
           <video
             ref={videoRef}

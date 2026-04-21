@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-# Define Base here to avoid circular imports
+
 Base = declarative_base()
 
 DATABASE_URL = os.getenv("DATABASE_URL")

@@ -1,13 +1,13 @@
-/**
- * Utility functions for subscription entitlement checks on the frontend.
- * Mirrors backend EntitlementsService logic for consistency.
- */
+
+
+
+
 
 import { UserResponseDto } from "@/types/user";
 
-/**
- * Check if a user has an active premium subscription.
- */
+
+
+
 export function isPremiumUser(user: UserResponseDto | null): boolean {
   if (!user) return false;
   if (user.subscriptionPlan !== "PREMIUM") return false;
@@ -17,10 +17,10 @@ export function isPremiumUser(user: UserResponseDto | null): boolean {
   return expiresAt > new Date();
 }
 
-/**
- * Get days remaining on a premium subscription.
- * Returns null if not premium or already expired.
- */
+
+
+
+
 export function getDaysRemaining(user: UserResponseDto | null): number | null {
   if (!user || !user.subscriptionExpiresAt) return null;
 
@@ -36,9 +36,9 @@ export function getDaysRemaining(user: UserResponseDto | null): number | null {
   return daysRemaining;
 }
 
-/**
- * Format subscription expiry date for display.
- */
+
+
+
 export function formatExpiryDate(expiresAt: string | null): string {
   if (!expiresAt) return "None";
 
@@ -50,9 +50,9 @@ export function formatExpiryDate(expiresAt: string | null): string {
   });
 }
 
-/**
- * Get a human-readable subscription status string.
- */
+
+
+
 export function getSubscriptionStatusString(
   user: UserResponseDto | null,
 ): string {

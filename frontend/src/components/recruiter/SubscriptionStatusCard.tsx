@@ -15,10 +15,10 @@ interface SubscriptionStatusCardProps {
   variant?: "compact" | "full";
 }
 
-/**
- * Component to display user's subscription status.
- * Shows either a premium badge or an upgrade prompt.
- */
+
+
+
+
 export const SubscriptionStatusCard: React.FC<SubscriptionStatusCardProps> = ({
   user,
   variant = "full",

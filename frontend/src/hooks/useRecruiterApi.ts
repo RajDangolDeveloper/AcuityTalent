@@ -27,7 +27,7 @@ export const useGetRecruiterJobs = (page: number = 1, limit: number = 10) => {
   });
 };
 
-// Get job candidates/applications
+
 export const useJobApplications = (
   jobId: number,
   page: number = 1,
@@ -47,7 +47,7 @@ export const useJobApplications = (
   });
 };
 
-// Get application details with candidate profile
+
 export const useApplicationDetail = (applicationId: number) => {
   return useQuery({
     queryKey: ["application-detail", applicationId],
@@ -61,7 +61,7 @@ export const useApplicationDetail = (applicationId: number) => {
   });
 };
 
-// Get candidate profile
+
 export const useCandidateProfile = (candidateId: number) => {
   return useQuery({
     queryKey: ["candidate-profile", candidateId],
@@ -75,7 +75,7 @@ export const useCandidateProfile = (candidateId: number) => {
   });
 };
 
-// Update application status
+
 export const useUpdateApplicationStatus = () => {
   const queryClient = useQueryClient();
 
@@ -133,7 +133,7 @@ export const useUpdateApplicationStatus = () => {
   });
 };
 
-// Create job
+
 export const useCreateJob = () => {
   const queryClient = useQueryClient();
 
@@ -166,7 +166,7 @@ export const useCreateJob = () => {
   });
 };
 
-// Get recruiter's companies
+
 export const useGetRecruiterCompanies = () => {
   return useQuery({
     queryKey: ["recruiter-companies"],

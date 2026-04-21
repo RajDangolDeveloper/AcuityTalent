@@ -23,7 +23,7 @@ export interface UserResponseDto {
 }
 export interface CreateUserDto {
   email: string;
-  password: string; // Plaintext on the way in
+  password: string; 
   firstName?: string;
   lastName?: string;
   contactPhone?: string;

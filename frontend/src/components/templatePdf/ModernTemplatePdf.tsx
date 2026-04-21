@@ -20,7 +20,7 @@ const styles = StyleSheet.create({
   },
   sidebar: {
     width: "33.33%",
-    backgroundColor: "#4f46e5", // indigo-600 (a bit darker than indigo-700 to match)
+    backgroundColor: "#4f46e5", 
     padding: 16,
     color: "#ffffff",
   },
@@ -53,7 +53,7 @@ const styles = StyleSheet.create({
     fontWeight: "semibold",
     marginTop: 16,
     marginBottom: 8,
-    borderBottomWidth: 0, // no border in sidebar
+    borderBottomWidth: 0, 
   },
   skillItem: {
     marginBottom: 8,
@@ -65,7 +65,7 @@ const styles = StyleSheet.create({
   progressBarContainer: {
     width: "100%",
     height: 6,
-    backgroundColor: "#818cf8", // indigo-400
+    backgroundColor: "#818cf8", 
     borderRadius: 3,
     overflow: "hidden",
   },
@@ -175,11 +175,11 @@ export const ModernPDFTemplate: React.FC<{ data: ResumeData }> = ({ data }) => {
   return (
     <Document>
       <Page size="A4" style={styles.page}>
-        {/* Sidebar */}
+        {}
         <View style={styles.sidebar}>
           <Text style={styles.name}>{data.fullName}</Text>
 
-          {/* Contact info */}
+          {}
           <View>
             {data.email && (
               <View style={styles.contactItem}>
@@ -209,7 +209,7 @@ export const ModernPDFTemplate: React.FC<{ data: ResumeData }> = ({ data }) => {
             )}
           </View>
 
-          {/* Skills */}
+          {}
           {data.skills && data.skills.length > 0 && (
             <View>
               <Text style={[styles.sectionTitleSidebar, { marginTop: 24 }]}>
@@ -232,7 +232,7 @@ export const ModernPDFTemplate: React.FC<{ data: ResumeData }> = ({ data }) => {
           )}
         </View>
 
-        {/* Main Content */}
+        {}
         <View style={styles.main}>
           {data.summary && (
             <View>

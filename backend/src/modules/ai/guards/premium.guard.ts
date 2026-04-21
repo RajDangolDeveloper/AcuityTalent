@@ -6,12 +6,12 @@ import {
 } from '@nestjs/common';
 import { EntitlementsService } from '../../subscriptions/entitlements.service';
 
-/**
- * Guard that ensures the request user has an active premium subscription.
- * Used to gate premium AI features like improve-text, review-resume, generate-cover-letter.
- *
- * Usage: @UseGuards(JwtAuthGuard, PremiumGuard)
- */
+
+
+
+
+
+
 @Injectable()
 export class PremiumGuard implements CanActivate {
   constructor(private readonly entitlements: EntitlementsService) {}
@@ -19,14 +19,14 @@ export class PremiumGuard implements CanActivate {
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
 
-    // Expect user to be attached by JwtAuthGuard
+    
     if (!request.user || !request.user.id) {
       throw new ForbiddenException('User not authenticated');
     }
 
     const userId = request.user.id;
 
-    // Check if user has premium subscription
+    
     const isPremium = await this.entitlements.isCandidatePremium(userId);
 
     if (!isPremium) {

@@ -182,7 +182,7 @@ export default function CandidateDashboard() {
               <Computer size={50} />
             </div>
             <div>
-              {/* Replaced hardcoded 137 with dynamic data */}
+              {}
               <div className="text-3xl font-bold">{totalApplications}</div>
               <div className="text-xs text-gray-500">Total Applications</div>
             </div>

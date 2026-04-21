@@ -124,7 +124,7 @@ const AiReview: React.FC<AiReviewProps> = ({
 
     const sections: string[] = [];
 
-    // Personal Info
+    
     if (data.fullName || data.email || data.phone) {
       sections.push("PERSONAL INFORMATION");
       if (data.fullName) sections.push(`Name: ${data.fullName}`);
@@ -135,14 +135,14 @@ const AiReview: React.FC<AiReviewProps> = ({
       sections.push("");
     }
 
-    // Professional Summary
+    
     if (data.summary) {
       sections.push("PROFESSIONAL SUMMARY");
       sections.push(data.summary);
       sections.push("");
     }
 
-    // Experience
+    
     if (data.experience && data.experience.length > 0) {
       sections.push("WORK EXPERIENCE");
       data.experience.forEach((exp) => {
@@ -154,7 +154,7 @@ const AiReview: React.FC<AiReviewProps> = ({
       });
     }
 
-    // Education
+    
     if (data.education && data.education.length > 0) {
       sections.push("EDUCATION");
       data.education.forEach((edu) => {
@@ -166,7 +166,7 @@ const AiReview: React.FC<AiReviewProps> = ({
       });
     }
 
-    // Skills
+    
     if (data.skills && data.skills.length > 0) {
       sections.push("SKILLS");
       data.skills.forEach((skill) => {
@@ -218,11 +218,11 @@ const AiReview: React.FC<AiReviewProps> = ({
   };
 
   useEffect(() => {
-    // Auto-generate review when component mounts with resume data
+    
     if (resumeData && !review && !loading) {
       generateReview();
     }
-  }, []); // Only on mount
+  }, []); 
 
   return (
     <div className="p-6 h-full overflow-y-auto">
@@ -284,7 +284,7 @@ const AiReview: React.FC<AiReviewProps> = ({
           <div className="space-y-6">
             <AiUsageBlock usage={review.usage} />
 
-            {/* Summary */}
+            {}
             {review.summary && (
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                 <div className="flex items-start gap-3">
@@ -301,7 +301,7 @@ const AiReview: React.FC<AiReviewProps> = ({
               </div>
             )}
 
-            {/* Strengths */}
+            {}
             {review.strength && (
               <div className="bg-green-50 border border-green-200 rounded-lg p-4">
                 <div className="flex items-start gap-3">
@@ -318,7 +318,7 @@ const AiReview: React.FC<AiReviewProps> = ({
               </div>
             )}
 
-            {/* Areas for Improvement/Changes */}
+            {}
             {review.changes && (
               <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
                 <div className="flex items-start gap-3">
@@ -335,7 +335,7 @@ const AiReview: React.FC<AiReviewProps> = ({
               </div>
             )}
 
-            {/* Tips */}
+            {}
             {review.tips && (
               <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
                 <div className="flex items-start gap-3">
@@ -350,7 +350,7 @@ const AiReview: React.FC<AiReviewProps> = ({
               </div>
             )}
 
-            {/* Regenerate Button */}
+            {}
             <button
               onClick={generateReview}
               disabled={loading}

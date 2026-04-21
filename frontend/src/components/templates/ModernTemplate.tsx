@@ -37,7 +37,7 @@ export const ModernTemplate: React.FC<{ data: ResumeData }> = ({ data }) => {
           )}
         </div>
 
-        {/* Main content */}
+        {}
         <div className="col-span-2 p-6">
           {data.summary && (
             <section className="mb-6">

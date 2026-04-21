@@ -24,7 +24,7 @@ export default function CandidateJobsPage() {
   const [coverLetter, setCoverLetter] = useState("");
   const [showApplyForm, setShowApplyForm] = useState(false);
 
-  // Filters
+  
   const [filters, setFilters] = useState({
     location: "",
     employmentType: "" as EmploymentType | "",
@@ -32,7 +32,7 @@ export default function CandidateJobsPage() {
     remoteOnly: false,
   });
 
-  // Queries
+  
   const { data: jobsData, isLoading: jobsLoading } = getAllJobs(page, limit, {
     ...filters,
     search: searchTerm,
@@ -80,7 +80,7 @@ export default function CandidateJobsPage() {
         coverLetter,
       });
 
-      // Also save the job automatically
+      
       if (!savedJobIds.has(selectedJobId!)) {
         await saveJobMutation.mutateAsync(selectedJobId!);
       }
@@ -90,7 +90,7 @@ export default function CandidateJobsPage() {
         toastStatus: "success",
       });
 
-      // Reset form
+      
       setSelectedResumeId(null);
       setCoverLetter("");
       setShowApplyForm(false);
@@ -170,7 +170,7 @@ export default function CandidateJobsPage() {
               <option value="EXECUTIVE">Executive</option>
             </select>
 
-            {/* Remote Filter */}
+            {}
             <select
               value={filters.remoteOnly ? "remote" : ""}
               onChange={(e) =>
@@ -206,7 +206,7 @@ export default function CandidateJobsPage() {
               <option value="FREELANCE">Freelance</option>
             </select>
 
-            {/* Categories Filter */}
+            {}
             <select
               value={filters.location}
               onChange={(e) =>
@@ -223,7 +223,7 @@ export default function CandidateJobsPage() {
             </select>
           </div>
 
-          {/* Right: Search Bar */}
+          {}
           <form onSubmit={handleSearch} className="flex gap-2 w-80">
             <div className="flex-1 relative">
               <input
@@ -242,9 +242,9 @@ export default function CandidateJobsPage() {
         </div>
       </div>
 
-      {/* Main Content - Two Columns */}
+      {}
       <div className="flex flex-1 overflow-hidden">
-        {/* Left: Job List (Group 74 Style) */}
+        {}
         <div className="w-full md:w-1/3 border-r border-gray-200 bg-white overflow-y-auto">
           {jobsLoading ? (
             <div className="text-center py-12">
@@ -306,11 +306,11 @@ export default function CandidateJobsPage() {
           )}
         </div>
 
-        {/* Right: Job Details (Group 46 Style) */}
+        {}
         <div className="hidden md:flex md:w-2/3 flex-col bg-white">
           {selectedJobId && selectedJob ? (
             <>
-              {/* Top Section with Company and Title */}
+              {}
               <div className="border-b border-gray-200 px-8 py-6">
                 <div className="flex items-start justify-between gap-4">
                   <div>
@@ -323,12 +323,12 @@ export default function CandidateJobsPage() {
                       </div>
                     </div>
 
-                    {/* Job Title */}
+                    {}
                     <h1 className="text-3xl font-bold text-gray-900 mb-4">
                       {selectedJob.title}
                     </h1>
 
-                    {/* Employment Badges */}
+                    {}
                     <div className="flex gap-2 mb-4">
                       {selectedJob.employmentType && (
                         <span className="px-3 py-1 border border-gray-300 rounded text-sm text-gray-700 font-medium">
@@ -355,7 +355,7 @@ export default function CandidateJobsPage() {
                       )}
                     </div>
 
-                    {/* Apply and Save Buttons */}
+                    {}
                     <div className="flex gap-2">
                       {appliedJobIds.has(selectedJobId) ? (
                         <button
@@ -396,9 +396,9 @@ export default function CandidateJobsPage() {
                 </div>
               </div>
 
-              {/* Content Section */}
+              {}
               <div className="flex-1 overflow-y-auto px-8 py-6">
-                {/* About the Job */}
+                {}
                 <div className="mb-8">
                   <h2 className="text-xl font-semibold text-black mb-4">
                     About the job
@@ -406,7 +406,7 @@ export default function CandidateJobsPage() {
                   <Markdown>{selectedJob.description}</Markdown>
                 </div>
 
-                {/* Key Responsibilities */}
+                {}
                 {selectedJob.requirements && (
                   <div className="mb-8">
                     <h2 className="text-xl font-semibold text-gray-900 mb-4">
@@ -417,14 +417,14 @@ export default function CandidateJobsPage() {
                 )}
               </div>
 
-              {/* Apply Form at Bottom */}
+              {}
               {showApplyForm && !appliedJobIds.has(selectedJobId) && (
                 <div className="border-t border-gray-200 bg-gray-50 p-6">
                   <h3 className="text-lg font-bold text-gray-900 mb-4">
                     Apply for this position
                   </h3>
 
-                  {/* Resume Selection */}
+                  {}
                   <div className="mb-4">
                     <label className="block text-sm font-semibold text-gray-700 mb-2">
                       Select Resume <span className="text-red-500">*</span>
@@ -453,7 +453,7 @@ export default function CandidateJobsPage() {
                     )}
                   </div>
 
-                  {/* Cover Letter */}
+                  {}
                   <div className="mb-4">
                     <label className="block text-sm font-semibold text-gray-700 mb-2">
                       Cover Letter (Optional)
@@ -467,7 +467,7 @@ export default function CandidateJobsPage() {
                     />
                   </div>
 
-                  {/* Buttons */}
+                  {}
                   <div className="flex gap-2">
                     <button
                       onClick={handleApply}

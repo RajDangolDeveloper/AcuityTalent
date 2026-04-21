@@ -19,8 +19,8 @@ type Column = {
   id: string;
   label: string;
   statuses: ApplicationStatus[];
-  color: string; // tailwind bg for header
-  dotColor: string; // tailwind bg for dot badge
+  color: string; 
+  dotColor: string; 
   icon: React.ReactNode;
 };
 
@@ -175,7 +175,7 @@ function KanbanColumn({
 }) {
   return (
     <div className="flex flex-col gap-3 min-w-[260px] max-w-[260px]">
-      {/* Header */}
+      {}
       <div
         className={`${column.color} rounded-xl px-4 py-2.5 flex items-center justify-between shadow-sm`}
       >
@@ -188,7 +188,7 @@ function KanbanColumn({
         </span>
       </div>
 
-      {/* Cards */}
+      {}
       <div className="flex flex-col gap-3">
         {apps.length === 0 ? (
           <div className="border-2 border-dashed border-gray-200 rounded-xl p-6 flex flex-col items-center justify-center gap-2 min-h-[100px]">
@@ -230,7 +230,7 @@ export default function ApplicationsPage() {
 
   return (
     <div className="flex flex-col min-h-dvh bg-gray-50/60">
-      {/* Top bar */}
+      {}
       <div className="px-8 py-5 border-b border-gray-200 bg-white flex items-center justify-between flex-shrink-0">
         <div>
           <h1 className="text-xl font-bold text-gray-900">My Applications</h1>

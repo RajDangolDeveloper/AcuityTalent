@@ -156,7 +156,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Stats Section */}
+      {}
       <section className="py-20 px-4">
         <div className="max-w-7xl mx-auto">
           <div className="flex justify-between mb-8">
@@ -346,7 +346,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Footer */}
+      {}
       <HomeFooterBar />
     </div>
   );

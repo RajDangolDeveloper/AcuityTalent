@@ -43,7 +43,7 @@ export class JobService {
       throw new NotFoundException('Company does not exist');
     }
 
-    // Check if recruiter can create another job based on subscription tier
+    
     const entitlementCheck =
       await this.entitlements.canRecruiterCreateJob(recruiterId);
     if (!entitlementCheck.allowed) {
@@ -63,7 +63,7 @@ export class JobService {
       },
     });
 
-    // Create job embedding on creation so recommendation flow can use it immediately.
+    
     await this.recomputeJobEmbedding(job.id);
 
     return job;
@@ -244,7 +244,7 @@ export class JobService {
       throw new NotFoundException('Job not found');
     }
 
-    // Increment view count
+    
     await this.prisma.job.update({
       where: { id },
       data: { viewsCount: { increment: 1 } },
@@ -450,7 +450,7 @@ export class JobService {
 
       await this.createJobEmbedding(job.id, embeddingResult.embedding);
     } catch (error) {
-      // Embedding failures should not block job create/update operations.
+      
     }
   }
 }

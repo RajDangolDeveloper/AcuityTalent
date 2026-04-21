@@ -1,4 +1,4 @@
-// Recruiter View Types
+
 
 export type ApplicationStatus =
   | "APPLIED"
@@ -39,7 +39,7 @@ export interface Job {
   createdAt: Date;
   updatedAt: Date;
 
-  // Populated relationships
+  
   recruiterName?: string;
   recruiterEmail?: string;
   companyId: number;
@@ -47,7 +47,7 @@ export interface Job {
   applicationCount?: number;
 }
 
-// Candidate application (Group 69 - candidate card in list)
+
 export interface CandidateApplication {
   id: number;
   candidateId: number;
@@ -66,19 +66,19 @@ export interface CandidateApplication {
 export interface CandidateProfile {
   id: number;
   userId?: number;
-  name: string; // Display name (derived from User table on backend)
-  email: string; // From User table
+  name: string; 
+  email: string; 
   phone?: string;
   location?: string;
   profileImage?: string;
-  yearsOfExperience?: number; // Maps to experienceYears in schema
+  yearsOfExperience?: number; 
   summary?: string;
   skills: string[];
   workExperience: WorkExperience[];
   education: Education[];
   resumeId?: number;
   resumeFileName?: string;
-  appliedDate?: string; // From Application table
+  appliedDate?: string; 
   createdAt: string;
   updatedAt: string;
 }
@@ -104,14 +104,14 @@ export interface Education {
   description?: string;
 }
 
-// Application details with candidate info
+
 export interface ApplicationDetail {
   id: number;
   jobId: number;
   candidateId: number;
   resumeId: number;
   status: ApplicationStatus;
-  appliedAt: string; // When candidate applied
+  appliedAt: string; 
   matchScore?: number;
   riskScore?: number;
   coverLetter?: string;
@@ -124,7 +124,7 @@ export interface ApplicationDetail {
   resumeFileName?: string;
 }
 
-// Pagination
+
 export interface PaginationMeta {
   page: number;
   limit: number;

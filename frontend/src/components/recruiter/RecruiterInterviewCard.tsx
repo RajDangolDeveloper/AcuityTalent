@@ -1,4 +1,4 @@
-// src/components/interview/RecruiterInterviewCard.tsx
+
 "use client";
 
 import { useState } from "react";
@@ -63,7 +63,7 @@ export default function RecruiterInterviewCard({
     return (
       <div className="group bg-white/85 backdrop-blur-md border border-white/50 rounded-xl p-4 shadow-sm hover:shadow-md transition-all">
         <div className="flex items-start justify-between gap-3">
-          {/* Checkbox for bulk selection */}
+          {}
           {onSelect && (
             <input
               type="checkbox"
@@ -74,7 +74,7 @@ export default function RecruiterInterviewCard({
             />
           )}
 
-          {/* Main Content */}
+          {}
           <div className="flex-1 min-w-0 cursor-pointer" onClick={onView}>
             <div className="flex items-center gap-2 mb-2">
               <span
@@ -114,7 +114,7 @@ export default function RecruiterInterviewCard({
             </div>
           </div>
 
-          {/* Actions */}
+          {}
           <div className="relative">
             <button
               onClick={(e) => {
@@ -189,7 +189,7 @@ export default function RecruiterInterviewCard({
           </div>
         </div>
 
-        {/* Join Button for canJoin state */}
+        {}
         {canJoin && (
           <button
             onClick={(e) => {
@@ -206,11 +206,11 @@ export default function RecruiterInterviewCard({
     );
   }
 
-  // Full list view
+  
   return (
     <div className="group bg-white/85 backdrop-blur-md border border-white/50 rounded-xl p-4 shadow-sm hover:shadow-md transition-all">
       <div className="flex items-start gap-4">
-        {/* Checkbox */}
+        {}
         {onSelect && (
           <input
             type="checkbox"
@@ -221,14 +221,14 @@ export default function RecruiterInterviewCard({
           />
         )}
 
-        {/* Avatar / Initials */}
+        {}
         <div className="w-12 h-12 rounded-xl bg-linear-to-br from-indigo-100 to-purple-100 flex items-center justify-center shrink-0">
           <span className="text-lg font-semibold text-indigo-700">
             {interview.application?.candidate?.user?.firstName.charAt(0) || "C"}
           </span>
         </div>
 
-        {/* Content */}
+        {}
         <div className="flex-1 min-w-0 cursor-pointer" onClick={onView}>
           <div className="flex items-start justify-between gap-2">
             <div>
@@ -273,7 +273,7 @@ export default function RecruiterInterviewCard({
           )}
         </div>
 
-        {/* Actions Menu */}
+        {}
         <div className="relative">
           <button
             onClick={(e) => {
@@ -350,7 +350,7 @@ export default function RecruiterInterviewCard({
                   onClick={(e) => {
                     e.stopPropagation();
                     navigator.clipboard.writeText(interview.roomId || "");
-                    // Could add toast here
+                    
                     setShowActions(false);
                   }}
                   className="w-full px-3 py-2.5 text-left text-sm text-gray-600 hover:bg-gray-50"
@@ -363,7 +363,7 @@ export default function RecruiterInterviewCard({
         </div>
       </div>
 
-      {/* Action Bar */}
+      {}
       <div className="flex items-center justify-end gap-2 mt-4 pt-3 border-t border-gray-100">
         {canJoin && (
           <button

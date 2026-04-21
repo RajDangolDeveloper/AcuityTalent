@@ -7,10 +7,10 @@ import {
 } from 'class-validator';
 import { FileType } from '@prisma/client';
 
-/**
- * DTO for creating a new resume
- * Maps to: Step 2 in sequence diagram - Creates resume & fills up details
- */
+
+
+
+
 export class CreateResumeDto {
   @IsString()
   @MinLength(3)
@@ -18,18 +18,18 @@ export class CreateResumeDto {
   fileName!: string;
 
   @IsString()
-  filePath!: string; // S3 URL or local path
+  filePath!: string; 
 
   @IsString()
-  fileType!: FileType; // PDF, DOCX, DOC, TXT
+  fileType!: FileType; 
 
   @IsInt()
-  fileSize!: number; // in bytes
+  fileSize!: number; 
 
   @IsInt()
-  aiScore!: number; // in percentage
+  aiScore!: number; 
 
   @IsOptional()
   @IsString()
-  textContent?: string; // Extracted text for search
+  textContent?: string; 
 }

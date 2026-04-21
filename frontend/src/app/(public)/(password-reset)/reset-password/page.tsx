@@ -18,7 +18,7 @@ export default function ResetPasswordPage() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
 
-  // Redirect if no email provided (user didn't complete OTP verification)
+  
   useEffect(() => {
     if (!email) {
       router.push("/forget-password");
@@ -30,13 +30,13 @@ export default function ResetPasswordPage() {
     setError("");
     setSuccess(false);
 
-    // Validate passwords match
+    
     if (password !== confirmPassword) {
       setError("Passwords do not match");
       return;
     }
 
-    // Validate password length
+    
     if (password.length < 6) {
       setError("Password must be at least 6 characters long");
       return;

@@ -47,9 +47,9 @@ export default function JobsPage() {
 
   const jobs = jobsData?.data || [];
 
-  // Count active jobs for quota checking
+  
   const activeJobCount = jobs.filter((job) => job.status === "ACTIVE").length;
-  const maxActiveJobs = isPremiumUser(currentUser) ? -1 : 2; // -1 = unlimited for premium
+  const maxActiveJobs = isPremiumUser(currentUser) ? -1 : 2; 
   const canCreateMoreJobs =
     maxActiveJobs === -1 || activeJobCount < maxActiveJobs;
 
@@ -327,7 +327,7 @@ export default function JobsPage() {
         </button>
       </Link>
 
-      {/* Quota Info and Upgrade Prompt */}
+      {}
       {!isPremiumUser(currentUser) && (
         <div className="absolute bottom-20 right-2 bg-yellow-50 border border-yellow-200 rounded-md p-4 w-64">
           <div className="flex items-start gap-2">

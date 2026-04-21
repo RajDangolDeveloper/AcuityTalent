@@ -68,7 +68,7 @@ export default function JobsPage() {
   const [expandedStatuses, setExpandedStatuses] = useState<
     Record<string, boolean>
   >(() => ({
-    ACTIVE: true, // expand Active by default
+    ACTIVE: true, 
   }));
 
   const toggleStatus = (status: string) => {
@@ -117,7 +117,7 @@ export default function JobsPage() {
             ) : (
               statusOrder.map((status) => {
                 const statusJobs = groupedJobs[status];
-                if (!statusJobs || statusJobs.length === 0) return null; // skip empty statuses
+                if (!statusJobs || statusJobs.length === 0) return null; 
 
                 const isExpanded = expandedStatuses[status] || false;
                 const label = statusLabels[status] || status;
@@ -160,7 +160,7 @@ export default function JobsPage() {
           </div>
         </div>
 
-        {/* Candidates Panel */}
+        {}
         {selectedJob ? (
           <div className="flex-1 flex flex-col">
             <div className="p-6 border-b border-gray-300 bg-gray-50">
@@ -173,9 +173,9 @@ export default function JobsPage() {
                 </span>
               </div>
 
-              {/* Job Details Tags */}
+              {}
               <div className="flex flex-wrap gap-3 mt-3">
-                {/* jobType: show Remote or On-site */}
+                {}
                 <span className="flex items-center gap-2 bg-gray-100 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium">
                   <MapPin size={16} />
                   {String(selectedJob.location).toLowerCase().includes("remote")
@@ -183,7 +183,7 @@ export default function JobsPage() {
                     : "On-site"}
                 </span>
 
-                {/* employmentType */}
+                {}
                 {selectedJob.employmentType && (
                   <span className="flex items-center gap-2 bg-gray-100 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium">
                     <Briefcase size={16} />
@@ -193,19 +193,19 @@ export default function JobsPage() {
                   </span>
                 )}
 
-                {/* salaryRange */}
+                {}
                 {selectedJob.salaryRange !== undefined && (
                   <span className="flex items-center gap-2 bg-gray-100 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium">
                     ${selectedJob.salaryRange}
                   </span>
                 )}
 
-                {/* experience level placeholder */}
+                {}
                 <span className="flex items-center gap-2 bg-gray-100 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium">
                   3-5 Years
                 </span>
 
-                {/* postedDate */}
+                {}
                 {selectedJob.createdAt && (
                   <span className="flex items-center gap-2 bg-gray-100 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium">
                     <Calendar size={16} />
@@ -216,7 +216,7 @@ export default function JobsPage() {
             </div>
 
             <div className="flex-1 flex flex-col">
-              {/* Content */}
+              {}
               {candidatesLoading ? (
                 <div className="flex-1 w-full flex items-center justify-center">
                   <p className="text-gray-500">Loading candidates...</p>
@@ -231,7 +231,7 @@ export default function JobsPage() {
                   style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
                 >
                   {!showGridModal ? (
-                    // List View as wide horizontal cards
+                    
                     <div className="flex flex-col px-4 py-4 gap-4 overflow-y-auto">
                       {candidates.map((candidate) => (
                         <Link
@@ -239,12 +239,12 @@ export default function JobsPage() {
                           href={`/recruiter/jobs/applications/${candidate.id}`}
                         >
                           <div className="bg-white border border-gray-300 rounded-lg p-5 flex items-start gap-6 hover:shadow-md transition-colors relative">
-                            {/* Avatar */}
+                            {}
                             <div className="w-20 h-20 rounded-full bg-gray-200 flex items-center justify-center text-gray-400 text-2xl font-light shrink-0">
                               {(candidate.candidateName || "").charAt(0) || "A"}
                             </div>
 
-                            {/* Main content */}
+                            {}
                             <div className="flex-1">
                               <div className="flex items-center justify-between">
                                 <h3 className="text-2xl font-bold text-gray-900">
@@ -318,7 +318,7 @@ export default function JobsPage() {
                               </div>
                             </div>
 
-                            {/* Right preview box */}
+                            {}
                             <button
                               onClick={(e) => {
                                 e.preventDefault();
@@ -334,7 +334,7 @@ export default function JobsPage() {
                       ))}
                     </div>
                   ) : (
-                    // Grid View
+                    
                     <div className="p-4 grid grid-cols-2 gap-4">
                       {candidates.map((candidate) => (
                         <Link

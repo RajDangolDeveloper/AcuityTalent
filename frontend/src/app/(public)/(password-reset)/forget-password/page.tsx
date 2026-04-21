@@ -22,7 +22,7 @@ export default function ResetPage() {
     setLoading(true);
     setError("");
 
-    // Validate email format
+    
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       setError("Please enter a valid email address");
@@ -62,7 +62,7 @@ export default function ResetPage() {
         alt=""
       />
 
-      {/* Add form wrapper and onSubmit handler */}
+      {}
       <form onSubmit={handleSubmit} className="flex flex-col gap-6">
         <div className="flex flex-col gap-6">
           <h1 className="text-4xl font-bold pb-2">Forgot Password</h1>
@@ -87,7 +87,7 @@ export default function ResetPage() {
           </p>
         </div>
 
-        {/* Error message (only added element) */}
+        {}
         {error && (
           <div className="p-3 bg-red-50 border border-red-200 rounded-md -mt-2">
             <p className="text-red-600 text-sm">{error}</p>

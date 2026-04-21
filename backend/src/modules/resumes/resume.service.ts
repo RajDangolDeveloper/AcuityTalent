@@ -27,7 +27,7 @@ export class ResumeService {
       throw new ForbiddenException('Only candidates can create resumes');
     }
 
-    const MAX_FILE_SIZE = 10 * 1024 * 1024; // 5MB
+    const MAX_FILE_SIZE = 10 * 1024 * 1024; 
     if (createResumeDto.fileSize > MAX_FILE_SIZE) {
       throw new BadRequestException('Resume file size exceeds 10MB limit');
     }
@@ -96,7 +96,7 @@ export class ResumeService {
       throw new NotFoundException('Resume not found');
     }
 
-    // Verify ownership
+    
     if (resume.candidate.userId !== userId) {
       throw new ForbiddenException('You can only update your own resumes');
     }
@@ -217,7 +217,7 @@ export class ResumeService {
       'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
     )
       return 'DOCX';
-    return 'PDF'; // fallback
+    return 'PDF'; 
   }
 
   private formatResumeResponse(resume: any): ResumeResponseDto {

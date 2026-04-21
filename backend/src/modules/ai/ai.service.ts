@@ -283,9 +283,9 @@ export class AiService {
     );
   }
 
-  /**
-   * Improve text (rewrite professionally)
-   */
+  
+
+
   improveText(data: RewriteRequest): Observable<RewriteResponse> {
     const url = `${this.baseUrl}/improve-text`;
     return this.httpService.post(url, data).pipe(
@@ -297,9 +297,9 @@ export class AiService {
     );
   }
 
-  /**
-   * Review and provide feedback on a resume
-   */
+  
+
+
   reviewResume(data: ReviewRequest): Observable<ReviewResponse> {
     const url = `${this.baseUrl}/review-resume`;
     return this.httpService.post(url, data).pipe(
@@ -356,9 +356,9 @@ export class AiService {
     }
   }
 
-  /**
-   * Get job recommendations for a candidate
-   */
+  
+
+
   getJobRecommendations(
     candidateId: number,
     topK: number = 10,
@@ -377,9 +377,9 @@ export class AiService {
     );
   }
 
-  /**
-   * Test database connection
-   */
+  
+
+
   testDatabase(): Observable<any> {
     const url = `${this.baseUrl}/testdatabase`;
     return this.httpService.get(url).pipe(

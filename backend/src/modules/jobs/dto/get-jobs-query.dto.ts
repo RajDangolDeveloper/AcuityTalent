@@ -5,7 +5,7 @@ import { Type } from 'class-transformer';
 export class GetJobsQueryDto {
   @IsOptional()
   @IsString()
-  search?: string; // Search in title and description
+  search?: string; 
 
   @IsOptional()
   @IsString()
@@ -21,7 +21,7 @@ export class GetJobsQueryDto {
 
   @IsOptional()
   @IsEnum(JobStatus)
-  status?: JobStatus; // For recruiter's own jobs
+  status?: JobStatus; 
 
   @IsOptional()
   remoteAvailable?: boolean;
@@ -40,5 +40,5 @@ export class GetJobsQueryDto {
   limit: number = 10;
 
   @IsOptional()
-  sortBy?: string; // 'recent', 'views', 'salary'
+  sortBy?: string; 
 }

@@ -1,8 +1,8 @@
 import { IsString, IsDateString, IsOptional, IsBoolean } from 'class-validator';
 
-/**
- * DTO for creating work experience
- */
+
+
+
 export class CreateWorkExperienceDto {
   @IsString()
   company!: string;

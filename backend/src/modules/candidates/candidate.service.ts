@@ -160,7 +160,7 @@ export class CandidateService {
     });
   }
 
-  // Work Experience CRUD
+  
   async createWorkExperience(
     userId: number,
     createDto: CreateWorkExperienceDto,
@@ -266,7 +266,7 @@ export class CandidateService {
     await this.recomputeCandidateEmbedding(candidate.id);
   }
 
-  // Education CRUD
+  
   async createEducation(
     userId: number,
     createDto: CreateEducationDto,
@@ -504,7 +504,7 @@ export class CandidateService {
       try {
         await this.recomputeCandidateEmbedding(candidate.id);
       } catch {
-        // If embedding generation fails, fallback recommendations still keep dashboard useful.
+        
       }
     }
 

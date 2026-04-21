@@ -2,7 +2,7 @@ import React from "react";
 import { Document, Page, Text, View, StyleSheet } from "@react-pdf/renderer";
 import { ResumeData } from "../candidate/InputResumeDetails";
 
-// Styles
+
 const styles = StyleSheet.create({
   page: {
     padding: 30,
@@ -124,7 +124,7 @@ export const PrimeATSPDFTemplate: React.FC<{ data: ResumeData }> = ({
     <Document>
       <Page size="A4" style={styles.page}>
         <View style={styles.container}>
-          {/* Header (unchanged) */}
+          {}
           <View style={styles.header}>
             <Text style={styles.name}>{data.fullName}</Text>
             <View style={styles.contact}>
@@ -138,7 +138,7 @@ export const PrimeATSPDFTemplate: React.FC<{ data: ResumeData }> = ({
             </View>
           </View>
 
-          {/* Summary */}
+          {}
           {summary && (
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>SUMMARY</Text>
@@ -146,7 +146,7 @@ export const PrimeATSPDFTemplate: React.FC<{ data: ResumeData }> = ({
             </View>
           )}
 
-          {/* Experience */}
+          {}
           {experience && experience.length > 0 && (
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>EXPERIENCE</Text>
@@ -168,7 +168,7 @@ export const PrimeATSPDFTemplate: React.FC<{ data: ResumeData }> = ({
             </View>
           )}
 
-          {/* Education */}
+          {}
           {education && education.length > 0 && (
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>EDUCATION</Text>
@@ -192,7 +192,7 @@ export const PrimeATSPDFTemplate: React.FC<{ data: ResumeData }> = ({
             </View>
           )}
 
-          {/* Skills */}
+          {}
           {skills && skills.length > 0 && (
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>SKILLS</Text>

@@ -4,10 +4,10 @@ import * as bcrypt from 'bcrypt';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { Pool } from 'pg';
 
-// 1. LOAD ENV FIRST (Strictly before any other imports)
+
 dotenv.config({ path: resolve(process.cwd(), '.env') });
 
-// 2. NOW IMPORT PRISMA
+
 import {
   PrismaClient,
   Role,
@@ -44,7 +44,7 @@ async function main() {
 
   const commonPassword = await hashPassword('Password123!');
 
-  // 1. Create an Admin User
+  
   const adminUser = await prisma.user.upsert({
     where: { email: 'admin@acuitytech.com' },
     update: {
@@ -66,7 +66,7 @@ async function main() {
     },
   });
 
-  // 2. Create a Company
+  
   const company = await prisma.company.upsert({
     where: { id: 1 },
     update: {
@@ -89,7 +89,7 @@ async function main() {
     },
   });
 
-  // 3. Create a Recruiter User
+  
   const recruiterUser = await prisma.user.upsert({
     where: { email: 'recruiter@acuitytech.com' },
     update: {
@@ -131,7 +131,7 @@ async function main() {
     },
   });
 
-  // 4. Create a Candidate User
+  
   const candidateUser = await prisma.user.upsert({
     where: { email: 'candidate@example.com' },
     update: {
@@ -218,7 +218,7 @@ async function main() {
     },
   });
 
-  // 5. Create a Job
+  
   const job = await prisma.job.upsert({
     where: { id: 1 },
     update: {
@@ -249,7 +249,7 @@ async function main() {
     },
   });
 
-  // 6. Create a Resume
+  
   const resume =
     (await prisma.resume.findFirst({
       where: { candidateId: candidateProfile.id },
@@ -266,7 +266,7 @@ async function main() {
       },
     }));
 
-  // 7. Create an Application
+  
   const application =
     (await prisma.application.findUnique({
       where: {
@@ -287,7 +287,7 @@ async function main() {
       },
     }));
 
-  // 8. Create an Interview
+  
   const existingInterview = await prisma.interview.findFirst({
     where: { applicationId: application.id },
   });
@@ -321,7 +321,7 @@ async function main() {
     });
   }
 
-  // 9. Saved Job
+  
   await prisma.savedJob.upsert({
     where: {
       candidateId_jobId: {

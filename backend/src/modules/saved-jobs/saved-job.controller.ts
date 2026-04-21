@@ -20,10 +20,10 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 export class SavedJobController {
   constructor(private savedJobService: SavedJobService) {}
 
-  /**
-   * POST /saved-jobs
-   * Save a job
-   */
+  
+
+
+
   @Post()
   @HttpCode(HttpStatus.CREATED)
   async saveJob(
@@ -38,10 +38,10 @@ export class SavedJobController {
     };
   }
 
-  /**
-   * GET /saved-jobs
-   * Get all saved jobs
-   */
+  
+
+
+
   @Get()
   async getSavedJobs(
     @Req() req: any,
@@ -54,10 +54,10 @@ export class SavedJobController {
     };
   }
 
-  /**
-   * DELETE /saved-jobs/:jobId
-   * Unsave a job
-   */
+  
+
+
+
   @Delete(':jobId')
   @HttpCode(HttpStatus.NO_CONTENT)
   async unsaveJob(
@@ -67,10 +67,10 @@ export class SavedJobController {
     await this.savedJobService.unsaveJob(req.user.id, parseInt(jobId));
   }
 
-  /**
-   * GET /saved-jobs/check/:jobId
-   * Check if job is saved
-   */
+  
+
+
+
   @Get('check/:jobId')
   async isJobSaved(
     @Param('jobId') jobId: string,

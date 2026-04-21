@@ -36,7 +36,7 @@ class CandidateProfileEmbedding(Base):
     __tablename__ = "CandidateProfileEmbedding"
     id = Column(Integer, primary_key=True)
     candidateProfileId = Column(Integer, ForeignKey("CandidateProfile.id", ondelete="CASCADE"), unique=True)
-    # The '768' must match your MPNet model output size
+
     embedding = Column(Vector(768), nullable=True)
     model = Column(String, default="all-mpnet-base-v2")
     createdAt = Column(DateTime, default=datetime.utcnow)

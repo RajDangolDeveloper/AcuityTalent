@@ -30,6 +30,27 @@ export type UpgradeResponse = {
   formData?: Record<string, string>;
 };
 
+export type UpgradeRequest = {
+  billingCycle?: "ANNUAL" | "MONTHLY";
+  successUrl?: string;
+  failureUrl?: string;
+};
+
+export type EsewaFinalizePayload = {
+  transactionRef: string;
+  userId: number;
+  amount: number;
+  provider: "ESEWA";
+  planType: "PREMIUM" | "NON_PREMIUM";
+  signature: string;
+  signed_field_names: string;
+  total_amount: string;
+  transaction_uuid: string;
+  product_code: string;
+  transaction_code?: string;
+  status?: string;
+};
+
 export const useMySubscription = () => {
   return useQuery({
     queryKey: ["subscription", "me"],
@@ -57,12 +78,14 @@ export const useInitiatePremiumUpgrade = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (billingCycle: "ANNUAL" | "MONTHLY" = "ANNUAL") => {
+    mutationFn: async (payload: UpgradeRequest = {}) => {
       const response = await apiClient.post<UpgradeResponse>(
         "/subscriptions/upgrade-to-premium",
         {
           planType: "PREMIUM",
-          billingCycle,
+          billingCycle: payload.billingCycle ?? "ANNUAL",
+          successUrl: payload.successUrl,
+          failureUrl: payload.failureUrl,
         },
       );
       return response.data;
@@ -85,6 +108,56 @@ export const usePaymentStatusLookup = () => {
     mutationFn: async (transactionRef: string) => {
       const response = await apiClient.get(
         `/subscriptions/payment-status/${transactionRef}`,
+      );
+      return response.data;
+    },
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["subscription", "me"] }),
+        queryClient.invalidateQueries({
+          queryKey: ["subscription", "payments"],
+        }),
+      ]);
+    },
+  });
+};
+
+export const useFinalizeEsewaPayment = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (payload: EsewaFinalizePayload) => {
+      const response = await apiClient.post(
+        "/subscriptions/webhook/payment-success",
+        payload,
+      );
+      return response.data;
+    },
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["subscription", "me"] }),
+        queryClient.invalidateQueries({
+          queryKey: ["subscription", "payments"],
+        }),
+      ]);
+    },
+  });
+};
+
+export const useMarkEsewaPaymentFailed = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (payload: {
+      transactionRef: string;
+      userId: number;
+      amount?: number;
+      provider: "ESEWA";
+      planType: "PREMIUM" | "NON_PREMIUM";
+    }) => {
+      const response = await apiClient.post(
+        "/subscriptions/webhook/payment-failed",
+        payload,
       );
       return response.data;
     },

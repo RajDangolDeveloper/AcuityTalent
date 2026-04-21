@@ -1,4 +1,4 @@
-// src/app/candidate/resumes/page.tsx
+
 "use client";
 
 import CustomSidebar from "@/src/components/CustomSidebar";
@@ -18,7 +18,7 @@ export default function ResumesPage() {
   const [deletingId, setDeletingId] = useState<number | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
-  // âœ… Hooks called at component level
+  
   const deleteMutation = useDeleteResume();
 
   const handleDownload = async (resumeId: number, fileName: string) => {
@@ -75,7 +75,7 @@ export default function ResumesPage() {
     }
   };
 
-  // Cleanup blob URL on unmount
+  
   useEffect(() => {
     return () => {
       if (previewUrl) URL.revokeObjectURL(previewUrl);
@@ -86,7 +86,7 @@ export default function ResumesPage() {
 
   return (
     <div className="relative h-dvh w-full flex bg-gray-50">
-      {/* Sidebar - Resume List */}
+      {}
       <div className="min-h-dvh w-full max-w-80 bg-white border-r border-gray-200 flex flex-col">
         <div className="p-4 border-b border-gray-200">
           <h2 className="font-semibold text-gray-900">My Resumes</h2>
@@ -143,7 +143,7 @@ export default function ResumesPage() {
                         {new Date(resume.uploadedAt).toLocaleDateString()}
                       </div>
                     </div>
-                    {/* âœ… Download only - Delete moved to detail view */}
+                    {}
                     <button
                       title="Download"
                       disabled={downloadingId === resume.id}
@@ -167,10 +167,10 @@ export default function ResumesPage() {
         </div>
       </div>
 
-      {/* Preview Area */}
+      {}
       <div className="flex-1 flex flex-col min-w-0">
         {selectedResumeID === null ? (
-          /* Empty State */
+          
           <div className="h-full w-full flex flex-col items-center justify-center text-gray-500">
             <FileText className="w-16 h-16 text-gray-300 mb-4" />
             <p className="text-lg font-medium">Select a resume to preview</p>
@@ -179,9 +179,9 @@ export default function ResumesPage() {
             </p>
           </div>
         ) : (
-          /* Resume Preview with Actions */
+          
           <div className="h-full flex flex-col">
-            {/* Action Bar */}
+            {}
             <div className="flex items-center justify-between px-6 py-3 border-b border-gray-200 bg-white">
               <div className="flex items-center gap-3 min-w-0">
                 <FileText className="w-5 h-5 text-gray-400 shrink-0" />
@@ -204,7 +204,7 @@ export default function ResumesPage() {
               </div>
 
               <div className="flex items-center gap-2">
-                {/* âœ… Edit Button - Navigates to edit route */}
+                {}
                 <button
                   onClick={() =>
                     router.push(`/candidate/resumes/edit/${selectedResumeID}`)
@@ -215,7 +215,7 @@ export default function ResumesPage() {
                   Edit
                 </button>
 
-                {/* âœ… Delete Button - Now in detail view only */}
+                {}
                 <button
                   onClick={() =>
                     selectedResumeID && handleDelete(selectedResumeID)
@@ -233,7 +233,7 @@ export default function ResumesPage() {
               </div>
             </div>
 
-            {/* PDF Preview - Smaller, Content-Only */}
+            {}
             <div className="flex-1 p-6 overflow-hidden bg-gray-100">
               <div className="h-full w-full max-w-5xl mx-auto bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
                 {previewUrl ? (
@@ -241,10 +241,10 @@ export default function ResumesPage() {
                     src={`${previewUrl}#toolbar=0&navpanes=0&scrollbar=0`}
                     className="w-full h-full"
                     title="Resume Preview"
-                    // âœ… Hide UI chrome for content-only view
+                    
                     style={{
                       border: "none",
-                      // Optional: Force PDF to show only content area
+                      
                       display: "block",
                     }}
                   />
@@ -259,7 +259,7 @@ export default function ResumesPage() {
         )}
       </div>
 
-      {/* Create Resume FAB */}
+      {}
       <Link href="/candidate/resumes/create">
         <button className="absolute bottom-6 right-6 flex items-center gap-2 px-4 py-2.5 rounded-full bg-indigo-600 text-white text-sm font-medium shadow-lg hover:bg-indigo-700 transition-colors">
           <FileText className="w-4 h-4" />

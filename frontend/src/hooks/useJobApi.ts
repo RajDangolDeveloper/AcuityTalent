@@ -3,7 +3,7 @@ import apiClient from "../app/api/api-client";
 import { Job, PaginatedResponse, SingleResponse } from "../types/recruiter";
 import { JobDetails, SavedJob } from "../types/candidate";
 
-// Get all active jobs with filters
+
 export const getAllJobs = (
   page: number = 1,
   limit: number = 10,
@@ -42,7 +42,7 @@ export const getAllJobs = (
   });
 };
 
-// Get job details
+
 export const useJobDetails = (jobId: number | null) => {
   return useQuery({
     queryKey: ["job-details", jobId],
@@ -87,7 +87,7 @@ export const useUpdateJobStatus = () => {
       return response.data.data;
     },
     onSuccess: async (_, variables) => {
-      // Invalidate the jobs list or dashboard stats so they refresh automatically
+      
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ["recruiter-jobs"] }),
         queryClient.invalidateQueries({ queryKey: ["recruiter-stats"] }),

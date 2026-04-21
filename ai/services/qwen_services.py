@@ -216,7 +216,7 @@ class LocalLLMClient:
                 if isinstance(value, str) and value.strip():
                     return value.strip()
 
-            # Some Cloudflare wrappers nest the generated text under response.response.
+
             nested_response = node.get("response")
             if isinstance(nested_response, dict):
                 nested_text = _extract_from_dict(nested_response)

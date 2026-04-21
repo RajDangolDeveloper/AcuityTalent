@@ -1,8 +1,8 @@
-// Utility functions for recruiter views
 
-/**
- * Format a date string to a readable format
- */
+
+
+
+
 export const formatDate = (dateString: string): string => {
   const date = new Date(dateString);
   return date.toLocaleDateString("en-US", {
@@ -12,9 +12,9 @@ export const formatDate = (dateString: string): string => {
   });
 };
 
-/**
- * Format a date to a relative time (e.g., "2 days ago")
- */
+
+
+
 export const formatRelativeTime = (dateString: string): string => {
   const date = new Date(dateString);
   const now = new Date();
@@ -30,9 +30,9 @@ export const formatRelativeTime = (dateString: string): string => {
   return formatDate(dateString);
 };
 
-/**
- * Get status badge color based on application status
- */
+
+
+
 export const getStatusColor = (
   status: string,
 ): {
@@ -85,9 +85,9 @@ export const getStatusColor = (
   );
 };
 
-/**
- * Get employment type label
- */
+
+
+
 export const getEmploymentTypeLabel = (type: string): string => {
   const typeMap: Record<string, string> = {
     FULL_TIME: "Full-time",
@@ -98,9 +98,9 @@ export const getEmploymentTypeLabel = (type: string): string => {
   return typeMap[type] || type;
 };
 
-/**
- * Calculate match score color
- */
+
+
+
 export const getMatchScoreColor = (score: number): string => {
   if (score >= 80) return "text-green-600";
   if (score >= 60) return "text-yellow-600";
@@ -108,9 +108,9 @@ export const getMatchScoreColor = (score: number): string => {
   return "text-red-600";
 };
 
-/**
- * Format salary range
- */
+
+
+
 export const formatSalaryRange = (
   min?: number,
   max?: number,
@@ -119,17 +119,17 @@ export const formatSalaryRange = (
   return `$${min}k - $${max}k`;
 };
 
-/**
- * Truncate text to a specific length
- */
+
+
+
 export const truncateText = (text: string, length: number): string => {
   if (text.length <= length) return text;
   return text.substring(0, length) + "...";
 };
 
-/**
- * Get initials from a name
- */
+
+
+
 export const getInitials = (name: string): string => {
   return name
     .split(" ")
@@ -139,9 +139,9 @@ export const getInitials = (name: string): string => {
     .substring(0, 2);
 };
 
-/**
- * Check if current year is the same as given year
- */
+
+
+
 export const isCurrentYear = (year: number): boolean => {
   return new Date().getFullYear() === year;
 };

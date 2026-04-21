@@ -2,7 +2,7 @@ import React from "react";
 import { Document, Page, Text, View, StyleSheet } from "@react-pdf/renderer";
 import { ResumeData } from "../candidate/InputResumeDetails";
 
-// Define styles
+
 const styles = StyleSheet.create({
   page: {
     padding: 30,
@@ -33,7 +33,7 @@ const styles = StyleSheet.create({
     flexWrap: "wrap",
   },
   contactItem: {
-    // used for spacing between items
+    
   },
   section: {
     borderTopWidth: 1,
@@ -124,7 +124,7 @@ export const CleanPDFTemplate: React.FC<{ data: ResumeData }> = ({ data }) => {
     <Document>
       <Page size="A4" style={styles.page}>
         <View style={styles.container}>
-          {/* Header */}
+          {}
           <View style={styles.header}>
             <Text style={styles.name}>{data.fullName}</Text>
             <View style={styles.contactRow}>
@@ -138,7 +138,7 @@ export const CleanPDFTemplate: React.FC<{ data: ResumeData }> = ({ data }) => {
             </View>
           </View>
 
-          {/* Professional Summary */}
+          {}
           {data.summary && (
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Summary</Text>
@@ -146,7 +146,7 @@ export const CleanPDFTemplate: React.FC<{ data: ResumeData }> = ({ data }) => {
             </View>
           )}
 
-          {/* Experience */}
+          {}
           {data.experience && data.experience.length > 0 && (
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Experience</Text>
@@ -168,7 +168,7 @@ export const CleanPDFTemplate: React.FC<{ data: ResumeData }> = ({ data }) => {
             </View>
           )}
 
-          {/* Education */}
+          {}
           {data.education && data.education.length > 0 && (
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Education</Text>
@@ -189,7 +189,7 @@ export const CleanPDFTemplate: React.FC<{ data: ResumeData }> = ({ data }) => {
             </View>
           )}
 
-          {/* Skills */}
+          {}
           {data.skills && data.skills.length > 0 && (
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Skills</Text>

@@ -1,12 +1,15 @@
 "use client";
 
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useGetCurrentUser, useUpdateUser } from "@/src/hooks/useUserApi";
 import { useChangePassword } from "@/src/hooks/useAuthApi";
 import {
   useInitiatePremiumUpgrade,
+  useFinalizeEsewaPayment,
   useMyPaymentHistory,
   useMySubscription,
+  useMarkEsewaPaymentFailed,
   usePaymentStatusLookup,
 } from "@/src/hooks/useSubscriptionApi";
 import {
@@ -15,6 +18,10 @@ import {
 } from "@/src/utils/subscription";
 
 export default function CandidateSettingsPage() {
+  const pendingTxnStorageKey = "esewa:candidate:pendingTransactionRef";
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const { data: currentUser } = useGetCurrentUser();
   const updateUser = useUpdateUser();
   const changePassword = useChangePassword();
@@ -26,6 +33,9 @@ export default function CandidateSettingsPage() {
 
   const upgradeMutation = useInitiatePremiumUpgrade();
   const paymentStatusMutation = usePaymentStatusLookup();
+  const finalizeEsewaMutation = useFinalizeEsewaPayment();
+  const markEsewaFailureMutation = useMarkEsewaPaymentFailed();
+  const handledReturnKeyRef = useRef<string>("");
 
   const [profileForm, setProfileForm] = useState({
     firstName: "",
@@ -59,6 +69,220 @@ export default function CandidateSettingsPage() {
   const latestPaymentRef = useMemo(() => {
     return paymentHistory[0]?.transactionRef ?? "";
   }, [paymentHistory]);
+
+  useEffect(() => {
+    const rawPaymentResult = searchParams.get("payment");
+    const fallbackParams = new URLSearchParams();
+    let paymentResult = rawPaymentResult;
+
+    if (rawPaymentResult?.includes("?")) {
+      const separatorIndex = rawPaymentResult.indexOf("?");
+      const normalizedPaymentResult = rawPaymentResult.slice(0, separatorIndex);
+      const appendedQuery = rawPaymentResult.slice(separatorIndex + 1);
+      paymentResult = normalizedPaymentResult || null;
+      const appendedParams = new URLSearchParams(appendedQuery);
+      appendedParams.forEach((value, key) => {
+        fallbackParams.set(key, value);
+      });
+    }
+
+    const getParam = (name: string) =>
+      searchParams.get(name) ?? fallbackParams.get(name);
+
+    const hasEsewaPayload = Boolean(
+      getParam("data") ||
+      getParam("transaction_uuid") ||
+      getParam("transactionRef") ||
+      getParam("oid") ||
+      getParam("signature"),
+    );
+    if (!paymentResult && !hasEsewaPayload) {
+      return;
+    }
+
+    const effectivePaymentResult = paymentResult ?? "success";
+
+    if (!currentUser?.id) {
+      return;
+    }
+
+    const returnKey = `${effectivePaymentResult}:${searchParams.toString()}`;
+    if (handledReturnKeyRef.current === returnKey) {
+      return;
+    }
+    handledReturnKeyRef.current = returnKey;
+
+    const cleanupReturnQuery = () => {
+      router.replace(pathname);
+    };
+
+    const directSignaturePayload = {
+      signature: getParam("signature"),
+      signedFieldNames: getParam("signed_field_names"),
+      totalAmount: getParam("total_amount"),
+      transactionUuid: getParam("transaction_uuid"),
+      productCode: getParam("product_code"),
+      transactionCode: getParam("transaction_code"),
+      status: getParam("status"),
+    };
+
+    let parsedPayload: {
+      signature: string | null;
+      signed_field_names: string | null;
+      total_amount: string | null;
+      transaction_uuid: string | null;
+      product_code: string | null;
+      transaction_code: string | null;
+      status: string | null;
+    } | null = null;
+
+    if (
+      directSignaturePayload.signature &&
+      directSignaturePayload.signedFieldNames &&
+      directSignaturePayload.totalAmount &&
+      directSignaturePayload.transactionUuid &&
+      directSignaturePayload.productCode
+    ) {
+      parsedPayload = {
+        signature: directSignaturePayload.signature,
+        signed_field_names: directSignaturePayload.signedFieldNames,
+        total_amount: directSignaturePayload.totalAmount,
+        transaction_uuid: directSignaturePayload.transactionUuid,
+        product_code: directSignaturePayload.productCode,
+        transaction_code: directSignaturePayload.transactionCode,
+        status: directSignaturePayload.status,
+      };
+    } else {
+      const encodedData = getParam("data");
+      if (encodedData) {
+        try {
+          const decoded = atob(encodedData);
+          const parsed = JSON.parse(decoded);
+          parsedPayload = {
+            signature: parsed?.signature ?? null,
+            signed_field_names: parsed?.signed_field_names ?? null,
+            total_amount: parsed?.total_amount ?? null,
+            transaction_uuid: parsed?.transaction_uuid ?? null,
+            product_code: parsed?.product_code ?? null,
+            transaction_code: parsed?.transaction_code ?? null,
+            status: parsed?.status ?? null,
+          };
+        } catch {
+          parsedPayload = null;
+        }
+      }
+    }
+
+    const storedPendingRef =
+      typeof window !== "undefined"
+        ? window.localStorage.getItem(pendingTxnStorageKey)
+        : null;
+
+    const transactionRef =
+      parsedPayload?.transaction_uuid ||
+      getParam("transaction_uuid") ||
+      getParam("transactionRef") ||
+      getParam("oid") ||
+      storedPendingRef ||
+      latestPaymentRef;
+
+    if (!transactionRef) {
+      setMessageType("error");
+      setMessage(
+        "Returned from eSewa, but transaction reference was missing. Please use Payment History to verify.",
+      );
+      cleanupReturnQuery();
+      return;
+    }
+
+    setStatusCheckRef(transactionRef);
+    setMessageType("success");
+    setMessage("Returned from eSewa. Verifying payment status...");
+
+    const finalizeAndCheck = async () => {
+      try {
+        if (
+          effectivePaymentResult === "success" &&
+          parsedPayload?.signature &&
+          parsedPayload?.signed_field_names &&
+          parsedPayload?.total_amount &&
+          parsedPayload?.transaction_uuid &&
+          parsedPayload?.product_code
+        ) {
+          await finalizeEsewaMutation.mutateAsync({
+            transactionRef,
+            userId: Number(currentUser.id),
+            amount: Number(parsedPayload.total_amount),
+            provider: "ESEWA",
+            planType: "PREMIUM",
+            signature: parsedPayload.signature,
+            signed_field_names: parsedPayload.signed_field_names,
+            total_amount: parsedPayload.total_amount,
+            transaction_uuid: parsedPayload.transaction_uuid,
+            product_code: parsedPayload.product_code,
+            transaction_code: parsedPayload.transaction_code ?? undefined,
+            status: parsedPayload.status ?? undefined,
+          });
+        }
+
+        if (effectivePaymentResult === "failed") {
+          await markEsewaFailureMutation.mutateAsync({
+            transactionRef,
+            userId: Number(currentUser.id),
+            amount:
+              paymentHistory.find(
+                (payment) => payment.transactionRef === transactionRef,
+              )?.amount ?? undefined,
+            provider: "ESEWA",
+            planType: "PREMIUM",
+          });
+        }
+
+        const payment = await paymentStatusMutation.mutateAsync(transactionRef);
+        const status = String(payment?.status ?? "UNKNOWN");
+
+        if (status === "COMPLETED") {
+          setMessageType("success");
+          setMessage("Payment completed successfully. Premium is now active.");
+        } else if (status === "PENDING") {
+          setMessageType("error");
+          setMessage(
+            "Payment is still pending. If this was a test cancel, this is expected.",
+          );
+        } else if (status === "FAILED") {
+          setMessageType("error");
+          setMessage("Payment failed. Please try again.");
+        } else {
+          setMessageType("error");
+          setMessage(`Payment returned with status: ${status}`);
+        }
+      } catch (error: any) {
+        setMessageType("error");
+        setMessage(
+          error?.response?.data?.message ??
+            "Returned from eSewa but could not verify payment. Use Check Status with the reference.",
+        );
+      } finally {
+        if (typeof window !== "undefined") {
+          window.localStorage.removeItem(pendingTxnStorageKey);
+        }
+        cleanupReturnQuery();
+      }
+    };
+
+    void finalizeAndCheck();
+  }, [
+    currentUser?.id,
+    finalizeEsewaMutation,
+    latestPaymentRef,
+    markEsewaFailureMutation,
+    pendingTxnStorageKey,
+    pathname,
+    paymentHistory,
+    paymentStatusMutation,
+    router,
+    searchParams,
+  ]);
 
   const postToEsewa = (
     paymentUrl: string,
@@ -135,9 +359,20 @@ export default function CandidateSettingsPage() {
 
   const onUpgrade = async () => {
     try {
-      const result = await upgradeMutation.mutateAsync("ANNUAL");
+      const baseUrl = window.location.origin;
+      const result = await upgradeMutation.mutateAsync({
+        billingCycle: "ANNUAL",
+        successUrl: `${baseUrl}/candidate/settings?payment=success`,
+        failureUrl: `${baseUrl}/candidate/settings?payment=failed`,
+      });
       if (!result.paymentUrl || !result.formData) {
         throw new Error("Payment initialization failed");
+      }
+
+      const pendingTxnRef =
+        result.paymentReference || result.formData.transaction_uuid || "";
+      if (pendingTxnRef) {
+        window.localStorage.setItem(pendingTxnStorageKey, pendingTxnRef);
       }
 
       setStatusCheckRef(result.paymentReference ?? "");

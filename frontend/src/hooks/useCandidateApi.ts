@@ -103,7 +103,7 @@ export const useCreateCandidateProfile = () => {
   });
 };
 
-// Get candidate's saved jobs
+
 export const useCandidateSavedJobs = (page: number = 1, limit: number = 10) => {
   return useQuery({
     queryKey: ["candidate-saved-jobs", page, limit],
@@ -120,7 +120,7 @@ export const useCandidateSavedJobs = (page: number = 1, limit: number = 10) => {
   });
 };
 
-// Get candidate profile
+
 export const useCandidateProfile = () => {
   return useQuery({
     queryKey: ["candidate-profile"],
@@ -180,7 +180,7 @@ export const useUpdateCandidateProfile = () => {
   });
 };
 
-// Get candidate's resumes
+
 export const useCandidateResumes = () => {
   return useQuery({
     queryKey: ["candidate-resumes"],
@@ -244,7 +244,7 @@ export const useCreateWorkExperience = () => {
   });
 };
 
-// Education CRUD
+
 export const useCandidateEducations = () => {
   return useQuery({
     queryKey: ["candidate-educations"],
@@ -265,13 +265,13 @@ export const useGetCandidateById = (id: number | undefined) => {
   return useQuery({
     queryKey: ["candidate", id],
     queryFn: async () => {
-      // This part only runs if enabled is true
+      
       const response = await apiClient.get<SingleResponse<any>>(
         `/candidates/${id}`,
       );
       return response.data.data;
     },
-    // ðŸ’¡ This is the magic: The query won't run if id is undefined
+    
     enabled: typeof id === "number",
   });
 };

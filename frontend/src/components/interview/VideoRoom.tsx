@@ -91,7 +91,7 @@ export default function VideoRoom({
       }
     }
 
-    // Fallback path for browsers/flows where SimplePeer helpers do not renegotiate correctly.
+    
     try {
       const pc = (peer as any)._pc as RTCPeerConnection | undefined;
       if (!pc) return;
@@ -156,7 +156,7 @@ export default function VideoRoom({
       window.clearTimeout(remoteVideoRefreshTimeoutRef.current);
     }
 
-    // Remote track replacement can lag behind signaling events.
+    
     remoteVideoRefreshTimeoutRef.current = window.setTimeout(() => {
       updateRemoteVideoAvailability();
       remoteVideoRefreshTimeoutRef.current = null;
@@ -316,7 +316,7 @@ export default function VideoRoom({
       }
 
       const currentVideoTrack = localStream.getVideoTracks()[0];
-      // Camera track is optional - allow screen sharing in audio-only mode
+      
       if (currentVideoTrack) {
         cameraTrackRef.current = currentVideoTrack;
       } else {
@@ -337,25 +337,25 @@ export default function VideoRoom({
 
       setIsScreenSharing(true);
 
-      // Update local video ref
+      
       if (localVideoRef.current) {
         localVideoRef.current.srcObject = localStream;
         localVideoRef.current.play().catch(() => undefined);
       }
 
-      // Handle screen share end
+      
       screenTrack.onended = () => {
         stopScreenShare();
       };
 
-      // Notify other participant
+      
       socketRef.current?.emit("toggle-screen-share", {
         roomId,
         senderId: socketRef.current?.id,
         isScreenSharing: true,
       });
     } catch (err: any) {
-      // User cancelled screen share
+      
       if (err.name !== "NotAllowedError") {
       }
       setIsScreenSharing(false);
@@ -537,7 +537,7 @@ export default function VideoRoom({
       if (senderId !== socket.id) {
         setIsRemoteScreenSharing(Boolean(isScreenSharing));
         if (isScreenSharing) {
-          // Prioritize incoming media over fallback while the candidate is sharing.
+          
           setHasRemoteVideoTrack(true);
         }
         if (isScreenSharing && remoteVideoRefreshTimeoutRef.current !== null) {
@@ -727,7 +727,7 @@ export default function VideoRoom({
 
       <div className="absolute inset-0 z-10 flex items-center justify-center p-4 pt-24 pb-28">
         <div className="relative h-full w-full overflow-hidden rounded-3xl border border-white/10 bg-slate-950/40 shadow-[0_20px_70px_rgba(0,0,0,0.35)]">
-          {/* Main Display Area: Remote Video or Local Screen Share */}
+          {}
           {showRemoteOnMainStage ? (
             <video
               ref={remoteVideoRef}
@@ -786,7 +786,7 @@ export default function VideoRoom({
           </div>
 
           <div className="absolute right-5 top-5 w-40 overflow-hidden rounded-2xl border border-white/10 bg-slate-950/60 shadow-[0_16px_40px_rgba(0,0,0,0.35)] backdrop-blur-md md:w-52">
-            {/* Small Tile: Camera/Avatar (shows local camera when remote shares, or remote when local shares) */}
+            {}
             {!showRemoteOnMainStage ? (
               <>
                 <div className="flex h-32 w-full items-center justify-center bg-slate-900/95 md:h-36">

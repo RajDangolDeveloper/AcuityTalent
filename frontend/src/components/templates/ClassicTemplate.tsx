@@ -4,7 +4,7 @@ import { ResumeData } from "../candidate/InputResumeDetails";
 export const ClassicTemplate: React.FC<{ data: ResumeData }> = ({ data }) => {
   return (
     <div className="max-w-3xl min-h-screen mx-auto bg-white p-8 font-serif">
-      {/* Header */}
+      {}
       <div className="text-center border-b-2 border-gray-300 pb-4 mb-6">
         <h1 className="text-4xl font-bold uppercase tracking-wide">
           {data.fullName}

@@ -49,7 +49,7 @@ def _has_vector_data(vector) -> bool:
     if vector is None:
         return False
 
-    # Handles numpy arrays from pgvector adapters and list-like vectors.
+
     if isinstance(vector, np.ndarray):
         return vector.size > 0
 
@@ -108,7 +108,7 @@ def _get_stability_risk(work_history) -> float:
 
     avg_tenure_months = float(np.mean(tenures))
 
-    # 24+ months average tenure = low risk, < 6 months = high risk.
+
     if avg_tenure_months >= 24:
         return 0.1
     if avg_tenure_months <= 6:
@@ -294,7 +294,7 @@ def recommend_jobs_for_candidate(
 ):
     logger.info("GET /candidates/%s/recommendations top_k=%d", candidate_id, top_k)
     try:
-        # 1. Fetch Candidate Profile and their Embedding
+
         candidate = db.query(CandidateProfile).filter(CandidateProfile.id == candidate_id).first()
         if not candidate:
             raise HTTPException(status_code=404, detail="Candidate profile not found")
@@ -306,8 +306,8 @@ def recommend_jobs_for_candidate(
         if not candidate_emb_record or not _has_vector_data(candidate_emb_record.embedding):
             raise HTTPException(status_code=404, detail="Candidate embedding not found. Ensure embeddings are generated.")
 
-        # 2. Database Pre-filter (Vector Search)
-        # Fetch top 50 matches via SQL vector distance, then refine them in Python
+
+
         candidate_vector = candidate_emb_record.embedding
         candidate_vector_list = candidate_vector.tolist() if hasattr(candidate_vector, 'tolist') else list(candidate_vector)
         
@@ -324,7 +324,7 @@ def recommend_jobs_for_candidate(
         if not results:
             raise HTTPException(status_code=404, detail="No job embeddings found in database")
         
-        # 3. Apply Weighted Scoring Logic
+
         scored_jobs = []
         candidate_vec_np = _to_vector_array(candidate_vector)
         candidate_vec_list = candidate_vec_np.tolist()
@@ -332,11 +332,11 @@ def recommend_jobs_for_candidate(
         for job_record, job_vector in results:
             job_vec_np = _to_vector_array(job_vector)
 
-            # Attach vectors on dedicated attributes so ORM relationships stay intact.
+
             job_record.embedding_vector = job_vec_np
             candidate.embedding_vector = candidate_vec_list
             
-            # Calculate weighted match score
+
             score = RecommendationService.calculate_match_score(candidate, job_record)
             
             scored_jobs.append({
@@ -344,10 +344,10 @@ def recommend_jobs_for_candidate(
                 "title": job_record.title,
                 "location": job_record.location,
                 "employment_type": job_record.employmentType,
-                "match_score": round(score * 100, 2)  # Convert to percentage
+                "match_score": round(score * 100, 2)
             })
 
-        # 4. Final Sort by Weighted Score
+
         scored_jobs.sort(key=lambda x: x['match_score'], reverse=True)
 
         logger.info(

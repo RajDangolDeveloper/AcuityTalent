@@ -6,9 +6,9 @@ import {
   LocationType,
 } from '@prisma/client';
 
-/**
- * DTO for updating job information
- */
+
+
+
 export class UpdateJobDto {
   @IsOptional()
   @IsString()
@@ -47,5 +47,5 @@ export class UpdateJobDto {
 
   @IsOptional()
   @IsEnum(JobStatus)
-  status?: JobStatus; // DRAFT, ACTIVE, CLOSED, ARCHIVED
+  status?: JobStatus; 
 }

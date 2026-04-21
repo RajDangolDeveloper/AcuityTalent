@@ -31,7 +31,7 @@ export default function JobInterviewList() {
 
   return (
     <div className="w-full bg-white">
-      {/* Header with Switch Logic */}
+      {}
       <div className="flex justify-between px-8 py-7 items-center border-b border-gray-50">
         <div className="text-2xl font-semibold text-slate-800">Jobs</div>
         <div className="flex gap-1 bg-gray-100 p-1 rounded-lg">

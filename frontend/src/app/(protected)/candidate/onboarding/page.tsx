@@ -580,7 +580,7 @@ export default function Onboarding() {
       `}</style>
 
       <div className="bg-transparent flex flex-col items-center justify-center font-sans p-2 sm:py-4 sm:px-10 relative">
-        {/* Progress dots */}
+        {}
         <div className="flex gap-2.5 mb-6">
           {STEPS.map((s) => (
             <div
@@ -593,7 +593,7 @@ export default function Onboarding() {
           ))}
         </div>
 
-        {/* Card */}
+        {}
         <div
           className={`bg-white rounded-3xl p-8 sm:px-12 sm:py-12 w-full transition-all duration-300 shadow-[0_32px_80px_rgba(0,0,0,0.35)] ${
             step === 2 ? "max-w-2xl" : "max-w-xl"
@@ -651,7 +651,7 @@ export default function Onboarding() {
           </div>
         </div>
 
-        {/* Step counter */}
+        {}
         <p className="text-white/50 text-sm mt-4">
           Step {step} of {STEPS.length}
         </p>

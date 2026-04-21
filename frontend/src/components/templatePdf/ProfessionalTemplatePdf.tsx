@@ -8,7 +8,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#ffffff",
     fontFamily: "Helvetica",
     borderTopWidth: 4,
-    borderTopColor: "#2563eb", // blue-600
+    borderTopColor: "#2563eb", 
   },
   container: {
     maxWidth: 800,
@@ -20,7 +20,7 @@ const styles = StyleSheet.create({
   name: {
     fontSize: 28,
     fontWeight: "light",
-    color: "#1f2937", // gray-800
+    color: "#1f2937", 
     marginBottom: 4,
   },
   contactRow: {
@@ -28,7 +28,7 @@ const styles = StyleSheet.create({
     flexWrap: "wrap",
     gap: 12,
     fontSize: 11,
-    color: "#4b5563", // gray-600
+    color: "#4b5563", 
   },
   section: {
     marginBottom: 16,
@@ -38,12 +38,12 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     textTransform: "uppercase",
     letterSpacing: 1,
-    color: "#2563eb", // blue-600
+    color: "#2563eb", 
     marginBottom: 6,
   },
   summaryText: {
     fontSize: 11,
-    color: "#374151", // gray-700
+    color: "#374151", 
     lineHeight: 1.5,
   },
   experienceItem: {
@@ -109,19 +109,19 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   skillPill: {
-    backgroundColor: "#eff6ff", // blue-50
+    backgroundColor: "#eff6ff", 
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 999,
     fontSize: 10,
-    color: "#1e40af", // blue-800
+    color: "#1e40af", 
   },
 });
 
 export const ProfessionalPDFTemplate: React.FC<{ data: ResumeData }> = ({
   data,
 }) => {
-  // Extract optional fields to local constants for type safety
+  
   const skills = data.skills;
   const experience = data.experience;
   const education = data.education;
@@ -131,7 +131,7 @@ export const ProfessionalPDFTemplate: React.FC<{ data: ResumeData }> = ({
     <Document>
       <Page size="A4" style={styles.page}>
         <View style={styles.container}>
-          {/* Header */}
+          {}
           <View style={styles.header}>
             <Text style={styles.name}>{data.fullName}</Text>
             <View style={styles.contactRow}>
@@ -145,7 +145,7 @@ export const ProfessionalPDFTemplate: React.FC<{ data: ResumeData }> = ({
             </View>
           </View>
 
-          {/* Summary */}
+          {}
           {summary && (
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Summary</Text>
@@ -153,7 +153,7 @@ export const ProfessionalPDFTemplate: React.FC<{ data: ResumeData }> = ({
             </View>
           )}
 
-          {/* Experience */}
+          {}
           {experience && experience.length > 0 && (
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Experience</Text>
@@ -175,7 +175,7 @@ export const ProfessionalPDFTemplate: React.FC<{ data: ResumeData }> = ({
             </View>
           )}
 
-          {/* Education */}
+          {}
           {education && education.length > 0 && (
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Education</Text>
@@ -199,7 +199,7 @@ export const ProfessionalPDFTemplate: React.FC<{ data: ResumeData }> = ({
             </View>
           )}
 
-          {/* Skills */}
+          {}
           {skills && skills.length > 0 && (
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Skills</Text>

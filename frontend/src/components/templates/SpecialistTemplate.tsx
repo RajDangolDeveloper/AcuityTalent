@@ -7,7 +7,7 @@ export const SpecialistTemplate: React.FC<{ data: ResumeData }> = ({
   return (
     <div className="max-w-4xl min-h-screen mx-auto bg-white p-8 border-l-8 border-green-600 shadow">
       <div className="flex flex-col md:flex-row gap-8">
-        {/* Left column: Contact & Skills (more prominent) */}
+        {}
         <div className="md:w-1/3">
           <h1 className="text-3xl font-bold text-gray-800 mb-2">
             {data.fullName}
@@ -39,7 +39,7 @@ export const SpecialistTemplate: React.FC<{ data: ResumeData }> = ({
           )}
         </div>
 
-        {/* Right column: Summary, Experience, Education */}
+        {}
         <div className="md:w-2/3 space-y-6">
           {data.summary && (
             <section>

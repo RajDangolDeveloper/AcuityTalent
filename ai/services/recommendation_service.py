@@ -41,14 +41,14 @@ class RecommendationService:
         """
         if weights is None:
             weights = {
-                'semantic': 0.6,      # Embedding similarity
-                'skills': 0.2,         # Direct skill overlap
-                'experience': 0.1,      # Years match
-                'location': 0.1         # Location preference
+                'semantic': 0.6,
+                'skills': 0.2,
+                'experience': 0.1,
+                'location': 0.1
             }
         
         try:
-            # 1. Semantic similarity (60% weight) - using embeddings from database
+
             candidate_emb_source = RecommendationService._extract_embedding_vector(candidate)
             job_emb_source = RecommendationService._extract_embedding_vector(job)
 
@@ -63,31 +63,31 @@ class RecommendationService:
             else:
                 semantic_score = 0.5
             
-            # 2. Skill overlap (20% weight)
+
             candidate_skills = set(candidate.skills) if hasattr(candidate, 'skills') and candidate.skills else set()
             job_skills = set()
             
-            # Parse job requirements for skills if available
+
             if hasattr(job, 'requirements') and job.requirements:
-                # Simple parsing - could be improved
+
                 job_skills = set(word.lower() for word in job.requirements.split() if len(word) > 3)
             
             skill_overlap = len(candidate_skills & job_skills) / max(len(job_skills), 1) if job_skills else 0.5
             
-            # 3. Experience fit (10% weight)
+
             candidate_exp = getattr(candidate, 'experienceYears', 0) or 0
-            # Estimate required experience from job level
+
             job_exp_levels = {'ENTRY': 0, 'MID': 3, 'SENIOR': 7, 'EXECUTIVE': 10}
             required_exp = job_exp_levels.get(getattr(job, 'experienceLevel', 'MID'), 3)
             
             exp_score = min(candidate_exp / max(required_exp, 1), 1.0) if required_exp > 0 else 0.5
             
-            # 4. Location match (10% weight)
+
             candidate_loc = (getattr(candidate, 'preferredLocation', '') or '').lower()
             job_loc = (getattr(job, 'location', '') or '').lower()
             loc_score = 1.0 if candidate_loc == job_loc or job_loc == 'remote' else 0.3
             
-            # Weighted combination
+
             total_score = (
                 weights['semantic'] * semantic_score +
                 weights['skills'] * skill_overlap +
@@ -95,8 +95,8 @@ class RecommendationService:
                 weights['location'] * loc_score
             )
             
-            return max(0.0, min(1.0, total_score))  # Clamp between 0 and 1
+            return max(0.0, min(1.0, total_score))
             
         except Exception as e:
             logger.exception("Error calculating match score")
-            return 0.5  # Default score on error
+            return 0.5

@@ -112,7 +112,7 @@ export const ClassicPDFTemplate: React.FC<{ data: ResumeData }> = ({
   return (
     <Document>
       <Page size="A4" style={styles.page}>
-        {/* Header */}
+        {}
         <View style={styles.header}>
           <Text style={styles.name}>{data.fullName}</Text>
           <View style={styles.contactInfo}>
@@ -127,7 +127,7 @@ export const ClassicPDFTemplate: React.FC<{ data: ResumeData }> = ({
           </View>
         </View>
 
-        {/* Professional Summary */}
+        {}
         {data.summary && (
           <View>
             <Text style={styles.sectionTitle}>Professional Summary</Text>
@@ -135,7 +135,7 @@ export const ClassicPDFTemplate: React.FC<{ data: ResumeData }> = ({
           </View>
         )}
 
-        {/* Experience */}
+        {}
         {data.experience && data.experience.length > 0 && (
           <View>
             <Text style={styles.sectionTitle}>Experience</Text>
@@ -157,7 +157,7 @@ export const ClassicPDFTemplate: React.FC<{ data: ResumeData }> = ({
           </View>
         )}
 
-        {/* Education */}
+        {}
         {data.education && data.education.length > 0 && (
           <View>
             <Text style={styles.sectionTitle}>Education</Text>
@@ -183,7 +183,7 @@ export const ClassicPDFTemplate: React.FC<{ data: ResumeData }> = ({
           </View>
         )}
 
-        {/* Skills */}
+        {}
         {data.skills && data.skills.length > 0 && (
           <View>
             <Text style={styles.sectionTitle}>Skills</Text>

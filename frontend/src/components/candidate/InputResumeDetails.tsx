@@ -228,7 +228,7 @@ const ResumeDetails: React.FC<ResumeDetailsProps> = ({ resume, onChange }) => {
     let completed = 0;
     let total = 0;
 
-    // Personal details (8 fields)
+    
     const personalFields = [
       "fullName",
       "email",
@@ -244,19 +244,19 @@ const ResumeDetails: React.FC<ResumeDetailsProps> = ({ resume, onChange }) => {
       if (resume[field]) completed++;
     });
 
-    // Professional summary
+    
     total++;
     if (resume.summary) completed++;
 
-    // Experience (count as 1 if at least one exists)
+    
     total++;
     if (resume.experience && resume.experience.length > 0) completed++;
 
-    // Education (count as 1 if at least one exists)
+    
     total++;
     if (resume.education && resume.education.length > 0) completed++;
 
-    // Skills (count as 1 if at least one exists)
+    
     total++;
     if (resume.skills && resume.skills.length > 0) completed++;
 
@@ -273,7 +273,7 @@ const ResumeDetails: React.FC<ResumeDetailsProps> = ({ resume, onChange }) => {
 
   return (
     <div className="p-4 space-y-8">
-      {/* Progress bar */}
+      {}
       <div className="mb-6">
         <div className="flex justify-between mb-2">
           <span className="text-sm font-medium">Profile Completion</span>
@@ -291,7 +291,7 @@ const ResumeDetails: React.FC<ResumeDetailsProps> = ({ resume, onChange }) => {
 
       <AiUsageBlock usage={latestAiUsage} />
 
-      {/* personal details */}
+      {}
       <section className="p-5 border border-gray-300 drop-shadow-xl rounded-md ">
         <h3 className="text-xl font-semibold mb-4">Personal Details</h3>
         <div className="grid grid-cols-2 gap-4">
@@ -364,7 +364,7 @@ const ResumeDetails: React.FC<ResumeDetailsProps> = ({ resume, onChange }) => {
         </div>
       </section>
 
-      {/* professional summary */}
+      {}
       <section className="p-5 border border-gray-300 drop-shadow-xl rounded-md ">
         <h3 className="text-xl font-semibold mb-2">Professional Summary</h3>
         {renderTextareaWithImprove({
@@ -378,7 +378,7 @@ const ResumeDetails: React.FC<ResumeDetailsProps> = ({ resume, onChange }) => {
         })}
       </section>
 
-      {/* experience */}
+      {}
       <section className="p-5 border border-gray-300 drop-shadow-xl rounded-md ">
         <h3 className="text-xl font-semibold mb-2">Experience</h3>
         {(resume.experience || []).map((job, idx) => (
@@ -464,7 +464,7 @@ const ResumeDetails: React.FC<ResumeDetailsProps> = ({ resume, onChange }) => {
         </button>
       </section>
 
-      {/* education */}
+      {}
       <section className="p-5 border border-gray-300 drop-shadow-xl rounded-md ">
         <h3 className="text-xl font-semibold mb-2">Education</h3>
         {(resume.education || []).map((edu, idx) => (
@@ -550,7 +550,7 @@ const ResumeDetails: React.FC<ResumeDetailsProps> = ({ resume, onChange }) => {
         </button>
       </section>
 
-      {/* skills */}
+      {}
       <section className="p-5 border border-gray-300 drop-shadow-xl rounded-md ">
         <h3 className="text-xl font-semibold mb-2">Skills</h3>
         {(resume.skills || []).map((skill, idx) => (

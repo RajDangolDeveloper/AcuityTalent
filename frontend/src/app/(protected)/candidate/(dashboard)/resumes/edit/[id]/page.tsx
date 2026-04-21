@@ -125,7 +125,7 @@ export default function UpdateResumePage() {
             </div>
           </div>
 
-          {/* Right Column (Save Button) */}
+          {}
           <div className="flex justify-end">
             <SaveResumeButton
               resumeData={resumeData}
@@ -135,7 +135,7 @@ export default function UpdateResumePage() {
           </div>
         </div>
       </div>
-      {/* main content */}
+      {}
       <div className="flex flex-1 w-full min-h-0">
         <div className="w-1/2 overflow-auto border-r">
           {(activeTab === "edit" || activeTab === "ai") && (

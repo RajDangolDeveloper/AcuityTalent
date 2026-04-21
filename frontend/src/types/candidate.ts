@@ -1,4 +1,4 @@
-// Candidate View Types
+
 
 export type ApplicationStatus =
   | "APPLIED"
@@ -20,7 +20,7 @@ export type EmploymentType =
 
 export type ExperienceLevel = "ENTRY" | "MID" | "SENIOR" | "EXECUTIVE";
 
-// Job listing for candidates
+
 export interface Job {
   id: number;
   title: string;
@@ -42,13 +42,13 @@ export interface Job {
   updatedAt: string;
 }
 
-// Job details (expanded view)
+
 export interface JobDetails extends Job {
   recruiterName?: string;
   recruiterEmail?: string;
 }
 
-// Candidate's application (matches backend ApplicationResponseDto)
+
 export interface CandidateApplication {
   id: number;
   candidateId: number;
@@ -60,7 +60,7 @@ export interface CandidateApplication {
   appliedAt: string;
   reviewedAt?: string;
   updatedAt: string;
-  // Joined fields
+  
   candidateName?: string;
   candidateEmail?: string;
   jobTitle?: string;
@@ -68,7 +68,7 @@ export interface CandidateApplication {
   resumeFileName?: string;
 }
 
-// Resume info for application
+
 export interface Resume {
   id: number;
   fileName: string;
@@ -79,7 +79,7 @@ export interface Resume {
   uploadedAt: string;
 }
 
-// Saved job
+
 export interface SavedJob {
   id: number;
   jobId: number;
@@ -87,7 +87,7 @@ export interface SavedJob {
   createdAt: string;
 }
 
-// Candidate's own profile
+
 export interface CandidateProfile {
   id: number;
   userId?: number;
@@ -135,7 +135,7 @@ export interface Education {
   createdAt: string;
 }
 
-// Pagination
+
 export interface PaginationMeta {
   page: number;
   limit: number;

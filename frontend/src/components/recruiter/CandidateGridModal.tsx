@@ -21,7 +21,7 @@ export default function CandidateGridModal({
   return (
     <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
       <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] flex flex-col">
-        {/* Header */}
+        {}
         <div className="flex items-center justify-between p-6 border-b border-gray-200 sticky top-0 bg-white">
           <h2 className="text-2xl font-bold text-gray-900">Candidates</h2>
           <button
@@ -32,7 +32,7 @@ export default function CandidateGridModal({
           </button>
         </div>
 
-        {/* Grid Content */}
+        {}
         <div className="flex-1 overflow-y-auto p-6">
           <div className="grid grid-cols-2 gap-4">
             {candidates.map((candidate) => (

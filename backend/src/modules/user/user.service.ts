@@ -144,7 +144,7 @@ export class UserService {
     try {
       const deletedUser = await this.prisma.user.delete({
         where: { id },
-        select: userSelectFields, // Reusing our safe selection object
+        select: userSelectFields, 
       });
 
       return deletedUser;

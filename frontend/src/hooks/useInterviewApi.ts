@@ -41,7 +41,7 @@ export const useCreateInterview = () => {
   });
 };
 
-// Backward-compatible export to avoid breaking existing imports.
+
 export const createInterview = useCreateInterview;
 
 export const useUpcomingInterviews = (

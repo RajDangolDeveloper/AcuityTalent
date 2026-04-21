@@ -14,7 +14,7 @@ import apiClient from "@/src/app/api/api-client";
 
 Font.register({
   family: "Helvetica-Light",
-  src: "https://fonts.gstatic.com/s/helveticaneue/v70/some-link-to-light-font.ttf", // You can use a local path or URL
+  src: "https://fonts.gstatic.com/s/helveticaneue/v70/some-link-to-light-font.ttf", 
 });
 
 const SaveResumeButton = ({
@@ -60,7 +60,7 @@ const SaveResumeButton = ({
             .join(", ");
         }
 
-        // If it's a single object, grab all its values (e.g., degree, university, year)
+        
         if (typeof data === "object") {
           return Object.values(data).join(" ");
         }

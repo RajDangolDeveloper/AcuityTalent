@@ -32,7 +32,7 @@ export class ApplicationService {
     createApplicationDto: CreateApplicationDto,
     userId: number,
   ): Promise<ApplicationResponseDto> {
-    // Verify candidate exists
+    
     const candidate = await this.prisma.candidateProfile.findUnique({
       where: { userId },
     });
@@ -142,7 +142,7 @@ export class ApplicationService {
       throw new ForbiddenException('Only recruiters can view applications');
     }
 
-    // Build filter
+    
     const where: any = {
       job: {
         recruiterId: recruiter.id,
@@ -765,7 +765,7 @@ export class ApplicationService {
     };
   }
 
-  //Dashboard Functions
+  
   async getResponseRate(id: number) {
     const candidate = await this.prisma.candidateProfile.findUnique({
       where: {
@@ -877,14 +877,14 @@ export class ApplicationService {
     const trimmed = value.trim();
     if (!trimmed) return '';
 
-    // Some flows store textContent as a JSON-stringified string (e.g. "..."), so unwrap when possible.
+    
     try {
       const parsed = JSON.parse(trimmed);
       if (typeof parsed === 'string') {
         return parsed.trim();
       }
     } catch {
-      // Ignore parse errors and use raw text.
+      
     }
 
     return trimmed;

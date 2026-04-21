@@ -78,7 +78,7 @@ export class ResumeController {
     };
   }
 
-  /** Streams file bytes as attachment so the browser triggers a Save As dialog */
+  
   @Get(':id/download')
   async downloadResume(
     @Param('id') id: string,

@@ -12,10 +12,10 @@ interface PremiumFeatureGateProps {
   children?: React.ReactNode;
 }
 
-/**
- * Component to gate premium AI features for candidates.
- * Shows a lock overlay and upgrade prompt if user is not premium.
- */
+
+
+
+
 export const PremiumFeatureGate: React.FC<PremiumFeatureGateProps> = ({
   user,
   featureName = "Premium Feature",
@@ -29,7 +29,7 @@ export const PremiumFeatureGate: React.FC<PremiumFeatureGateProps> = ({
 
   return (
     <div className="relative">
-      {/* Overlay blocking the feature */}
+      {}
       <div className="absolute inset-0 bg-black bg-opacity-40 rounded-lg flex items-center justify-center z-10">
         <div className="bg-white rounded-lg p-6 max-w-sm mx-auto shadow-lg">
           <div className="flex items-center justify-center w-12 h-12 bg-blue-100 rounded-full mx-auto mb-4">
@@ -50,7 +50,7 @@ export const PremiumFeatureGate: React.FC<PremiumFeatureGateProps> = ({
         </div>
       </div>
 
-      {/* Blurred content behind overlay */}
+      {}
       <div className="opacity-50 pointer-events-none">{children}</div>
     </div>
   );

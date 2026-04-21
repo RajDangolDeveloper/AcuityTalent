@@ -91,7 +91,7 @@ export default function CreateJobPage() {
       ...prev,
       [name]: value,
     }));
-    // Clear error for this field
+    
     if (errors[name]) {
       setErrors((prev) => ({
         ...prev,
@@ -103,7 +103,7 @@ export default function CreateJobPage() {
   return (
     <div className="min-h-screen bg-gray-50 p-8">
       <div className="max-w-7xl mx-auto">
-        {/* Header */}
+        {}
         <div className="mb-8">
           <button
             onClick={() => router.back()}
@@ -117,16 +117,16 @@ export default function CreateJobPage() {
           </h1>
         </div>
 
-        {/* Form */}
+        {}
         <form className="" onSubmit={handleSubmit}>
           <div className="bg-white rounded-lg border-2 border-gray-300 p-8 space-y-6">
-            {/* Main Information Section */}
+            {}
             <div>
               <h2 className="text-lg font-bold text-gray-900 mb-6">
                 Main Information
               </h2>
 
-              {/* Title and Company Row */}
+              {}
               <div className="grid grid-cols-2 gap-6 mb-6">
                 <div>
                   <label className="block text-sm font-semibold text-gray-900 mb-2">
@@ -239,7 +239,7 @@ export default function CreateJobPage() {
                 </div>
               </div>
 
-              {/* Job Description */}
+              {}
               <div>
                 <label className="block text-sm font-semibold text-gray-900 mb-2">
                   Job Description <span className="text-red-500">*</span>
@@ -306,7 +306,7 @@ In this role, you'll be responsible for creating intuitive, user-centered design
               </div>
             </div>
 
-            {/* Submit Button */}
+            {}
             <div className="flex justify-end gap-4 pt-6 border-t border-gray-200">
               <button
                 type="button"

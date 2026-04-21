@@ -1,8 +1,8 @@
 import { CompanySize, Industry } from '@prisma/client';
 
-/**
- * DTO for company response
- */
+
+
+
 export class CompanyResponseDto {
   id: number;
   ownerId: number;
