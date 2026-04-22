@@ -1,5 +1,3 @@
-
-
 export type ApplicationStatus =
   | "APPLIED"
   | "REVIEWED"
@@ -19,7 +17,6 @@ export type EmploymentType =
   | "FREELANCE";
 
 export type ExperienceLevel = "ENTRY" | "MID" | "SENIOR" | "EXECUTIVE";
-
 
 export interface Job {
   id: number;
@@ -42,12 +39,10 @@ export interface Job {
   updatedAt: string;
 }
 
-
 export interface JobDetails extends Job {
   recruiterName?: string;
   recruiterEmail?: string;
 }
-
 
 export interface CandidateApplication {
   id: number;
@@ -57,17 +52,17 @@ export interface CandidateApplication {
   status: ApplicationStatus;
   coverLetter?: string;
   matchScore?: number;
+  riskScore?: number;
   appliedAt: string;
   reviewedAt?: string;
   updatedAt: string;
-  
+
   candidateName?: string;
   candidateEmail?: string;
   jobTitle?: string;
   companyName?: string;
   resumeFileName?: string;
 }
-
 
 export interface Resume {
   id: number;
@@ -79,14 +74,12 @@ export interface Resume {
   uploadedAt: string;
 }
 
-
 export interface SavedJob {
   id: number;
   jobId: number;
   job: Job;
   createdAt: string;
 }
-
 
 export interface CandidateProfile {
   id: number;
@@ -134,7 +127,6 @@ export interface Education {
   description?: string | null;
   createdAt: string;
 }
-
 
 export interface PaginationMeta {
   page: number;

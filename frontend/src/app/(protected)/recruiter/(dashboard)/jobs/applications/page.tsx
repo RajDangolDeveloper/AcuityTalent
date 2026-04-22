@@ -68,7 +68,7 @@ export default function JobsPage() {
   const [expandedStatuses, setExpandedStatuses] = useState<
     Record<string, boolean>
   >(() => ({
-    ACTIVE: true, 
+    ACTIVE: true,
   }));
 
   const toggleStatus = (status: string) => {
@@ -117,7 +117,7 @@ export default function JobsPage() {
             ) : (
               statusOrder.map((status) => {
                 const statusJobs = groupedJobs[status];
-                if (!statusJobs || statusJobs.length === 0) return null; 
+                if (!statusJobs || statusJobs.length === 0) return null;
 
                 const isExpanded = expandedStatuses[status] || false;
                 const label = statusLabels[status] || status;
@@ -160,7 +160,6 @@ export default function JobsPage() {
           </div>
         </div>
 
-        {}
         {selectedJob ? (
           <div className="flex-1 flex flex-col">
             <div className="p-6 border-b border-gray-300 bg-gray-50">
@@ -173,9 +172,7 @@ export default function JobsPage() {
                 </span>
               </div>
 
-              {}
               <div className="flex flex-wrap gap-3 mt-3">
-                {}
                 <span className="flex items-center gap-2 bg-gray-100 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium">
                   <MapPin size={16} />
                   {String(selectedJob.location).toLowerCase().includes("remote")
@@ -183,7 +180,6 @@ export default function JobsPage() {
                     : "On-site"}
                 </span>
 
-                {}
                 {selectedJob.employmentType && (
                   <span className="flex items-center gap-2 bg-gray-100 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium">
                     <Briefcase size={16} />
@@ -193,19 +189,16 @@ export default function JobsPage() {
                   </span>
                 )}
 
-                {}
                 {selectedJob.salaryRange !== undefined && (
                   <span className="flex items-center gap-2 bg-gray-100 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium">
                     ${selectedJob.salaryRange}
                   </span>
                 )}
 
-                {}
                 <span className="flex items-center gap-2 bg-gray-100 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium">
                   3-5 Years
                 </span>
 
-                {}
                 {selectedJob.createdAt && (
                   <span className="flex items-center gap-2 bg-gray-100 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium">
                     <Calendar size={16} />
@@ -216,7 +209,6 @@ export default function JobsPage() {
             </div>
 
             <div className="flex-1 flex flex-col">
-              {}
               {candidatesLoading ? (
                 <div className="flex-1 w-full flex items-center justify-center">
                   <p className="text-gray-500">Loading candidates...</p>
@@ -231,7 +223,6 @@ export default function JobsPage() {
                   style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
                 >
                   {!showGridModal ? (
-                    
                     <div className="flex flex-col px-4 py-4 gap-4 overflow-y-auto">
                       {candidates.map((candidate) => (
                         <Link
@@ -239,12 +230,9 @@ export default function JobsPage() {
                           href={`/recruiter/jobs/applications/${candidate.id}`}
                         >
                           <div className="bg-white border border-gray-300 rounded-lg p-5 flex items-start gap-6 hover:shadow-md transition-colors relative">
-                            {}
                             <div className="w-20 h-20 rounded-full bg-gray-200 flex items-center justify-center text-gray-400 text-2xl font-light shrink-0">
                               {(candidate.candidateName || "").charAt(0) || "A"}
                             </div>
-
-                            {}
                             <div className="flex-1">
                               <div className="flex items-center justify-between">
                                 <h3 className="text-2xl font-bold text-gray-900">
@@ -318,7 +306,6 @@ export default function JobsPage() {
                               </div>
                             </div>
 
-                            {}
                             <button
                               onClick={(e) => {
                                 e.preventDefault();
@@ -334,7 +321,6 @@ export default function JobsPage() {
                       ))}
                     </div>
                   ) : (
-                    
                     <div className="p-4 grid grid-cols-2 gap-4">
                       {candidates.map((candidate) => (
                         <Link

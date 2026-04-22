@@ -179,11 +179,14 @@ export class ApplicationController {
   }
 
   @Get(':id')
+  @UseGuards(JwtAuthGuard)
   async getApplicationById(
     @Param('id') id: string,
+    @Req() req: any,
   ): Promise<{ statusCode: number; data: ApplicationResponseDto }> {
     const application = await this.applicationService.getApplicationById(
       parseInt(id),
+      req.user.id,
     );
 
     return {
@@ -209,6 +212,8 @@ export class ApplicationController {
     };
   }
 
+  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @Patch(':id/shortlist')
   async shortlistApplication(
     @Param('id') id: string,
@@ -225,6 +230,8 @@ export class ApplicationController {
     };
   }
 
+  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @Patch(':id/interview')
   async updateToInterviewing(
     @Param('id') id: string,
@@ -241,6 +248,8 @@ export class ApplicationController {
     };
   }
 
+  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @Patch(':id/accept')
   async acceptApplication(
     @Param('id') id: string,
@@ -257,6 +266,8 @@ export class ApplicationController {
     };
   }
 
+  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @Patch(':id/offer')
   async extendOffer(
     @Param('id') id: string,
@@ -273,6 +284,8 @@ export class ApplicationController {
     };
   }
 
+  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @Patch(':id/reject')
   async rejectApplication(
     @Param('id') id: string,

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Get, Injectable } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 
 @Injectable()

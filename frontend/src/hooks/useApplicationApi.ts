@@ -1,6 +1,6 @@
 "use client";
 
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import apiClient from "@/src/app/api/api-client";
 import { CandidateApplication, SingleResponse } from "@/src/types/candidate";
 import { candidateQueryKeys } from "@/src/constants/candidate/query-keys";
@@ -56,6 +56,20 @@ export const useCreateApplication = () => {
           queryKey: ["candidate-recommended-jobs"],
         }),
       ]);
+    },
+  });
+};
+
+export const useGetApplicationById = (applicationId: number) => {
+  const isValidId = applicationId && !isNaN(applicationId) && applicationId > 0;
+
+  return useQuery({
+    queryKey: ["application", applicationId],
+    queryFn: async () => {
+      const response = await apiClient.get<
+        SingleResponse<CandidateApplication>
+      >(`/applications/${applicationId}`);
+      return response.data.data;
     },
   });
 };

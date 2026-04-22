@@ -1,7 +1,6 @@
 import { Controller, Get } from '@nestjs/common';
 import { AppService } from './app.service';
 import { EmailService } from './config/email.service';
-import { SendOtp } from './modules/auth/dto/sendOtp.dto';
 
 @Controller()
 export class AppController {
@@ -16,13 +15,12 @@ export class AppController {
   }
 
   @Get('test-email')
-  sendTestEmail(): void {
-    const email = 'rameshoer827@gmail.com';
-    const otp = 800000;
-    const sendOtp: SendOtp = {
-      email,
-      otp,
+  async sendTestEmail(): Promise<{ statusCode: number; message: string }> {
+    await this.emailService.sendTestEmail('rajdangol.dev@gmail.com');
+
+    return {
+      statusCode: 200,
+      message: 'Test email sent to rajdangol.dev@gmail.com',
     };
-    this.emailService.sendOtpEmail(sendOtp);
   }
 }

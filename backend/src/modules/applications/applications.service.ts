@@ -32,7 +32,6 @@ export class ApplicationService {
     createApplicationDto: CreateApplicationDto,
     userId: number,
   ): Promise<ApplicationResponseDto> {
-    
     const candidate = await this.prisma.candidateProfile.findUnique({
       where: { userId },
     });
@@ -142,7 +141,6 @@ export class ApplicationService {
       throw new ForbiddenException('Only recruiters can view applications');
     }
 
-    
     const where: any = {
       job: {
         recruiterId: recruiter.id,
@@ -219,6 +217,7 @@ export class ApplicationService {
 
   async getApplicationById(
     applicationId: number,
+    userId: number,
   ): Promise<ApplicationResponseDto> {
     const application = await this.prisma.application.findUnique({
       where: { id: applicationId },
@@ -234,52 +233,49 @@ export class ApplicationService {
       throw new NotFoundException('Application not found');
     }
 
-    const recruiter = await this.prisma.recruiterProfile.findUnique({
-      where: { id: application.job.recruiterId },
+    const recruiterProfile = await this.prisma.recruiterProfile.findUnique({
+      where: { userId },
     });
 
-    if (!recruiter) {
-      throw new NotFoundException('Recruiter not found');
-    }
-
-    const candidate = await this.prisma.candidateProfile.findUnique({
-      where: { id: application.candidateId },
+    const candidateProfile = await this.prisma.candidateProfile.findUnique({
+      where: { userId },
     });
-
-    if (!candidate) {
-      throw new NotFoundException('Candidate not found');
-    }
 
     const isRecruiter =
-      recruiter && recruiter.id === application.job.recruiterId;
-    const isCandidate = candidate && candidate.id === application.candidateId;
+      recruiterProfile && recruiterProfile.id === application.job.recruiterId;
+    const isCandidate =
+      candidateProfile && candidateProfile.id === application.candidateId;
+
     if (!isRecruiter && !isCandidate) {
       throw new ForbiddenException(
         'You do not have permission to view this application',
       );
     }
 
-    const applicationUpdate = await this.prisma.application.update({
-      where: { id: applicationId },
-      data: {
-        status: 'REVIEWED',
-      },
-      include: {
-        candidate: {
-          include: { user: true },
-        },
-        job: {
-          include: {
-            recruiter: {
-              include: { company: true },
+    const applicationToReturn =
+      application.status === ApplicationStatus.APPLIED
+        ? await this.prisma.application.update({
+            where: { id: applicationId },
+            data: {
+              status: ApplicationStatus.REVIEWED,
             },
-          },
-        },
-        resume: true,
-      },
-    });
+            include: {
+              candidate: {
+                include: { user: true },
+              },
+              job: {
+                include: {
+                  recruiter: {
+                    include: { company: true },
+                  },
+                },
+              },
+              resume: true,
+            },
+          })
+        : application;
 
-    return this.formatApplicationResponseWithRisk(application);
+    return await this.formatApplicationResponseWithRisk(applicationToReturn);
   }
 
   async downloadApplicationResume(
@@ -583,8 +579,7 @@ export class ApplicationService {
           });
           break;
       }
-    } catch (error) {
-    }
+    } catch (error) {}
   }
 
   private async sendApplicationNotificationEmail(
@@ -598,8 +593,7 @@ export class ApplicationService {
         jobTitle: application.job.title,
         candidateEmail: application.candidate.user.email,
       });
-    } catch (error) {
-    }
+    } catch (error) {}
   }
 
   private formatApplicationResponse(application: any): ApplicationResponseDto {
@@ -765,7 +759,6 @@ export class ApplicationService {
     };
   }
 
-  
   async getResponseRate(id: number) {
     const candidate = await this.prisma.candidateProfile.findUnique({
       where: {
@@ -877,15 +870,12 @@ export class ApplicationService {
     const trimmed = value.trim();
     if (!trimmed) return '';
 
-    
     try {
       const parsed = JSON.parse(trimmed);
       if (typeof parsed === 'string') {
         return parsed.trim();
       }
-    } catch {
-      
-    }
+    } catch {}
 
     return trimmed;
   }

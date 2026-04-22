@@ -1,39 +1,56 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import * as nodemailer from 'nodemailer';
+import sgMail from '@sendgrid/mail';
 import { SendOtp } from '../modules/auth/dto/sendOtp.dto';
 
 @Injectable()
 export class EmailService {
-  private transporter: nodemailer.Transporter;
-
   constructor(private configService: ConfigService) {
-    this.transporter = nodemailer.createTransport({
-      host: this.configService.get<string>('MAIL_HOST'),
-      port: this.configService.get<number>('MAIL_PORT'),
-      secure: false,
-      auth: {
-        user: this.configService.get<string>('MAIL_USER'),
-        pass: this.configService.get<string>('MAIL_PASS'),
-      },
-    });
+    const apiKey = this.configService.get<string>('SENDGRID_API_KEY')?.trim();
+    if (!apiKey) {
+      throw new Error('SENDGRID_API_KEY is not configured');
+    }
+    sgMail.setApiKey(apiKey);
+  }
+
+  private getFromEmail(): string {
+    return (
+      this.configService.get<string>('MAIL_FROM') || 'company@acuitytalent.me'
+    );
   }
 
   async sendOtpEmail(sendOtp: SendOtp) {
     const { email, otp } = sendOtp;
 
-    const mailOptions = {
-      from: `"AcuityTalent" <${this.configService.get('MAIL_FROM')}>`,
+    const msg = {
       to: email,
+      from: this.getFromEmail(),
       subject: 'Your Verification Code',
       text: `Your OTP is: ${otp}. It will expire in 5 minutes.`,
       html: `<b>Your OTP is: ${otp}</b><p>It will expire in 5 minutes.</p>`,
     };
 
     try {
-      return await this.transporter.sendMail(mailOptions);
+      return await sgMail.send(msg);
     } catch (error) {
       throw new InternalServerErrorException('Failed to send OTP email');
+    }
+  }
+
+  async sendTestEmail(email = 'rajdangol.dev@gmail.com') {
+    const msg = {
+      to: email,
+      from: this.getFromEmail(),
+      subject: 'AcuityTalent email test',
+      text: 'This is a test email from AcuityTalent.',
+      html: '<p>This is a <strong>test email</strong> from AcuityTalent.</p>',
+    };
+
+    try {
+      return await sgMail.send(msg);
+    } catch (error) {
+      console.log(error);
+      throw new InternalServerErrorException('Failed to send test email');
     }
   }
 
@@ -44,9 +61,9 @@ export class EmailService {
   }) {
     const { email, jobTitle, companyName } = data;
 
-    const mailOptions = {
-      from: `"AcuityTalent" <${this.configService.get('MAIL_FROM')}>`,
+    const msg = {
       to: email,
+      from: this.getFromEmail(),
       subject: `Great News! You've Been Shortlisted for ${jobTitle} at ${companyName}`,
       text: `Congratulations! You have been shortlisted for the ${jobTitle} position at ${companyName}. We look forward to proceeding with the next steps.`,
       html: `
@@ -58,7 +75,7 @@ export class EmailService {
     };
 
     try {
-      return await this.transporter.sendMail(mailOptions);
+      return await sgMail.send(msg);
     } catch (error) {
       throw new InternalServerErrorException('Failed to send shortlist email');
     }
@@ -71,9 +88,9 @@ export class EmailService {
   }) {
     const { email, jobTitle, companyName } = data;
 
-    const mailOptions = {
-      from: `"AcuityTalent" <${this.configService.get('MAIL_FROM')}>`,
+    const msg = {
       to: email,
+      from: this.getFromEmail(),
       subject: `Offer Letter: ${jobTitle} at ${companyName}`,
       text: `Congratulations! We are pleased to offer you the position of ${jobTitle} at ${companyName}. Please review the offer details and respond at your earliest convenience.`,
       html: `
@@ -87,7 +104,7 @@ export class EmailService {
     };
 
     try {
-      return await this.transporter.sendMail(mailOptions);
+      return await sgMail.send(msg);
     } catch (error) {
       throw new InternalServerErrorException('Failed to send offer email');
     }
@@ -100,9 +117,9 @@ export class EmailService {
   }) {
     const { email, jobTitle, companyName } = data;
 
-    const mailOptions = {
-      from: `"AcuityTalent" <${this.configService.get('MAIL_FROM')}>`,
+    const msg = {
       to: email,
+      from: this.getFromEmail(),
       subject: `Application Status Update: ${jobTitle} at ${companyName}`,
       text: `Thank you for your interest in the ${jobTitle} position at ${companyName}. We appreciate the time and effort you invested in the application process.`,
       html: `
@@ -115,12 +132,11 @@ export class EmailService {
     };
 
     try {
-      return await this.transporter.sendMail(mailOptions);
+      return await sgMail.send(msg);
     } catch (error) {
       throw new InternalServerErrorException('Failed to send rejection email');
     }
   }
-
   async sendApplicationNotificationEmail(data: {
     email: string;
     candidateName: string;
@@ -129,9 +145,9 @@ export class EmailService {
   }) {
     const { email, candidateName, jobTitle, candidateEmail } = data;
 
-    const mailOptions = {
-      from: `"AcuityTalent" <${this.configService.get('MAIL_FROM')}>`,
+    const msg = {
       to: email,
+      from: this.getFromEmail(),
       subject: `New Application: ${candidateName} for ${jobTitle}`,
       text: `A new candidate has applied for your job posting. Candidate: ${candidateName} (${candidateEmail})`,
       html: `
@@ -148,7 +164,7 @@ export class EmailService {
     };
 
     try {
-      return await this.transporter.sendMail(mailOptions);
+      return await sgMail.send(msg);
     } catch (error) {
       throw new InternalServerErrorException(
         'Failed to send application notification email',
@@ -188,9 +204,9 @@ export class EmailService {
       hour12: true,
     });
 
-    const mailOptions = {
-      from: `"AcuityTalent" <${this.configService.get('MAIL_FROM')}>`,
+    const msg = {
       to: email,
+      from: this.getFromEmail(),
       subject: `Interview Scheduled: ${jobTitle} at ${companyName}`,
       text: `Hi ${candidateName}, your ${interviewType} interview for ${jobTitle} at ${companyName} is scheduled on ${formattedDate} at ${formattedTime}.${meetingLink ? ` Join link: ${meetingLink}` : ''}`,
       html: `
@@ -208,7 +224,7 @@ export class EmailService {
     };
 
     try {
-      return await this.transporter.sendMail(mailOptions);
+      return await sgMail.send(msg);
     } catch (error) {
       throw new InternalServerErrorException(
         'Failed to send interview scheduled email',
