@@ -1,12 +1,4 @@
-
-
-
-
-
-import { UserResponseDto } from "@/types/user";
-
-
-
+import { UserResponseDto } from "../types/user";
 
 export function isPremiumUser(user: UserResponseDto | null): boolean {
   if (!user) return false;
@@ -16,10 +8,6 @@ export function isPremiumUser(user: UserResponseDto | null): boolean {
   const expiresAt = new Date(user.subscriptionExpiresAt);
   return expiresAt > new Date();
 }
-
-
-
-
 
 export function getDaysRemaining(user: UserResponseDto | null): number | null {
   if (!user || !user.subscriptionExpiresAt) return null;
@@ -36,9 +24,6 @@ export function getDaysRemaining(user: UserResponseDto | null): number | null {
   return daysRemaining;
 }
 
-
-
-
 export function formatExpiryDate(expiresAt: string | null): string {
   if (!expiresAt) return "None";
 
@@ -49,9 +34,6 @@ export function formatExpiryDate(expiresAt: string | null): string {
     day: "numeric",
   });
 }
-
-
-
 
 export function getSubscriptionStatusString(
   user: UserResponseDto | null,

@@ -2,9 +2,9 @@
 
 import React from "react";
 import Link from "next/link";
-import { UserResponseDto } from "@/types/user";
 import { isPremiumUser } from "@/src/utils/subscription";
 import { Lock, ArrowUpRight } from "lucide-react";
+import { UserResponseDto } from "@/src/types/user";
 
 interface PremiumFeatureGateProps {
   user: UserResponseDto | null | undefined;
@@ -12,16 +12,12 @@ interface PremiumFeatureGateProps {
   children?: React.ReactNode;
 }
 
-
-
-
-
 export const PremiumFeatureGate: React.FC<PremiumFeatureGateProps> = ({
   user,
   featureName = "Premium Feature",
   children,
 }) => {
-  const isPremium = isPremiumUser(user);
+  const isPremium = isPremiumUser(user ?? null);
 
   if (isPremium) {
     return <>{children}</>;

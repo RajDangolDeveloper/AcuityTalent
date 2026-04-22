@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState } from "react";
@@ -87,7 +86,10 @@ export default function RecruiterInterviewCard({
             </div>
 
             <h4 className="font-semibold text-gray-800 truncate">
-              {interview.application?.candidate?.name || "Unknown Candidate"}
+              {interview.application?.candidate?.user.firstName +
+                " " +
+                interview.application?.candidate?.user.lastName ||
+                "Unknown Candidate"}
             </h4>
             <p className="text-sm text-gray-500 truncate">
               {interview.application?.job?.title || "Unknown Position"}
@@ -206,7 +208,6 @@ export default function RecruiterInterviewCard({
     );
   }
 
-  
   return (
     <div className="group bg-white/85 backdrop-blur-md border border-white/50 rounded-xl p-4 shadow-sm hover:shadow-md transition-all">
       <div className="flex items-start gap-4">
@@ -350,7 +351,7 @@ export default function RecruiterInterviewCard({
                   onClick={(e) => {
                     e.stopPropagation();
                     navigator.clipboard.writeText(interview.roomId || "");
-                    
+
                     setShowActions(false);
                   }}
                   className="w-full px-3 py-2.5 text-left text-sm text-gray-600 hover:bg-gray-50"

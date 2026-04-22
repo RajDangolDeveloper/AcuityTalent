@@ -47,9 +47,8 @@ export default function JobsPage() {
 
   const jobs = jobsData?.data || [];
 
-  
   const activeJobCount = jobs.filter((job) => job.status === "ACTIVE").length;
-  const maxActiveJobs = isPremiumUser(currentUser) ? -1 : 2; 
+  const maxActiveJobs = isPremiumUser(currentUser ?? null) ? -1 : 2;
   const canCreateMoreJobs =
     maxActiveJobs === -1 || activeJobCount < maxActiveJobs;
 
@@ -328,7 +327,7 @@ export default function JobsPage() {
       </Link>
 
       {}
-      {!isPremiumUser(currentUser) && (
+      {!isPremiumUser(currentUser ?? null) && (
         <div className="absolute bottom-20 right-2 bg-yellow-50 border border-yellow-200 rounded-md p-4 w-64">
           <div className="flex items-start gap-2">
             <div className="flex-1">

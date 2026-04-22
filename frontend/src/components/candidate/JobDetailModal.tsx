@@ -10,14 +10,11 @@ import {
   Bookmark,
   Send,
 } from "lucide-react";
-import {
-  useCreateApplication,
-  useSaveJob,
-  useRemoveSavedJob,
-  useCandidateResumes,
-} from "@/src/hooks/useCandidateApi";
+import { useCandidateResumes } from "@/src/hooks/useCandidateApi";
 import { JobDetails } from "@/src/types/candidate";
 import Notification from "@/src/element/Notification";
+import { useCreateApplication } from "@/src/hooks/useApplicationApi";
+import { useSaveJob, useRemoveSavedJob } from "@/src/hooks/useJobApi";
 
 interface JobDetailModalProps {
   job: JobDetails;
@@ -38,12 +35,10 @@ export default function JobDetailModal({
   const [coverLetter, setCoverLetter] = useState("");
   const [showApplyForm, setShowApplyForm] = useState(false);
 
-  
   const createApplicationMutation = useCreateApplication();
   const saveJobMutation = useSaveJob();
   const removeSavedJobMutation = useRemoveSavedJob();
 
-  
   const { data: resumes = [] } = useCandidateResumes();
 
   if (!isOpen) return null;
@@ -64,7 +59,6 @@ export default function JobDetailModal({
         coverLetter,
       });
 
-      
       if (!isSaved) {
         await saveJobMutation.mutateAsync(job.id);
       }
@@ -74,7 +68,6 @@ export default function JobDetailModal({
         toastStatus: "success",
       });
 
-      
       setSelectedResumeId(null);
       setCoverLetter("");
       setShowApplyForm(false);

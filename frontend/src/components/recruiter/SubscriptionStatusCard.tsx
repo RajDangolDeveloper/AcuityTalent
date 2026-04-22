@@ -2,22 +2,18 @@
 
 import React from "react";
 import Link from "next/link";
-import { UserResponseDto } from "@/types/user";
 import {
   isPremiumUser,
   getDaysRemaining,
   formatExpiryDate,
 } from "@/src/utils/subscription";
 import { ArrowUpRight, Check } from "lucide-react";
+import { UserResponseDto } from "@/src/types/user";
 
 interface SubscriptionStatusCardProps {
   user: UserResponseDto | null | undefined;
   variant?: "compact" | "full";
 }
-
-
-
-
 
 export const SubscriptionStatusCard: React.FC<SubscriptionStatusCardProps> = ({
   user,
@@ -56,7 +52,9 @@ export const SubscriptionStatusCard: React.FC<SubscriptionStatusCardProps> = ({
             </div>
             <p className="text-sm text-green-800">
               {daysRemaining && daysRemaining > 0
-                ? `Renews on ${formatExpiryDate(user.subscriptionExpiresAt)}`
+                ? `Renews on ${formatExpiryDate(
+                    user.subscriptionExpiresAt ?? null,
+                  )}`
                 : "Your subscription has expired"}
             </p>
           </div>
