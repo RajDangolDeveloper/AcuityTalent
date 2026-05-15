@@ -642,10 +642,14 @@ export default function Onboarding() {
       setStep(3);
     } else {
       const errors: CandidateOnboardingErrors = {};
-      if (!isValidUrl(step3Data.github)) {
+      if (!step3Data.github.trim()) {
+        errors.github = "GitHub URL is required.";
+      } else if (!isValidUrl(step3Data.github)) {
         errors.github = "Please enter a valid GitHub URL.";
       }
-      if (!isValidUrl(step3Data.linkedin)) {
+      if (!step3Data.linkedin.trim()) {
+        errors.linkedin = "LinkedIn URL is required.";
+      } else if (!isValidUrl(step3Data.linkedin)) {
         errors.linkedin = "Please enter a valid LinkedIn URL.";
       }
 
