@@ -11,8 +11,12 @@ async function bootstrap() {
     logger: ['verbose'],
   });
 
+  const allowedOrigins = process.env.FRONTEND_URLS?.split(',') || [
+    'http://localhost:3000',
+  ];
+
   app.enableCors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+    origin: allowedOrigins,
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
