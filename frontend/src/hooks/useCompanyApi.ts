@@ -147,3 +147,31 @@ export const useUploadCompanyLogo = () => {
     },
   });
 };
+
+export const useUploadCompanyBackground = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ id, file }: { id: number; file: File }) => {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const response = await apiClient.post<SingleResponse<Company>>(
+        `/companies/${id}/upload/background`,
+        formData,
+        {
+          headers: { "Content-Type": "multipart/form-data" },
+        },
+      );
+
+      return response.data.data;
+    },
+    onSuccess: async (company) => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["get-companies"] }),
+        queryClient.invalidateQueries({ queryKey: ["recruiter-companies"] }),
+        queryClient.invalidateQueries({ queryKey: ["company", company.id] }),
+      ]);
+    },
+  });
+};

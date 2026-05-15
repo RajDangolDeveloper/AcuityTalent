@@ -3,13 +3,17 @@
 import { useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { Github, Linkedin } from "lucide-react";
 import {
   useCreateCandidateProfile,
   useUpdateCandidateProfile,
 } from "@/src/hooks/useCandidateApi";
 import { useUpdateUser } from "@/src/hooks/useUserApi";
 import { EmploymentType } from "@/src/types/candidate";
-import { useGetCompanies, useGetCompaniesName } from "@/src/hooks/useCompanyApi";
+import {
+  useGetCompanies,
+  useGetCompaniesName,
+} from "@/src/hooks/useCompanyApi";
 
 const STEPS = [
   { id: 1, label: "Personal" },
@@ -412,7 +416,7 @@ function Step3({
       <h2 className="text-base font-bold text-gray-900 m-0 mb-4">Socials</h2>
       <div className="flex flex-col gap-3">
         <div className="flex items-center border-[1.5px] border-[#e2e2e2] rounded-xl px-4 py-3 gap-2.5 bg-white transition-colors focus-within:border-[#4b3fa0]">
-          <span className="text-lg shrink-0">ðŸ™</span>
+          <Github className="text-lg shrink-0" size={18} />
           <input
             type="text"
             placeholder="Github Link"
@@ -422,7 +426,7 @@ function Step3({
           />
         </div>
         <div className="flex items-center border-[1.5px] border-[#e2e2e2] rounded-xl px-4 py-3 gap-2.5 bg-white transition-colors focus-within:border-[#4b3fa0]">
-          <span className="text-lg shrink-0">ðŸ”—</span>
+          <Linkedin className="text-lg shrink-0" size={18} />
           <input
             type="text"
             placeholder="LinkedIn Url"
@@ -441,7 +445,8 @@ export default function Onboarding() {
   const { data: session, update } = useSession();
   const { mutateAsync: updateCandidateProfile, isPending: creatingProfile } =
     useUpdateCandidateProfile();
-  const { data: companiesResponse, isLoading: companiesLoading } = useGetCompaniesName();
+  const { data: companiesResponse, isLoading: companiesLoading } =
+    useGetCompaniesName();
   const companies = companiesResponse?.data || [];
   const { mutateAsync: updateUser, isPending: updatingUser } = useUpdateUser();
 
@@ -562,7 +567,7 @@ export default function Onboarding() {
           phone: step1Data.phone,
         });
 
-        await update({onboarded: true});
+        await update({ onboarded: true });
 
         router.push("/candidate/dashboard");
       } catch (error) {

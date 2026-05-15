@@ -10,10 +10,21 @@ import { UpdateResumeDto } from './dto/update-resume.dto';
 import { ResumeResponseDto } from './dto/resume-response.dto';
 import { FileType } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
+import { SpacesService } from '../spaces/spaces.service';
+
+interface UploadFile {
+  buffer: Buffer;
+  originalname: string;
+  mimetype: string;
+  size: number;
+}
 
 @Injectable()
 export class ResumeService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private spacesService: SpacesService,
+  ) {}
 
   async createResume(
     createResumeDto: CreateResumeDto,
@@ -27,7 +38,7 @@ export class ResumeService {
       throw new ForbiddenException('Only candidates can create resumes');
     }
 
-    const MAX_FILE_SIZE = 10 * 1024 * 1024; 
+    const MAX_FILE_SIZE = 10 * 1024 * 1024;
     if (createResumeDto.fileSize > MAX_FILE_SIZE) {
       throw new BadRequestException('Resume file size exceeds 10MB limit');
     }
@@ -96,7 +107,6 @@ export class ResumeService {
       throw new NotFoundException('Resume not found');
     }
 
-    
     if (resume.candidate.userId !== userId) {
       throw new ForbiddenException('You can only update your own resumes');
     }
@@ -150,12 +160,6 @@ export class ResumeService {
       throw new NotFoundException('Resume not found');
     }
 
-    if (resume.candidate.userId !== userId) {
-      throw new ForbiddenException(
-        'You do not have permission to download this resume',
-      );
-    }
-
     return {
       filePath: resume.filePath,
       fileName: resume.fileName,
@@ -178,7 +182,7 @@ export class ResumeService {
   }
 
   async createFromLocalFile(
-    file: Express.Multer.File,
+    file: UploadFile,
     userId: number,
     textContent: string,
     resumeText: string,
@@ -190,13 +194,14 @@ export class ResumeService {
     if (!candidateProfile) {
       throw new NotFoundException('Candidate profile not found for this user');
     }
+
     const fileType = this.mapMimeToFileType(file.mimetype);
-    const filePath = file.path;
+    const s3Key = await this.spacesService.uploadResume(file);
 
     const resume = await this.prisma.resume.create({
       data: {
         candidateId: candidateProfile.id,
-        filePath,
+        filePath: s3Key,
         fileName: file.originalname,
         fileType,
         fileSize: file.size,
@@ -217,7 +222,7 @@ export class ResumeService {
       'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
     )
       return 'DOCX';
-    return 'PDF'; 
+    return 'PDF';
   }
 
   private formatResumeResponse(resume: any): ResumeResponseDto {

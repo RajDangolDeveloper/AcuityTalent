@@ -16,7 +16,7 @@ export default function CreateJobPage() {
     salary: "",
     employmentType: "FULL_TIME",
     experience: "",
-    experienceLevel: "",
+    experienceLevel: "ENTRY",
     requirements: "",
     location: "",
     locationType: "ONSITE",
@@ -50,6 +50,11 @@ export default function CreateJobPage() {
         toastMessage: "Please fill in all required fields",
         toastStatus: "error",
       });
+      return;
+    }
+
+    if (formData.description.length <= 20) {
+      setErrors({ description: "Job Description is too short" });
       return;
     }
 
@@ -91,7 +96,7 @@ export default function CreateJobPage() {
       ...prev,
       [name]: value,
     }));
-    
+
     if (errors[name]) {
       setErrors((prev) => ({
         ...prev,
@@ -116,17 +121,13 @@ export default function CreateJobPage() {
             Create your job posting
           </h1>
         </div>
-
-        {}
         <form className="" onSubmit={handleSubmit}>
           <div className="bg-white rounded-lg border-2 border-gray-300 p-8 space-y-6">
-            {}
             <div>
               <h2 className="text-lg font-bold text-gray-900 mb-6">
                 Main Information
               </h2>
 
-              {}
               <div className="grid grid-cols-2 gap-6 mb-6">
                 <div>
                   <label className="block text-sm font-semibold text-gray-900 mb-2">
@@ -207,7 +208,7 @@ export default function CreateJobPage() {
                     name="experienceLevel"
                     value={formData.experienceLevel}
                     onChange={handleChange}
-                    defaultValue={'ENTRY'}
+                    defaultValue={"ENTRY"}
                     className="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary-500"
                   >
                     <option value="ENTRY">Entry level</option>

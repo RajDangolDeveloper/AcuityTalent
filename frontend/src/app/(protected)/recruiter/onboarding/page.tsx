@@ -6,12 +6,17 @@ import {
   useCreateCompany,
   useGetCompaniesName,
   useUploadCompanyLogo,
+  useUploadCompanyBackground,
 } from "@/src/hooks/useCompanyApi";
 import { useUpdateUser } from "@/src/hooks/useUserApi";
 import { useRouter } from "next/navigation";
-import { useSession } from "next-auth/react";
+import { useSession, getSession } from "next-auth/react";
 import { CompanySize, Industry } from "@/src/types/company";
-import { useCreateRecruiterProfile } from "@/src/hooks/useRecruiterApi";
+import {
+  useCreateRecruiterProfile,
+  useGetCurrentRecruiterProfile,
+  useUpdateRecruiterProfile,
+} from "@/src/hooks/useRecruiterApi";
 
 const OnboardingFlow = () => {
   const [step, setStep] = useState(1);
@@ -22,14 +27,23 @@ const OnboardingFlow = () => {
 
   const createCompany = useCreateCompany();
   const uploadCompanyLogo = useUploadCompanyLogo();
+  const uploadCompanyBackground = useUploadCompanyBackground();
   const { mutateAsync: createProfile, isPending: isCreatingProfile } =
     useCreateRecruiterProfile();
+  const { data: currentRecruiterProfile, isLoading: isCurrentProfileLoading } =
+    useGetCurrentRecruiterProfile();
+  const { mutateAsync: updateProfile, isPending: isUpdatingProfile } =
+    useUpdateRecruiterProfile();
   const { mutateAsync: updateUser, isPending: isUpdatingUser } =
     useUpdateUser();
 
   const [selectedCompanyName, setSelectedCompanyName] = useState<string>("");
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
+  const [backgroundFile, setBackgroundFile] = useState<File | null>(null);
+  const [backgroundPreview, setBackgroundPreview] = useState<string | null>(
+    null,
+  );
 
   const INDUSTRY_OPTIONS = [
     "TECHNOLOGY",
@@ -52,7 +66,6 @@ const OnboardingFlow = () => {
     "OTHER",
   ];
 
-  
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -92,6 +105,13 @@ const OnboardingFlow = () => {
         await uploadCompanyLogo.mutateAsync({ id: company.id, file: logoFile });
       }
 
+      if (backgroundFile) {
+        await uploadCompanyBackground.mutateAsync({
+          id: company.id,
+          file: backgroundFile,
+        });
+      }
+
       alert("Company created successfully!");
       setSelectedCompanyName(formData.name);
       setStep(1);
@@ -115,15 +135,31 @@ const OnboardingFlow = () => {
 
     try {
       if (!session?.user?.id) return;
-      const userId = session.user.id;
+      const userId = Number(session.user.id);
 
-      await createProfile({
-        userId: session.user.id,
-        companyId: company.id,
-        positionTitle: "",
-      });
+      if (!currentRecruiterProfile) {
+        await createProfile({
+          userId,
+          companyId: company.id,
+          positionTitle: "",
+        });
+      } else {
+        await updateProfile({
+          userId,
+          companyId: company.id,
+          positionTitle: "",
+        });
+      }
       await updateUser({ id: Number(userId), data: { isOnboarded: true } });
-      await update({ onboarded: true });
+      await update();
+
+      try {
+        const refreshed = await getSession();
+        if (!refreshed?.user?.isOnboarded) {
+          window.location.reload();
+          return;
+        }
+      } catch {}
 
       router.push("/recruiter/dashboard");
     } catch (error) {
@@ -133,7 +169,6 @@ const OnboardingFlow = () => {
 
   return (
     <div className="min-h-screen bg-[linear-gradient(135deg,#380294_0%,#4d1b96_50%,#52507d_100%)] flex items-center justify-center p-4 relative font-sans">
-      {}
       {step === 1 && (
         <div className="bg-white rounded-xl shadow-[0_10px_40px_rgba(0,0,0,0.2)] p-10 w-full max-w-[440px]">
           <h1 className="text-[32px] font-bold text-black mb-8">
@@ -249,6 +284,41 @@ const OnboardingFlow = () => {
                 className="bg-[#4e4871] text-white px-6 py-2 rounded-lg text-sm"
               >
                 Upload Logo
+              </button>
+
+              <div className="w-32 h-32 bg-gray-200 rounded overflow-hidden mt-4">
+                {backgroundPreview ? (
+                  <img
+                    src={backgroundPreview}
+                    alt="Company background preview"
+                    className="h-full w-full object-cover"
+                  />
+                ) : null}
+              </div>
+              <input
+                id="company-background-input"
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={(e) => {
+                  const file = e.target.files?.[0] ?? null;
+                  setBackgroundFile(file);
+                  if (!file) {
+                    setBackgroundPreview(null);
+                    return;
+                  }
+                  const nextUrl = URL.createObjectURL(file);
+                  setBackgroundPreview(nextUrl);
+                }}
+              />
+              <button
+                type="button"
+                onClick={() => {
+                  document.getElementById("company-background-input")?.click();
+                }}
+                className="bg-[#4e4871] text-white px-6 py-2 rounded-lg text-sm"
+              >
+                Upload Background
               </button>
             </div>
           </div>

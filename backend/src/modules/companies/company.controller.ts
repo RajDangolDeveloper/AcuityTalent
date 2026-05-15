@@ -22,14 +22,15 @@ import { CompanyResponseDto } from './dto/company-response.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CompanyNameResponseDto } from './dto/company-name-response.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
-import * as fs from 'fs';
-import { extname, join } from 'path';
+import { SpacesService } from '../spaces/spaces.service';
 
 @Controller('companies')
 @UseGuards(JwtAuthGuard)
 export class CompanyController {
-  constructor(private companyService: CompanyService) {}
+  constructor(
+    private companyService: CompanyService,
+    private spacesService: SpacesService,
+  ) {}
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
@@ -120,25 +121,7 @@ export class CompanyController {
   }
 
   @Post(':id/upload/logo')
-  @UseInterceptors(
-    FileInterceptor('file', {
-      storage: diskStorage({
-        destination: (_req, _file, cb) => {
-          const uploadPath = join(process.cwd(), 'uploads', 'companyProfile');
-          if (!fs.existsSync(uploadPath)) {
-            fs.mkdirSync(uploadPath, { recursive: true });
-          }
-          cb(null, uploadPath);
-        },
-        filename: (_req, file, cb) => {
-          cb(
-            null,
-            `${Date.now()}-${Math.round(Math.random() * 1e9)}${extname(file.originalname)}`,
-          );
-        },
-      }),
-    }),
-  )
+  @UseInterceptors(FileInterceptor('file'))
   async uploadCompanyLogo(
     @Param('id') id: string,
     @UploadedFile() file: Express.Multer.File,
@@ -150,7 +133,8 @@ export class CompanyController {
       };
     }
 
-    const logoUrl = `/uploads/companyProfile/${file.filename}`;
+    const logoPath = await this.spacesService.uploadCompanyLogo(file);
+    const logoUrl = this.spacesService.getPublicUrl(logoPath);
     const company = await this.companyService.updateCompany(parseInt(id), {
       logoUrl,
     });
@@ -162,29 +146,7 @@ export class CompanyController {
   }
 
   @Post(':id/upload/background')
-  @UseInterceptors(
-    FileInterceptor('file', {
-      storage: diskStorage({
-        destination: (_req, _file, cb) => {
-          const uploadPath = join(
-            process.cwd(),
-            'uploads',
-            'companyBackground',
-          );
-          if (!fs.existsSync(uploadPath)) {
-            fs.mkdirSync(uploadPath, { recursive: true });
-          }
-          cb(null, uploadPath);
-        },
-        filename: (_req, file, cb) => {
-          cb(
-            null,
-            `${Date.now()}-${Math.round(Math.random() * 1e9)}${extname(file.originalname)}`,
-          );
-        },
-      }),
-    }),
-  )
+  @UseInterceptors(FileInterceptor('file'))
   async uploadCompanyBackground(
     @Param('id') id: string,
     @UploadedFile() file: Express.Multer.File,
@@ -196,7 +158,9 @@ export class CompanyController {
       };
     }
 
-    const backgroundImgUrl = `/uploads/companyBackground/${file.filename}`;
+    const backgroundPath =
+      await this.spacesService.uploadCompanyBackground(file);
+    const backgroundImgUrl = this.spacesService.getPublicUrl(backgroundPath);
     const company = await this.companyService.updateCompany(parseInt(id), {
       backgroundImgUrl,
     });

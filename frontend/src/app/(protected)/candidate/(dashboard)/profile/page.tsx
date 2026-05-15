@@ -1,13 +1,17 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { Camera } from "lucide-react";
 
 import {
   CandidateProfile,
   WorkExperience,
   Education,
 } from "@/src/types/candidate";
-import { useGetCurrentUser } from "@/src/hooks/useUserApi";
+import {
+  useGetCurrentUser,
+  useUploadProfileImage,
+} from "@/src/hooks/useUserApi";
 import { useRecruiterCompanies } from "@/src/hooks/useCompanyApi";
 import {
   useCandidateProfile,
@@ -29,6 +33,7 @@ import {
 export default function CandidateProfilePage() {
   const { data: profile } = useCandidateProfile();
   const { data: user } = useGetCurrentUser();
+  const uploadProfileImage = useUploadProfileImage();
   const { data: experiences } = useCandidateWorkExperiences();
   const { data: educations } = useCandidateEducations();
   const { data: companies } = useRecruiterCompanies();
@@ -40,6 +45,18 @@ export default function CandidateProfilePage() {
   const { mutate: createEducation } = useCreateEducation();
   const { mutate: updateEducation } = useUpdateEducation();
   const { mutate: deleteEducation } = useDeleteEducation();
+
+  const [profilePicturePreview, setProfilePicturePreview] = useState<
+    string | null
+  >(null);
+  const [isUploadingProfilePicture, setIsUploadingProfilePicture] =
+    useState(false);
+
+  useEffect(() => {
+    if (user?.profilePictureUrl) {
+      setProfilePicturePreview(user.profilePictureUrl);
+    }
+  }, [user]);
 
   const [profileForm, setProfileForm] = useState<Partial<CandidateProfile>>({
     headline: "",
@@ -178,6 +195,17 @@ export default function CandidateProfilePage() {
     resetEducationForm();
   };
 
+  const handleProfilePictureUpload = async (file: File) => {
+    setIsUploadingProfilePicture(true);
+    try {
+      await uploadProfileImage.mutateAsync(file);
+    } catch (error) {
+      console.error("Failed to upload profile picture:", error);
+    } finally {
+      setIsUploadingProfilePicture(false);
+    }
+  };
+
   return (
     <div className="flex min-h-dvh bg-gray-50">
       <div className="flex-1 overflow-y-auto">
@@ -185,7 +213,40 @@ export default function CandidateProfilePage() {
           <div className="h-24 w-full rounded-t-2xl bg-[#433875]" />
           <div className="px-8 pb-10 -mt-10">
             <div className="flex items-center gap-6 mb-6">
-              <div className="w-24 h-24 rounded-full bg-gray-200 border-4 border-white shadow" />
+              <div className="relative group">
+                <div className="w-24 h-24 rounded-full bg-gray-200 border-4 border-white shadow overflow-hidden cursor-pointer hover:opacity-80 transition">
+                  {profilePicturePreview ? (
+                    <img
+                      src={profilePicturePreview}
+                      alt="Profile picture"
+                      className="w-full h-full object-cover"
+                    />
+                  ) : null}
+                </div>
+                <button
+                  onClick={() => {
+                    document.getElementById("profile-picture-input")?.click();
+                  }}
+                  disabled={isUploadingProfilePicture}
+                  className="absolute bottom-0 right-0 bg-primary-500 text-white rounded-full w-8 h-8 flex items-center justify-center text-xs font-medium hover:bg-primary-600 transition disabled:opacity-50"
+                >
+                  {isUploadingProfilePicture ? "..." : <Camera size={14} />}
+                </button>
+              </div>
+              <input
+                id="profile-picture-input"
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) {
+                    const preview = URL.createObjectURL(file);
+                    setProfilePicturePreview(preview);
+                    handleProfilePictureUpload(file);
+                  }
+                }}
+              />
               <div>
                 <h1 className="text-xl font-semibold text-gray-900">
                   Raj Dangol

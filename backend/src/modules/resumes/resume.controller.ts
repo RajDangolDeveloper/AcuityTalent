@@ -13,22 +13,22 @@ import {
   BadRequestException,
   UploadedFile,
   UseInterceptors,
-  StreamableFile,
 } from '@nestjs/common';
-import { createReadStream } from 'fs';
 import { ResumeService } from './resume.service';
 import { CreateResumeDto } from './dto/create-resume.dto';
 import { UpdateResumeDto } from './dto/update-resume.dto';
-import { diskStorage } from 'multer';
 import { ResumeResponseDto } from './dto/resume-response.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { extname } from 'path';
+import { SpacesService } from '../spaces/spaces.service';
 
 @Controller('resumes')
 @UseGuards(JwtAuthGuard)
 export class ResumeController {
-  constructor(private resumeService: ResumeService) {}
+  constructor(
+    private resumeService: ResumeService,
+    private spacesService: SpacesService,
+  ) {}
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
@@ -78,39 +78,44 @@ export class ResumeController {
     };
   }
 
-  
   @Get(':id/download')
   async downloadResume(
     @Param('id') id: string,
     @Req() req: any,
-  ): Promise<StreamableFile> {
+  ): Promise<{ statusCode: number; downloadUrl: string; fileName: string }> {
     const resumeData = await this.resumeService.downloadResume(
       parseInt(id),
       req.user.id,
     );
-    const file = createReadStream(resumeData.filePath);
-    req.res.set({
-      'Content-Type': 'application/pdf',
-      'Content-Disposition': `attachment; filename="${resumeData.fileName}"`,
-    });
-    return new StreamableFile(file);
+    const downloadUrl = await this.spacesService.generateGetUrl(
+      resumeData.filePath,
+      3600,
+    );
+    return {
+      statusCode: HttpStatus.OK,
+      downloadUrl,
+      fileName: resumeData.fileName,
+    };
   }
 
   @Get(':id/view')
   async viewResume(
     @Param('id') id: string,
     @Req() req: any,
-  ): Promise<StreamableFile> {
+  ): Promise<{ statusCode: number; viewUrl: string; fileName: string }> {
     const resumeData = await this.resumeService.downloadResume(
       parseInt(id),
       req.user.id,
     );
-    const file = createReadStream(resumeData.filePath);
-    req.res.set({
-      'Content-Type': 'application/pdf',
-      'Content-Disposition': `inline; filename="${resumeData.fileName}"`,
-    });
-    return new StreamableFile(file);
+    const viewUrl = await this.spacesService.generateGetUrl(
+      resumeData.filePath,
+      3600,
+    );
+    return {
+      statusCode: HttpStatus.OK,
+      viewUrl,
+      fileName: resumeData.fileName,
+    };
   }
 
   @Patch(':id')
@@ -140,14 +145,6 @@ export class ResumeController {
   @Post('/upload')
   @UseInterceptors(
     FileInterceptor('file', {
-      storage: diskStorage({
-        destination: './uploads',
-        filename: (req, file, callback) => {
-          const uniqueSuffix =
-            Date.now() + '-' + Math.round(Math.random() * 1e9);
-          callback(null, uniqueSuffix + extname(file.originalname));
-        },
-      }),
       limits: { fileSize: 10 * 1024 * 1024 },
       fileFilter: (req, file, callback) => {
         const allowedMimes = [

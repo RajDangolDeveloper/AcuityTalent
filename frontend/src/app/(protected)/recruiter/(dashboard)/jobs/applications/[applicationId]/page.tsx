@@ -16,6 +16,7 @@ import {
 import { useQueryClient } from "@tanstack/react-query";
 import { useGetApplicationById } from "@/src/hooks/useApplicationApi";
 import apiClient from "@/src/app/api/api-client";
+import { downloadResume } from "@/src/lib/downloadResume";
 
 export default function ApplicationDetailPage() {
   const router = useRouter();
@@ -33,6 +34,26 @@ export default function ApplicationDetailPage() {
 
   const [actionLoading, setActionLoading] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
+  const [downloadingId, setDownloadingId] = useState<number | null>(null);
+
+  const handleDownload = async (resumeId: number, fileName?: string) => {
+    if (!resumeId) {
+      setActionError("No resume available to download");
+      return;
+    }
+    try {
+      setDownloadingId(resumeId);
+      await downloadResume(resumeId, fileName);
+    } catch (err: any) {
+      setActionError(
+        err?.response?.data?.message ||
+          err?.message ||
+          "Failed to download resume",
+      );
+    } finally {
+      setDownloadingId(null);
+    }
+  };
 
   const handleStatusUpdate = async (action: string) => {
     if (!applicationId || applicationId === 0) {
@@ -278,7 +299,18 @@ export default function ApplicationDetailPage() {
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">
                   Resume
                 </h3>
-                <button className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+                <button
+                  onClick={() =>
+                    handleDownload(
+                      application.resumeId,
+                      application.resumeFileName,
+                    )
+                  }
+                  disabled={
+                    actionLoading || downloadingId === application.resumeId
+                  }
+                  className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition"
+                >
                   <Download size={18} />
                   Download Resume
                 </button>

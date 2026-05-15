@@ -20,7 +20,7 @@ const styles = StyleSheet.create({
   },
   sidebar: {
     width: "33.33%",
-    backgroundColor: "#4f46e5", 
+    backgroundColor: "#4f46e5",
     padding: 16,
     color: "#ffffff",
   },
@@ -53,7 +53,7 @@ const styles = StyleSheet.create({
     fontWeight: "semibold",
     marginTop: 16,
     marginBottom: 8,
-    borderBottomWidth: 0, 
+    borderBottomWidth: 0,
   },
   skillItem: {
     marginBottom: 8,
@@ -65,7 +65,7 @@ const styles = StyleSheet.create({
   progressBarContainer: {
     width: "100%",
     height: 6,
-    backgroundColor: "#818cf8", 
+    backgroundColor: "#818cf8",
     borderRadius: 3,
     overflow: "hidden",
   },
@@ -171,6 +171,15 @@ const LocationIcon = () => (
   </Svg>
 );
 
+const GlobeIcon = () => (
+  <Svg width="10" height="10" viewBox="0 0 24 24">
+    <Path
+      d="M12 2a10 10 0 100 20 10 10 0 000-20zm0 2c1.66 0 3 .67 4.07 1.76C15.04 6.61 13.6 7 12 7s-3.04-.39-4.07-1.24A5.98 5.98 0 0112 4zm-6 8a6 6 0 0112 0 6 6 0 01-12 0z"
+      fill="white"
+    />
+  </Svg>
+);
+
 export const ModernPDFTemplate: React.FC<{ data: ResumeData }> = ({ data }) => {
   return (
     <Document>
@@ -203,7 +212,7 @@ export const ModernPDFTemplate: React.FC<{ data: ResumeData }> = ({ data }) => {
             )}
             {data.nationality && (
               <View style={styles.contactItem}>
-                <Text style={styles.contactIcon}>🌍</Text>
+                <GlobeIcon />
                 <Text style={styles.contactText}>{data.nationality}</Text>
               </View>
             )}

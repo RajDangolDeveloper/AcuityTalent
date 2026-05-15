@@ -96,7 +96,6 @@ export class UserService {
         passwordHash: true,
         createdAt: true,
         updatedAt: true,
-        isOnboarded: true,
       },
     });
   }
@@ -144,7 +143,7 @@ export class UserService {
     try {
       const deletedUser = await this.prisma.user.delete({
         where: { id },
-        select: userSelectFields, 
+        select: userSelectFields,
       });
 
       return deletedUser;

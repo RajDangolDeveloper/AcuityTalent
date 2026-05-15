@@ -19,8 +19,8 @@ type Column = {
   id: string;
   label: string;
   statuses: ApplicationStatus[];
-  color: string; 
-  dotColor: string; 
+  color: string;
+  dotColor: string;
   icon: React.ReactNode;
 };
 
@@ -92,7 +92,7 @@ const STATUS_LABEL: Record<ApplicationStatus, string> = {
   SHORTLISTED: "Shortlisted",
   INTERVIEWING: "Interviewing",
   OFFER_EXTENDED: "Offer Extended",
-  ACCEPTED: "Accepted 🎉",
+  ACCEPTED: "Accepted",
   REJECTED: "Rejected",
   WITHDRAWN: "Withdrawn",
 };

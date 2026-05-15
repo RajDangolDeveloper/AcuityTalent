@@ -80,11 +80,13 @@ export const authOptions: NextAuthOptions = {
               Authorization: `Bearer ${token.accessToken}`,
             },
           });
-          const freshUser = response.data;
+          const freshUser = response.data.data || response.data;
           if (freshUser) {
             token.isOnboarded = freshUser.isOnboarded;
           }
-        } catch {}
+        } catch (e) {
+          console.error("Update failed:", e);
+        }
       }
 
       return token;

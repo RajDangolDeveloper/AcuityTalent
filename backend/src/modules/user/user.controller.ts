@@ -16,19 +16,20 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
-import * as fs from 'fs';
-import { extname, join } from 'path';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/createUser.dto';
 import { UpdateUserDto } from './dto/updateUser.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { AdminGuard } from '../auth/guards/admin.guard';
+import { SpacesService } from '../spaces/spaces.service';
 
 @Controller('users')
 @UseGuards(JwtAuthGuard)
 export class UserController {
-  constructor(private readonly userService: UserService) {}
+  constructor(
+    private readonly userService: UserService,
+    private readonly spacesService: SpacesService,
+  ) {}
 
   @Get('current')
   async getCurrentUsers(@Req() req) {
@@ -37,29 +38,8 @@ export class UserController {
   }
 
   @Post('profile/upload-image')
-  @UseInterceptors(
-    FileInterceptor('file', {
-      storage: diskStorage({
-        destination: (_req, _file, cb) => {
-          const uploadPath = join(process.cwd(), 'uploads', 'userProfile');
-          if (!fs.existsSync(uploadPath)) {
-            fs.mkdirSync(uploadPath, { recursive: true });
-          }
-          cb(null, uploadPath);
-        },
-        filename: (_req, file, cb) => {
-          cb(
-            null,
-            `${Date.now()}-${Math.round(Math.random() * 1e9)}${extname(file.originalname)}`,
-          );
-        },
-      }),
-    }),
-  )
-  async uploadProfileImage(
-    @Req() req: any,
-    @UploadedFile() file: Express.Multer.File,
-  ) {
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadProfileImage(@Req() req: any, @UploadedFile() file: any) {
     if (!file) {
       return {
         statusCode: HttpStatus.BAD_REQUEST,
@@ -67,7 +47,8 @@ export class UserController {
       };
     }
 
-    const imageUrl = `/uploads/userProfile/${file.filename}`;
+    const imagePath = await this.spacesService.uploadProfileImage(file);
+    const imageUrl = this.spacesService.getPublicUrl(imagePath);
     const user = await this.userService.updateProfilePicture(
       req.user.id,
       imageUrl,

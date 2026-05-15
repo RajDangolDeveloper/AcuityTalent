@@ -13,7 +13,7 @@ export default withAuth(
     const isOnLogin = nextUrl.pathname.includes("/login");
     const isOnLogout = nextUrl.pathname.includes("/logout");
     const isOnRegister = nextUrl.pathname.includes("/register");
-    const isOnboardedRoute = nextUrl.pathname.includes("/onboarding");
+    const isOnboardingRoute = nextUrl.pathname.includes("/onboarding");
 
     if (token?.error === "AccessTokenError") {
       return NextResponse.redirect(new URL("/logout", request.url));
@@ -28,7 +28,7 @@ export default withAuth(
     if (
       !isOnboarded &&
       token &&
-      !isOnboardedRoute &&
+      !isOnboardingRoute &&
       !isOnLogin &&
       !isOnLogout
     ) {
@@ -57,6 +57,7 @@ export default withAuth(
       isOnCandidate &&
       !isOnRegister &&
       !isOnLogin &&
+      !isOnLogout &&
       userRole !== "CANDIDATE" &&
       userRole !== "ADMIN"
     ) {
@@ -79,17 +80,17 @@ export default withAuth(
     callbacks: {
       authorized: ({ token, req }) => {
         const { pathname } = req.nextUrl;
-        
+
         if (
           pathname.includes("/login") ||
           pathname.includes("/register") ||
+          pathname === "/logout" ||
           pathname === "/" ||
-          pathname.startsWith("/api/auth") 
+          pathname.startsWith("/api/auth")
         ) {
           return true;
         }
 
-        
         if (
           pathname.startsWith("/dashboard") ||
           pathname.startsWith("/admin") ||
@@ -98,10 +99,9 @@ export default withAuth(
           pathname.startsWith("/profile") ||
           pathname.startsWith("/settings")
         ) {
-          return !!token; 
+          return !!token;
         }
 
-        
         return true;
       },
     },

@@ -13,6 +13,7 @@ export interface UserResponseDto {
   lastName: string | null;
   contactPhone: string | null;
   contactEmail: string | null;
+  profilePictureUrl?: string | null;
   role: Role;
   subscriptionPlan?: SubscriptionPlan;
   subscriptionExpiresAt?: string | null;
@@ -23,7 +24,7 @@ export interface UserResponseDto {
 }
 export interface CreateUserDto {
   email: string;
-  password: string; 
+  password: string;
   firstName?: string;
   lastName?: string;
   contactPhone?: string;

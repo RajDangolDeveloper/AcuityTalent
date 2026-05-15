@@ -4,15 +4,14 @@ import CustomButton from "@/src/components/CustomButton";
 import CustomInput from "@/src/components/CustomInput";
 import Notification from "@/src/element/Notification";
 import { Key, Mail } from "lucide-react";
-import { signIn } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 
 export default function LoginPageClient() {
   const router = useRouter();
+  const { data: session } = useSession();
   const searchParams = useSearchParams();
-  const callbackUrl =
-    searchParams?.get("callbackUrl") || "/recruiter/dashboard";
   const [error, setError] = useState("");
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -34,6 +33,14 @@ export default function LoginPageClient() {
         toastMessage: "Login successful!",
         toastStatus: "success",
       });
+
+      const updatedSession = await fetch("/api/auth/session").then((res) =>
+        res.json(),
+      );
+      const role = updatedSession?.user?.role?.toLowerCase() || "recruiter";
+      const callbackUrl =
+        searchParams?.get("callbackUrl") || `/${role}/dashboard`;
+
       router.push(callbackUrl);
       router.refresh();
     }
@@ -74,10 +81,10 @@ export default function LoginPageClient() {
           Sign In
         </CustomButton>
         {error && <p style={{ color: "red" }}>{error}</p>}
+        <a href="/forget-password" className="self-end">
+          Forgot your password?
+        </a>
       </form>
-      <a href="/forget-password" className="self-end">
-        Forgot your password?
-      </a>
       <div className="flex flex-col gap-3 self-center ">
         <div className="self-center">
           Don't have an account?

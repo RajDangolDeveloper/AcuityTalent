@@ -1,5 +1,6 @@
 import React from "react";
 import { ResumeData } from "../candidate/InputResumeDetails";
+import { Mail, Phone, MapPin, Globe } from "lucide-react";
 
 export const ModernTemplate: React.FC<{ data: ResumeData }> = ({ data }) => {
   return (
@@ -8,14 +9,32 @@ export const ModernTemplate: React.FC<{ data: ResumeData }> = ({ data }) => {
         <div className="col-span-1 min-h-screen bg-indigo-700 text-white p-6">
           <h1 className="text-2xl font-bold">{data.fullName}</h1>
           <div className="mt-6 space-y-3 text-sm">
-            {data.email && <div>📧 {data.email}</div>}
-            {data.phone && <div>📞 {data.phone}</div>}
-            {(data.city || data.country) && (
-              <div>
-                📍 {[data.city, data.country].filter(Boolean).join(", ")}
+            {data.email && (
+              <div className="flex items-center gap-2">
+                <Mail size={14} />
+                <span>{data.email}</span>
               </div>
             )}
-            {data.nationality && <div>🌍 {data.nationality}</div>}
+            {data.phone && (
+              <div className="flex items-center gap-2">
+                <Phone size={14} />
+                <span>{data.phone}</span>
+              </div>
+            )}
+            {(data.city || data.country) && (
+              <div className="flex items-center gap-2">
+                <MapPin size={14} />
+                <span>
+                  {[data.city, data.country].filter(Boolean).join(", ")}
+                </span>
+              </div>
+            )}
+            {data.nationality && (
+              <div className="flex items-center gap-2">
+                <Globe size={14} />
+                <span>{data.nationality}</span>
+              </div>
+            )}
           </div>
           {data.skills && data.skills.length > 0 && (
             <div className="mt-8">

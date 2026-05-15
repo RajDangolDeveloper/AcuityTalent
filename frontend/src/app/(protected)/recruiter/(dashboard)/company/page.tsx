@@ -2,13 +2,25 @@
 
 import { useState, useEffect } from "react";
 import { Building2 } from "lucide-react";
-import { useUpdateCompany } from "@/src/hooks/useCompanyApi";
-import {useGetRecruiterCompanies} from "@/src/hooks/useRecruiterApi";
+import {
+  useUpdateCompany,
+  useUploadCompanyLogo,
+  useUploadCompanyBackground,
+} from "@/src/hooks/useCompanyApi";
+import { useGetRecruiterCompanies } from "@/src/hooks/useRecruiterApi";
 export default function ViewCompanyPage() {
   const { data: company, isLoading, error } = useGetRecruiterCompanies();
   const updateCompany = useUpdateCompany();
+  const uploadLogo = useUploadCompanyLogo();
+  const uploadBackground = useUploadCompanyBackground();
 
   const [isEditing, setIsEditing] = useState(false);
+  const [logoFile, setLogoFile] = useState<File | null>(null);
+  const [logoPreview, setLogoPreview] = useState<string | null>(null);
+  const [backgroundFile, setBackgroundFile] = useState<File | null>(null);
+  const [backgroundPreview, setBackgroundPreview] = useState<string | null>(
+    null,
+  );
   const [formData, setFormData] = useState({
     name: "",
     size: "",
@@ -28,6 +40,8 @@ export default function ViewCompanyPage() {
         website: company.websiteUrl || "",
         description: company.description || "",
       });
+      setLogoPreview(company.logoUrl || null);
+      setBackgroundPreview(company.backgroundImgUrl || null);
     }
   }, [company]);
 
@@ -54,9 +68,22 @@ export default function ViewCompanyPage() {
           description: formData.description,
         },
       });
+
+      if (logoFile) {
+        await uploadLogo.mutateAsync({ id: company.id, file: logoFile });
+        setLogoFile(null);
+      }
+
+      if (backgroundFile) {
+        await uploadBackground.mutateAsync({
+          id: company.id,
+          file: backgroundFile,
+        });
+        setBackgroundFile(null);
+      }
+
       setIsEditing(false);
-    } catch (error) {
-    }
+    } catch (error) {}
   };
 
   const handleCancel = () => {
@@ -69,7 +96,11 @@ export default function ViewCompanyPage() {
         website: company.websiteUrl || "",
         description: company.description || "",
       });
+      setLogoPreview(company.logoUrl || null);
+      setBackgroundPreview(company.backgroundImgUrl || null);
     }
+    setLogoFile(null);
+    setBackgroundFile(null);
     setIsEditing(false);
   };
 
@@ -271,6 +302,99 @@ export default function ViewCompanyPage() {
                   rows={8}
                   className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm font-medium"
                 />
+              </div>
+
+              <div>
+                <h2 className="text-lg font-semibold text-gray-800 mb-4">
+                  Company Images
+                </h2>
+                <div className="grid grid-cols-2 gap-8">
+                  <div className="flex flex-col items-center gap-4">
+                    <label className="block text-sm font-semibold text-gray-700">
+                      Logo
+                    </label>
+                    <div className="w-32 h-32 bg-gray-200 rounded-full overflow-hidden">
+                      {logoPreview ? (
+                        <img
+                          src={logoPreview}
+                          alt="Company logo preview"
+                          className="h-full w-full object-cover"
+                        />
+                      ) : null}
+                    </div>
+                    <input
+                      id="company-logo-edit-input"
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0] ?? null;
+                        setLogoFile(file);
+                        if (!file) {
+                          setLogoPreview(company?.logoUrl || null);
+                          return;
+                        }
+                        const nextUrl = URL.createObjectURL(file);
+                        setLogoPreview(nextUrl);
+                      }}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        document
+                          .getElementById("company-logo-edit-input")
+                          ?.click();
+                      }}
+                      className="bg-primary-500 text-white px-4 py-2 rounded text-sm font-medium hover:bg-primary-600"
+                    >
+                      Change Logo
+                    </button>
+                  </div>
+
+                  <div className="flex flex-col items-center gap-4">
+                    <label className="block text-sm font-semibold text-gray-700">
+                      Background
+                    </label>
+                    <div className="w-32 h-32 bg-gray-200 rounded overflow-hidden">
+                      {backgroundPreview ? (
+                        <img
+                          src={backgroundPreview}
+                          alt="Company background preview"
+                          className="h-full w-full object-cover"
+                        />
+                      ) : null}
+                    </div>
+                    <input
+                      id="company-background-edit-input"
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0] ?? null;
+                        setBackgroundFile(file);
+                        if (!file) {
+                          setBackgroundPreview(
+                            company?.backgroundImgUrl || null,
+                          );
+                          return;
+                        }
+                        const nextUrl = URL.createObjectURL(file);
+                        setBackgroundPreview(nextUrl);
+                      }}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        document
+                          .getElementById("company-background-edit-input")
+                          ?.click();
+                      }}
+                      className="bg-primary-500 text-white px-4 py-2 rounded text-sm font-medium hover:bg-primary-600"
+                    >
+                      Change Background
+                    </button>
+                  </div>
+                </div>
               </div>
               <div className="flex justify-end gap-4">
                 <button

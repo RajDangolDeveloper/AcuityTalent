@@ -17,39 +17,45 @@ export default function RegisterPageClient() {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setError("");
 
     const formData = new FormData(e.currentTarget);
+    const email = formData.get("email");
+    const password = formData.get("password");
+    const confirmPassword = formData.get("confirmPassword");
 
-    if (formData.get("password") !== formData.get("confirmPassword")) {
+    if (password !== confirmPassword) {
       setError("Passwords do not match");
       return;
     }
 
-    const payload = {
-      email: formData.get("email"),
-      password: formData.get("password"),
-      role: "RECRUITER",
-    };
+    try {
+      const response = await apiClient.post("/auth/register", {
+        email,
+        password,
+        role: "RECRUITER",
+      });
 
-    const response = await apiClient.post("/auth/register", payload);
+      if (response.status === 201 || response.status === 200) {
+        const result = await signIn("credentials", {
+          email,
+          password,
+          redirect: false,
+        });
 
-    if (response.status !== 200 && response.status !== 201) {
-      return {
-        success: false,
-        message: "Registration failed",
-      };
-    }
-
-    const result = await signIn("credentials", {
-      email: formData.get("email"),
-      password: formData.get("password"),
-      redirect: false,
-    });
-    if (result?.error) {
-      setError("Invalid email or password");
-    } else {
-      router.push(callbackUrl);
-      router.refresh();
+        if (result?.error) {
+          setError(
+            "Account created, but login failed. Please sign in manually.",
+          );
+        } else {
+          router.push(callbackUrl);
+          router.refresh();
+        }
+      }
+    } catch (err: any) {
+      const message =
+        err.response?.data?.message || "Registration failed. Try again.";
+      setError(message);
     }
   };
 

@@ -1,8 +1,13 @@
 "use client";
 
 import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
+import { Camera } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useGetCurrentUser, useUpdateUser } from "@/src/hooks/useUserApi";
+import {
+  useGetCurrentUser,
+  useUpdateUser,
+  useUploadProfileImage,
+} from "@/src/hooks/useUserApi";
 import { useChangePassword } from "@/src/hooks/useAuthApi";
 import {
   useFinalizeEsewaPayment,
@@ -24,6 +29,7 @@ export default function SettingsPageClient() {
   const searchParams = useSearchParams();
   const { data: currentUser } = useGetCurrentUser();
   const updateUser = useUpdateUser();
+  const uploadProfileImage = useUploadProfileImage();
   const changePassword = useChangePassword();
 
   const { data: subscription, isLoading: subscriptionLoading } =
@@ -43,6 +49,11 @@ export default function SettingsPageClient() {
     contactPhone: "",
     contactEmail: "",
   });
+  const [profilePicturePreview, setProfilePicturePreview] = useState<
+    string | null
+  >(null);
+  const [isUploadingProfilePicture, setIsUploadingProfilePicture] =
+    useState(false);
   const [passwordForm, setPasswordForm] = useState({
     currentPassword: "",
     newPassword: "",
@@ -64,6 +75,7 @@ export default function SettingsPageClient() {
       contactPhone: currentUser.contactPhone ?? "",
       contactEmail: currentUser.contactEmail ?? "",
     });
+    setProfilePicturePreview(currentUser.profilePictureUrl ?? null);
   }, [currentUser]);
 
   const latestPaymentRef = useMemo(() => {
@@ -432,6 +444,53 @@ export default function SettingsPageClient() {
             <h2 className="text-lg font-semibold text-gray-900 mb-4">
               Profile
             </h2>
+
+            <div className="mb-6 flex flex-col items-center gap-4">
+              <div className="relative group">
+                <div className="w-24 h-24 rounded-full bg-gray-200 border-4 border-white shadow overflow-hidden cursor-pointer hover:opacity-80 transition">
+                  {profilePicturePreview ? (
+                    <img
+                      src={profilePicturePreview}
+                      alt="Profile picture"
+                      className="w-full h-full object-cover"
+                    />
+                  ) : null}
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    document
+                      .getElementById("recruiter-profile-picture-input")
+                      ?.click();
+                  }}
+                  disabled={isUploadingProfilePicture}
+                  className="absolute bottom-0 right-0 bg-primary-500 text-white rounded-full w-8 h-8 flex items-center justify-center text-xs font-medium hover:bg-primary-600 transition disabled:opacity-50"
+                >
+                  {isUploadingProfilePicture ? "..." : <Camera size={14} />}
+                </button>
+              </div>
+              <input
+                id="recruiter-profile-picture-input"
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) {
+                    const preview = URL.createObjectURL(file);
+                    setProfilePicturePreview(preview);
+                    setIsUploadingProfilePicture(true);
+                    uploadProfileImage.mutateAsync(file).finally(() => {
+                      setIsUploadingProfilePicture(false);
+                    });
+                  }
+                }}
+              />
+              <p className="text-sm text-gray-600">
+                Click to change profile picture
+              </p>
+            </div>
+
             <form className="space-y-3" onSubmit={onSaveProfile}>
               <input
                 className="w-full rounded-md border border-gray-300 px-3 py-2"

@@ -93,3 +93,30 @@ export const useDeleteUser = () => {
     },
   });
 };
+
+export const useUploadProfileImage = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (file: File) => {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const response = await apiClient.post<UserResponseDto>(
+        "/users/profile/upload-image",
+        formData,
+        {
+          headers: { "Content-Type": "multipart/form-data" },
+        },
+      );
+
+      return response.data;
+    },
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["users"] }),
+        queryClient.invalidateQueries({ queryKey: ["user"] }),
+      ]);
+    },
+  });
+};
