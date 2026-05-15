@@ -16,7 +16,7 @@ import {
 import { useQueryClient } from "@tanstack/react-query";
 import { useGetApplicationById } from "@/src/hooks/useApplicationApi";
 import apiClient from "@/src/app/api/api-client";
-import { downloadResume } from "@/src/lib/downloadResume";
+import { downloadResume } from "@/src/library/downloadResume";
 
 export default function ApplicationDetailPage() {
   const router = useRouter();
