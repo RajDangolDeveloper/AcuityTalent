@@ -1,18 +1,33 @@
 import { UserResponseDto } from "../types/user";
 
-export function isPremiumUser(user: UserResponseDto | null): boolean {
-  if (!user) return false;
-  if (user.subscriptionPlan !== "PREMIUM") return false;
-  if (!user.subscriptionExpiresAt) return false;
+type PremiumUserLike = {
+  subscriptionPlan?: UserResponseDto["subscriptionPlan"];
+  subscriptionExpiresAt?: string | null;
+};
 
-  const expiresAt = new Date(user.subscriptionExpiresAt);
+const getPremiumFields = (user: unknown): PremiumUserLike | null => {
+  if (!user || typeof user !== "object") return null;
+
+  return user as PremiumUserLike;
+};
+
+export function isPremiumUser(user: unknown): boolean {
+  const premiumUser = getPremiumFields(user);
+
+  if (!premiumUser) return false;
+  if (premiumUser.subscriptionPlan !== "PREMIUM") return false;
+  if (!premiumUser.subscriptionExpiresAt) return false;
+
+  const expiresAt = new Date(premiumUser.subscriptionExpiresAt);
   return expiresAt > new Date();
 }
 
-export function getDaysRemaining(user: UserResponseDto | null): number | null {
-  if (!user || !user.subscriptionExpiresAt) return null;
+export function getDaysRemaining(user: unknown): number | null {
+  const premiumUser = getPremiumFields(user);
 
-  const expiresAt = new Date(user.subscriptionExpiresAt);
+  if (!premiumUser || !premiumUser.subscriptionExpiresAt) return null;
+
+  const expiresAt = new Date(premiumUser.subscriptionExpiresAt);
   const now = new Date();
 
   if (expiresAt <= now) return 0;
@@ -35,20 +50,20 @@ export function formatExpiryDate(expiresAt: string | null): string {
   });
 }
 
-export function getSubscriptionStatusString(
-  user: UserResponseDto | null,
-): string {
-  if (!user) return "No user";
+export function getSubscriptionStatusString(user: unknown): string {
+  const premiumUser = getPremiumFields(user);
 
-  if (user.subscriptionPlan === "NON_PREMIUM") {
+  if (!premiumUser) return "No user";
+
+  if (premiumUser.subscriptionPlan === "NON_PREMIUM") {
     return "Free Plan";
   }
 
-  if (!user.subscriptionExpiresAt) {
+  if (!premiumUser.subscriptionExpiresAt) {
     return "Premium (No expiry set)";
   }
 
-  const daysRemaining = getDaysRemaining(user);
+  const daysRemaining = getDaysRemaining(premiumUser);
 
   if (daysRemaining === null || daysRemaining <= 0) {
     return "Premium (Expired)";
@@ -58,5 +73,5 @@ export function getSubscriptionStatusString(
     return `Premium (Expires in ${daysRemaining} days)`;
   }
 
-  return `Premium (Expires ${formatExpiryDate(user.subscriptionExpiresAt)})`;
+  return `Premium (Expires ${formatExpiryDate(premiumUser.subscriptionExpiresAt)})`;
 }

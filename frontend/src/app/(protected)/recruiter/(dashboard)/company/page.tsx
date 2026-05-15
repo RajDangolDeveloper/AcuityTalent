@@ -21,6 +21,7 @@ export default function ViewCompanyPage() {
   const [backgroundPreview, setBackgroundPreview] = useState<string | null>(
     null,
   );
+  const [formMessage, setFormMessage] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     name: "",
     size: "",
@@ -56,7 +57,21 @@ export default function ViewCompanyPage() {
 
   const handleSave = async () => {
     if (!company) return;
+
+    if (
+      !formData.name.trim() ||
+      !formData.size.trim() ||
+      !formData.industry.trim() ||
+      !formData.address.trim() ||
+      !formData.website.trim() ||
+      !formData.description.trim()
+    ) {
+      setFormMessage("Please fill in all required company fields.");
+      return;
+    }
+
     try {
+      setFormMessage(null);
       await updateCompany.mutateAsync({
         id: company.id,
         data: {
@@ -82,6 +97,7 @@ export default function ViewCompanyPage() {
         setBackgroundFile(null);
       }
 
+      setFormMessage("Company updated successfully.");
       setIsEditing(false);
     } catch (error) {}
   };
@@ -101,6 +117,7 @@ export default function ViewCompanyPage() {
     }
     setLogoFile(null);
     setBackgroundFile(null);
+    setFormMessage(null);
     setIsEditing(false);
   };
 
@@ -193,6 +210,12 @@ export default function ViewCompanyPage() {
             <h1 className="text-2xl font-bold text-gray-900 mb-6">
               Edit Company
             </h1>
+
+            {formMessage && (
+              <div className="mb-6 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
+                {formMessage}
+              </div>
+            )}
 
             <div className="space-y-6">
               <div>

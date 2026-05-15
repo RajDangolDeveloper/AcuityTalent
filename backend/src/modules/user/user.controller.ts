@@ -38,7 +38,11 @@ export class UserController {
   }
 
   @Post('profile/upload-image')
-  @UseInterceptors(FileInterceptor('file'))
+  @UseInterceptors(
+    FileInterceptor('file', {
+      limits: { fileSize: 5 * 1024 * 1024 },
+    }),
+  )
   async uploadProfileImage(@Req() req: any, @UploadedFile() file: any) {
     if (!file) {
       return {

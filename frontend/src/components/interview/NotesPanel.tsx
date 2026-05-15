@@ -15,15 +15,17 @@ export default function NotesPanel({
   const [notes, setNotes] = useState(initialNotes);
   const [isSaving, setIsSaving] = useState(false);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   const saveMutation = useUpdateInterviewNotes({
     onSuccess: () => {
       setIsSaving(false);
       setLastSaved(new Date());
+      setSaveError(null);
     },
     onError: () => {
       setIsSaving(false);
-      alert("Failed to save notes. Please try again.");
+      setSaveError("Failed to save notes. Please try again.");
     },
   });
 
@@ -81,6 +83,11 @@ export default function NotesPanel({
       </div>
 
       <div className="flex-1 p-4 overflow-y-auto">
+        {saveError && (
+          <div className="mb-3 rounded-md border border-red-500/40 bg-red-500/10 px-3 py-2 text-sm text-red-200">
+            {saveError}
+          </div>
+        )}
         <textarea
           value={notes}
           onChange={(e) => setNotes(e.target.value)}

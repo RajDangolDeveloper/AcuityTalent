@@ -121,7 +121,11 @@ export class CompanyController {
   }
 
   @Post(':id/upload/logo')
-  @UseInterceptors(FileInterceptor('file'))
+  @UseInterceptors(
+    FileInterceptor('file', {
+      limits: { fileSize: 5 * 1024 * 1024 },
+    }),
+  )
   async uploadCompanyLogo(
     @Param('id') id: string,
     @UploadedFile() file: Express.Multer.File,
@@ -146,7 +150,11 @@ export class CompanyController {
   }
 
   @Post(':id/upload/background')
-  @UseInterceptors(FileInterceptor('file'))
+  @UseInterceptors(
+    FileInterceptor('file', {
+      limits: { fileSize: 5 * 1024 * 1024 },
+    }),
+  )
   async uploadCompanyBackground(
     @Param('id') id: string,
     @UploadedFile() file: Express.Multer.File,

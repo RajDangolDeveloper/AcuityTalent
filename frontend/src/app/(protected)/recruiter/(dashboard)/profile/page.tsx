@@ -14,6 +14,7 @@ export default function ProfilePage() {
     contactEmail: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formMessage, setFormMessage] = useState<string | null>(null);
 
   useEffect(() => {
     if (recruiter) {
@@ -31,8 +32,19 @@ export default function ProfilePage() {
 
     if (!recruiter?.id) return;
 
+    if (
+      !formData.firstName.trim() ||
+      !formData.lastName.trim() ||
+      !formData.contactPhone.trim() ||
+      !formData.contactEmail.trim()
+    ) {
+      setFormMessage("All profile fields are required.");
+      return;
+    }
+
     setIsSubmitting(true);
     try {
+      setFormMessage(null);
       await updateUser.mutateAsync({
         id: recruiter.id,
         data: {
@@ -42,9 +54,9 @@ export default function ProfilePage() {
           contactEmail: formData.contactEmail.trim(),
         },
       });
-      alert("Profile updated successfully.");
+      setFormMessage("Profile updated successfully.");
     } catch (error) {
-      alert("Unable to update profile. Please try again.");
+      setFormMessage("Unable to update profile. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -66,6 +78,11 @@ export default function ProfilePage() {
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-6">
+              {formMessage && (
+                <div className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
+                  {formMessage}
+                </div>
+              )}
               <div className="grid grid-cols-3 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">

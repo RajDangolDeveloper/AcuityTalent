@@ -21,7 +21,30 @@ const STEPS = [
   { id: 3, label: "Current" },
 ];
 
-function Step1({ data, setData }: { data: any; setData: any }) {
+type CandidateOnboardingErrors = Partial<
+  Record<
+    | "firstName"
+    | "lastName"
+    | "email"
+    | "phone"
+    | "headline"
+    | "yearsExp"
+    | "skills"
+    | "github"
+    | "linkedin",
+    string
+  >
+>;
+
+function Step1({
+  data,
+  setData,
+  errors,
+}: {
+  data: any;
+  setData: any;
+  errors: CandidateOnboardingErrors;
+}) {
   const set = (key: string) => (e: any) =>
     setData((d: any) => ({ ...d, [key]: e.target.value }));
 
@@ -44,8 +67,13 @@ function Step1({ data, setData }: { data: any; setData: any }) {
             placeholder="First Name"
             value={data.firstName}
             onChange={set("firstName")}
-            className="w-full px-4 py-3.5 border-[1.5px] border-[#e2e2e2] rounded-xl text-sm text-gray-900 bg-white outline-none transition-colors focus:border-[#4b3fa0]"
+            className={`w-full px-4 py-3.5 border-[1.5px] rounded-xl text-sm text-gray-900 bg-white outline-none transition-colors focus:border-[#4b3fa0] ${
+              errors.firstName ? "border-red-400" : "border-[#e2e2e2]"
+            }`}
           />
+          {errors.firstName && (
+            <p className="mt-1 text-xs text-red-600">{errors.firstName}</p>
+          )}
         </div>
         <div>
           <label className="block text-sm font-medium text-gray-900 mb-1.5">
@@ -56,8 +84,13 @@ function Step1({ data, setData }: { data: any; setData: any }) {
             placeholder="Last Name"
             value={data.lastName}
             onChange={set("lastName")}
-            className="w-full px-4 py-3.5 border-[1.5px] border-[#e2e2e2] rounded-xl text-sm text-gray-900 bg-white outline-none transition-colors focus:border-[#4b3fa0]"
+            className={`w-full px-4 py-3.5 border-[1.5px] rounded-xl text-sm text-gray-900 bg-white outline-none transition-colors focus:border-[#4b3fa0] ${
+              errors.lastName ? "border-red-400" : "border-[#e2e2e2]"
+            }`}
           />
+          {errors.lastName && (
+            <p className="mt-1 text-xs text-red-600">{errors.lastName}</p>
+          )}
         </div>
       </div>
 
@@ -74,8 +107,13 @@ function Step1({ data, setData }: { data: any; setData: any }) {
             placeholder="Email Address"
             value={data.email}
             onChange={set("email")}
-            className="w-full px-4 py-3.5 border-[1.5px] border-[#e2e2e2] rounded-xl text-sm text-gray-900 bg-white outline-none transition-colors focus:border-[#4b3fa0]"
+            className={`w-full px-4 py-3.5 border-[1.5px] rounded-xl text-sm text-gray-900 bg-white outline-none transition-colors focus:border-[#4b3fa0] ${
+              errors.email ? "border-red-400" : "border-[#e2e2e2]"
+            }`}
           />
+          {errors.email && (
+            <p className="mt-1 text-xs text-red-600">{errors.email}</p>
+          )}
         </div>
         <div>
           <label className="block text-sm font-medium text-gray-900 mb-1.5">
@@ -86,15 +124,28 @@ function Step1({ data, setData }: { data: any; setData: any }) {
             placeholder="+ (000) 12345678"
             value={data.phone}
             onChange={set("phone")}
-            className="w-full px-4 py-3.5 border-[1.5px] border-[#e2e2e2] rounded-xl text-sm text-gray-900 bg-white outline-none transition-colors focus:border-[#4b3fa0]"
+            className={`w-full px-4 py-3.5 border-[1.5px] rounded-xl text-sm text-gray-900 bg-white outline-none transition-colors focus:border-[#4b3fa0] ${
+              errors.phone ? "border-red-400" : "border-[#e2e2e2]"
+            }`}
           />
+          {errors.phone && (
+            <p className="mt-1 text-xs text-red-600">{errors.phone}</p>
+          )}
         </div>
       </div>
     </div>
   );
 }
 
-function Step2({ data, setData }: { data: any; setData: any }) {
+function Step2({
+  data,
+  setData,
+  errors,
+}: {
+  data: any;
+  setData: any;
+  errors: CandidateOnboardingErrors;
+}) {
   const set = (key: string) => (e: any) =>
     setData((d: any) => ({ ...d, [key]: e.target.value }));
   const [skillInput, setSkillInput] = useState("");
@@ -161,8 +212,13 @@ function Step2({ data, setData }: { data: any; setData: any }) {
           placeholder="Make this about who you are....."
           value={data.headline}
           onChange={set("headline")}
-          className="w-full px-4 py-3.5 border-[1.5px] border-[#e2e2e2] rounded-xl text-sm text-gray-900 bg-white outline-none transition-colors focus:border-[#4b3fa0]"
+          className={`w-full px-4 py-3.5 border-[1.5px] rounded-xl text-sm text-gray-900 bg-white outline-none transition-colors focus:border-[#4b3fa0] ${
+            errors.headline ? "border-red-400" : "border-[#e2e2e2]"
+          }`}
         />
+        {errors.headline && (
+          <p className="mt-1 text-xs text-red-600">{errors.headline}</p>
+        )}
       </div>
       <div className="mb-4">
         <label className="block text-sm font-medium text-gray-900 mb-1.5">
@@ -185,7 +241,9 @@ function Step2({ data, setData }: { data: any; setData: any }) {
             <select
               value={data.yearsExp}
               onChange={set("yearsExp")}
-              className={`w-full pl-4 pr-10 py-3.5 border-[1.5px] border-[#e2e2e2] rounded-xl text-sm bg-white outline-none appearance-none cursor-pointer transition-colors focus:border-[#4b3fa0] ${data.yearsExp ? "text-gray-900" : "text-gray-400"}`}
+              className={`w-full pl-4 pr-10 py-3.5 border-[1.5px] rounded-xl text-sm bg-white outline-none appearance-none cursor-pointer transition-colors focus:border-[#4b3fa0] ${
+                errors.yearsExp ? "border-red-400" : "border-[#e2e2e2]"
+              } ${data.yearsExp ? "text-gray-900" : "text-gray-400"}`}
             >
               <option value="" disabled hidden>
                 Years of Experience
@@ -200,6 +258,9 @@ function Step2({ data, setData }: { data: any; setData: any }) {
               â–¾
             </span>
           </div>
+          {errors.yearsExp && (
+            <p className="mt-1 text-xs text-red-600">{errors.yearsExp}</p>
+          )}
         </div>
         <div>
           <label className="block text-sm font-medium text-gray-900 mb-1.5">
@@ -238,6 +299,9 @@ function Step2({ data, setData }: { data: any; setData: any }) {
                 </span>
               ))}
             </div>
+          )}
+          {errors.skills && (
+            <p className="mt-1 text-xs text-red-600">{errors.skills}</p>
           )}
         </div>
       </div>
@@ -354,11 +418,13 @@ function Step3({
   setData,
   companies,
   companiesLoading,
+  errors,
 }: {
   data: any;
   setData: any;
   companies: any[];
   companiesLoading: boolean;
+  errors: CandidateOnboardingErrors;
 }) {
   const set = (key: string) => (e: any) =>
     setData((d: any) => ({ ...d, [key]: e.target.value }));
@@ -425,6 +491,9 @@ function Step3({
             className="border-none outline-none text-sm text-gray-900 w-full bg-transparent"
           />
         </div>
+        {errors.github && (
+          <p className="mt-1 text-xs text-red-600">{errors.github}</p>
+        )}
         <div className="flex items-center border-[1.5px] border-[#e2e2e2] rounded-xl px-4 py-3 gap-2.5 bg-white transition-colors focus-within:border-[#4b3fa0]">
           <Linkedin className="text-lg shrink-0" size={18} />
           <input
@@ -435,6 +504,9 @@ function Step3({
             className="border-none outline-none text-sm text-gray-900 w-full bg-transparent"
           />
         </div>
+        {errors.linkedin && (
+          <p className="mt-1 text-xs text-red-600">{errors.linkedin}</p>
+        )}
       </div>
     </div>
   );
@@ -457,6 +529,8 @@ export default function Onboarding() {
     email: "",
     phone: "",
   });
+  const [formMessage, setFormMessage] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<CandidateOnboardingErrors>({});
   const [step2Data, setStep2Data] = useState({
     headline: "",
     summary: "",
@@ -507,37 +581,83 @@ export default function Onboarding() {
     "$180k+": 200000,
   };
 
+  const isValidEmail = (value: string) => /\S+@\S+\.\S+/.test(value);
+  const isValidUrl = (value: string) => {
+    if (!value.trim()) return true;
+    try {
+      new URL(value);
+      return true;
+    } catch {
+      return false;
+    }
+  };
+
   const handleNext = async () => {
     if (step === 1) {
-      if (!step1Data.firstName.trim() || !step1Data.lastName.trim()) {
-        alert("Please enter both first and last name.");
-        return;
+      const errors: CandidateOnboardingErrors = {};
+      if (!step1Data.firstName.trim()) {
+        errors.firstName = "First name is required.";
       }
-      if (!step1Data.email.includes("@")) {
-        alert("Please enter a valid email address.");
-        return;
+      if (!step1Data.lastName.trim()) {
+        errors.lastName = "Last name is required.";
+      }
+      if (!step1Data.email.trim()) {
+        errors.email = "Email is required.";
+      } else if (!isValidEmail(step1Data.email.trim())) {
+        errors.email = "Please enter a valid email address.";
       }
       if (!step1Data.phone.trim()) {
-        alert("Please enter a phone number.");
+        errors.phone = "Phone number is required.";
+      }
+
+      if (Object.keys(errors).length > 0) {
+        setFieldErrors(errors);
+        setFormMessage("Please correct the highlighted fields.");
         return;
       }
+
+      setFieldErrors({});
+      setFormMessage(null);
       setStep(2);
     } else if (step === 2) {
+      const errors: CandidateOnboardingErrors = {};
       if (!step2Data.headline.trim()) {
-        alert("Please enter a headline.");
-        return;
+        errors.headline = "Headline is required.";
       }
       if (!step2Data.yearsExp) {
-        alert("Please select your years of experience.");
-        return;
+        errors.yearsExp = "Please select your years of experience.";
       }
       if (step2Data.skills.length === 0) {
-        alert("Please add at least one skill.");
+        errors.skills = "Please add at least one skill.";
+      }
+
+      if (Object.keys(errors).length > 0) {
+        setFieldErrors(errors);
+        setFormMessage("Please correct the highlighted fields.");
         return;
       }
+
+      setFieldErrors({});
+      setFormMessage(null);
       setStep(3);
     } else {
+      const errors: CandidateOnboardingErrors = {};
+      if (!isValidUrl(step3Data.github)) {
+        errors.github = "Please enter a valid GitHub URL.";
+      }
+      if (!isValidUrl(step3Data.linkedin)) {
+        errors.linkedin = "Please enter a valid LinkedIn URL.";
+      }
+
+      if (Object.keys(errors).length > 0) {
+        setFieldErrors(errors);
+        setFormMessage("Please correct the highlighted fields.");
+        return;
+      }
+
       try {
+        setFieldErrors({});
+        setFormMessage(null);
         if (!session?.user?.id) return;
 
         await updateUser({
@@ -571,7 +691,7 @@ export default function Onboarding() {
 
         router.push("/candidate/dashboard");
       } catch (error) {
-        alert("Failed to submit onboarding data. Please try again.");
+        setFormMessage("Failed to submit onboarding data. Please try again.");
       }
     }
   };
@@ -604,14 +724,32 @@ export default function Onboarding() {
             step === 2 ? "max-w-2xl" : "max-w-xl"
           }`}
         >
-          {step === 1 && <Step1 data={step1Data} setData={setStep1Data} />}
-          {step === 2 && <Step2 data={step2Data} setData={setStep2Data} />}
+          {formMessage && (
+            <div className="mb-6 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
+              {formMessage}
+            </div>
+          )}
+          {step === 1 && (
+            <Step1
+              data={step1Data}
+              setData={setStep1Data}
+              errors={fieldErrors}
+            />
+          )}
+          {step === 2 && (
+            <Step2
+              data={step2Data}
+              setData={setStep2Data}
+              errors={fieldErrors}
+            />
+          )}
           {step === 3 && (
             <Step3
               data={step3Data}
               setData={setStep3Data}
               companies={companies}
               companiesLoading={companiesLoading}
+              errors={fieldErrors}
             />
           )}
 

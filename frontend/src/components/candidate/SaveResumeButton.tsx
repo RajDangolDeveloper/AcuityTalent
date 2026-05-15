@@ -11,10 +11,11 @@ import { PrimeATSPDFTemplate } from "../templatePdf/PrimeATSTemplatePdf";
 import { ProfessionalPDFTemplate } from "../templatePdf/ProfessionalTemplatePdf";
 import { SpecialistPDFTemplate } from "../templatePdf/SpecialistTemplate";
 import apiClient from "@/src/app/api/api-client";
+import { formatResumeRequirementErrors } from "./resumeValidation";
 
 Font.register({
   family: "Helvetica-Light",
-  src: "https://fonts.gstatic.com/s/helveticaneue/v70/some-link-to-light-font.ttf", 
+  src: "https://fonts.gstatic.com/s/helveticaneue/v70/some-link-to-light-font.ttf",
 });
 
 const SaveResumeButton = ({
@@ -27,6 +28,7 @@ const SaveResumeButton = ({
   selectedTemplate: TemplateKey;
 }) => {
   const [isSaving, setIsSaving] = useState(false);
+  const [message, setMessage] = useState<string | null>(null);
 
   const pdfTemplates: Record<TemplateKey, React.FC<{ data: ResumeData }>> = {
     modern: ModernPDFTemplate,
@@ -39,6 +41,13 @@ const SaveResumeButton = ({
 
   const handleSave = async () => {
     try {
+      const requirementMessage = formatResumeRequirementErrors(resumeData);
+      if (requirementMessage) {
+        setMessage(requirementMessage);
+        return;
+      }
+
+      setMessage(null);
       setIsSaving(true);
       const PDFComponent = pdfTemplates[selectedTemplate];
       if (!PDFComponent)
@@ -60,7 +69,6 @@ const SaveResumeButton = ({
             .join(", ");
         }
 
-        
         if (typeof data === "object") {
           return Object.values(data).join(" ");
         }
@@ -87,22 +95,35 @@ const SaveResumeButton = ({
 
       if (!response.status) throw new Error("Upload failed");
       const result = await response.data;
-      alert("Resume saved successfully!");
+      setMessage("Resume saved successfully!");
     } catch (error) {
-      alert("Error saving resume. Please try again.");
+      setMessage("Error saving resume. Please try again.");
     } finally {
       setIsSaving(false);
     }
   };
 
   return (
-    <button
-      onClick={handleSave}
-      disabled={isSaving}
-      className="bg-white text-primary-600 px-4 py-2 rounded-md shadow hover:bg-gray-100 transition disabled:opacity-50"
-    >
-      {isSaving ? "Saving..." : "Save Resume"}
-    </button>
+    <>
+      <button
+        onClick={handleSave}
+        disabled={isSaving}
+        className="bg-white text-primary-600 px-4 py-2 rounded-md shadow hover:bg-gray-100 transition disabled:opacity-50"
+      >
+        {isSaving ? "Saving..." : "Save Resume"}
+      </button>
+      {message && (
+        <p
+          className={`mt-2 text-sm ${
+            message === "Resume saved successfully!"
+              ? "text-green-700"
+              : "text-red-700"
+          }`}
+        >
+          {message}
+        </p>
+      )}
+    </>
   );
 };
 

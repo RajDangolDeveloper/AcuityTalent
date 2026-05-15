@@ -51,6 +51,11 @@ export default function CandidateProfilePage() {
   >(null);
   const [isUploadingProfilePicture, setIsUploadingProfilePicture] =
     useState(false);
+  const [profileMessage, setProfileMessage] = useState<string | null>(null);
+  const [experienceMessage, setExperienceMessage] = useState<string | null>(
+    null,
+  );
+  const [educationMessage, setEducationMessage] = useState<string | null>(null);
 
   useEffect(() => {
     if (user?.profilePictureUrl) {
@@ -111,6 +116,19 @@ export default function CandidateProfilePage() {
   });
 
   const handleUpdateProfile = () => {
+    if (
+      !profileForm.headline?.trim() ||
+      !profileForm.preferredLocation?.trim() ||
+      !profileForm.linkedinUrl?.trim() ||
+      !profileForm.githubUrl?.trim()
+    ) {
+      setProfileMessage(
+        "Please fill in the profile headline and social links.",
+      );
+      return;
+    }
+
+    setProfileMessage(null);
     updateProfile({
       headline: profileForm.headline,
       preferredLocation: profileForm.preferredLocation,
@@ -121,6 +139,7 @@ export default function CandidateProfilePage() {
       currentCompanyId: profileForm.currentCompanyId,
       skills: profileForm.skills ?? [],
     });
+    setProfileMessage("Profile updated successfully.");
   };
 
   const resetExperienceForm = () => {
@@ -136,6 +155,16 @@ export default function CandidateProfilePage() {
   };
 
   const handleSaveExperience = () => {
+    if (
+      !experienceForm.company.trim() ||
+      !experienceForm.position.trim() ||
+      !experienceForm.startDate.trim()
+    ) {
+      setExperienceMessage("Company, position, and start date are required.");
+      return;
+    }
+
+    setExperienceMessage(null);
     if (editingExperience) {
       updateWorkExp({
         id: editingExperience.id,
@@ -148,6 +177,7 @@ export default function CandidateProfilePage() {
         endDate: experienceForm.endDate || undefined,
       });
     }
+    setExperienceMessage("Experience saved successfully.");
     resetExperienceForm();
   };
 
@@ -177,6 +207,16 @@ export default function CandidateProfilePage() {
   };
 
   const handleSaveEducation = () => {
+    if (
+      !educationForm.institution.trim() ||
+      !educationForm.degree.trim() ||
+      !educationForm.startDate.trim()
+    ) {
+      setEducationMessage("Institution, degree, and start date are required.");
+      return;
+    }
+
+    setEducationMessage(null);
     const payload = {
       institution: educationForm.institution,
       degree: educationForm.degree,
@@ -192,6 +232,7 @@ export default function CandidateProfilePage() {
     } else {
       createEducation(payload);
     }
+    setEducationMessage("Education saved successfully.");
     resetEducationForm();
   };
 
@@ -488,6 +529,11 @@ export default function CandidateProfilePage() {
                   Update Profile
                 </button>
               </div>
+              {profileMessage && (
+                <div className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
+                  {profileMessage}
+                </div>
+              )}
             </div>
 
             {}
@@ -652,6 +698,11 @@ export default function CandidateProfilePage() {
                     {editingExperience ? "Update Experience" : "Add Experience"}
                   </button>
                 </div>
+                {experienceMessage && (
+                  <div className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-xs text-red-800">
+                    {experienceMessage}
+                  </div>
+                )}
               </div>
             </div>
 
@@ -844,6 +895,11 @@ export default function CandidateProfilePage() {
                     {editingEducation ? "Update Education" : "Add Education"}
                   </button>
                 </div>
+                {educationMessage && (
+                  <div className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-xs text-red-800">
+                    {educationMessage}
+                  </div>
+                )}
               </div>
             </div>
           </div>

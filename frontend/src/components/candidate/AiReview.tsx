@@ -9,6 +9,7 @@ interface AiReviewProps {
   resumeData?: ResumeData;
   candidateId?: string;
   onClose?: () => void;
+  isPremiumUser?: boolean;
 }
 
 interface ReviewResponse {
@@ -37,6 +38,7 @@ const AiReview: React.FC<AiReviewProps> = ({
   resumeData,
   candidateId,
   onClose,
+  isPremiumUser = false,
 }) => {
   const [review, setReview] = useState<ReviewResponse | null>(null);
   const [loading, setLoading] = useState(false);
@@ -124,7 +126,6 @@ const AiReview: React.FC<AiReviewProps> = ({
 
     const sections: string[] = [];
 
-    
     if (data.fullName || data.email || data.phone) {
       sections.push("PERSONAL INFORMATION");
       if (data.fullName) sections.push(`Name: ${data.fullName}`);
@@ -135,14 +136,12 @@ const AiReview: React.FC<AiReviewProps> = ({
       sections.push("");
     }
 
-    
     if (data.summary) {
       sections.push("PROFESSIONAL SUMMARY");
       sections.push(data.summary);
       sections.push("");
     }
 
-    
     if (data.experience && data.experience.length > 0) {
       sections.push("WORK EXPERIENCE");
       data.experience.forEach((exp) => {
@@ -154,7 +153,6 @@ const AiReview: React.FC<AiReviewProps> = ({
       });
     }
 
-    
     if (data.education && data.education.length > 0) {
       sections.push("EDUCATION");
       data.education.forEach((edu) => {
@@ -166,7 +164,6 @@ const AiReview: React.FC<AiReviewProps> = ({
       });
     }
 
-    
     if (data.skills && data.skills.length > 0) {
       sections.push("SKILLS");
       data.skills.forEach((skill) => {
@@ -179,6 +176,13 @@ const AiReview: React.FC<AiReviewProps> = ({
   };
 
   const generateReview = async () => {
+    if (!isPremiumUser) {
+      setError(
+        "AI Resume Review is a premium feature. Upgrade to generate a review.",
+      );
+      return;
+    }
+
     try {
       setLoading(true);
       setError(null);
@@ -218,11 +222,10 @@ const AiReview: React.FC<AiReviewProps> = ({
   };
 
   useEffect(() => {
-    
-    if (resumeData && !review && !loading) {
+    if (isPremiumUser && resumeData && !review && !loading) {
       generateReview();
     }
-  }, []); 
+  }, [isPremiumUser, loading, review, resumeData]);
 
   return (
     <div className="p-6 h-full overflow-y-auto">
@@ -257,11 +260,11 @@ const AiReview: React.FC<AiReviewProps> = ({
             <p className="text-gray-600 mb-4">No review generated yet.</p>
             <button
               onClick={generateReview}
-              disabled={loading || !resumeData}
+              disabled={loading || !resumeData || !isPremiumUser}
               className="bg-primary-600 hover:bg-primary-700 disabled:bg-gray-400 text-white px-6 py-2 rounded-lg transition-colors flex items-center gap-2 mx-auto"
             >
               <Sparkles className="h-4 w-4" />
-              Generate AI Review
+              {isPremiumUser ? "Generate AI Review" : "Premium Feature"}
             </button>
           </div>
         )}
@@ -353,11 +356,15 @@ const AiReview: React.FC<AiReviewProps> = ({
             {}
             <button
               onClick={generateReview}
-              disabled={loading}
+              disabled={loading || !isPremiumUser}
               className="w-full bg-primary-600 hover:bg-primary-700 disabled:bg-gray-400 text-white py-2 rounded-lg transition-colors flex items-center justify-center gap-2"
             >
               <Sparkles className="h-4 w-4" />
-              {loading ? "Regenerating..." : "Regenerate Review"}
+              {loading
+                ? "Regenerating..."
+                : isPremiumUser
+                  ? "Regenerate Review"
+                  : "Premium Feature"}
             </button>
           </div>
         )}

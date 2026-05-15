@@ -20,12 +20,14 @@ import { TemplateKey } from "@/src/types/resume";
 import SaveResumeButton from "@/src/components/candidate/SaveResumeButton";
 import { useSession } from "next-auth/react";
 import { useParams } from "next/navigation";
+import { isPremiumUser } from "@/src/utils/subscription";
 
 export default function UpdateResumePage() {
   const params = useParams();
 
   const resumeId = params?.id ? parseInt(params.id as string) : null;
   const session = useSession();
+  const premiumUser = isPremiumUser(session.data?.user ?? null);
   const [activeTab, setActiveTab] = useState<"edit" | "customize" | "ai">(
     "edit",
   );
@@ -86,7 +88,7 @@ export default function UpdateResumePage() {
   const PDFComponent = pdfTemplates[selectedTemplate];
 
   return (
-    <div className="flex flex-col min-h-dvh min-w-full justify-center items-center">
+    <div className="flex flex-col h-screen min-w-full">
       <div className="bg-primary-600 w-full flex justify-center items-center relative">
         <div className="bg-primary-600 w-full grid grid-cols-3 items-center px-6 py-2">
           <div />
@@ -137,9 +139,13 @@ export default function UpdateResumePage() {
       </div>
       {}
       <div className="flex flex-1 w-full min-h-0">
-        <div className="w-1/2 overflow-auto border-r">
+        <div className="w-1/2 h-full overflow-y-auto border-r">
           {(activeTab === "edit" || activeTab === "ai") && (
-            <InputResumeDetails resume={resumeData} onChange={setResumeData} />
+            <InputResumeDetails
+              resume={resumeData}
+              onChange={setResumeData}
+              isPremiumUser={premiumUser}
+            />
           )}
           {activeTab === "customize" && (
             <div>
@@ -151,7 +157,7 @@ export default function UpdateResumePage() {
             </div>
           )}
         </div>
-        <div className="w-1/2 overflow-y-clip relative">
+        <div className="w-1/2 h-full overflow-y-clip relative">
           {activeTab === "customize" && (
             <ResumePreview
               resumeData={resumeData}
@@ -175,7 +181,9 @@ export default function UpdateResumePage() {
               </PdfDownloadButton>
             </div>
           )}
-          {activeTab === "ai" && <AiReview resumeData={resumeData} />}
+          {activeTab === "ai" && (
+            <AiReview resumeData={resumeData} isPremiumUser={premiumUser} />
+          )}
         </div>
       </div>
     </div>

@@ -3,6 +3,7 @@ import apiClient from "@/src/app/api/api-client";
 import Notification from "@/src/element/Notification";
 import { Sparkles } from "lucide-react";
 import AiUsageBlock, { AiUsage } from "@/src/components/ai/AiUsageBlock";
+import { getResumeRequirementErrors } from "./resumeValidation";
 
 export interface ResumeData {
   fullName?: string;
@@ -12,7 +13,6 @@ export interface ResumeData {
   country?: string;
   nationality?: string;
   dateOfBirth?: string;
-  drivingLicense?: string;
   summary?: string;
   experience?: Array<{
     title: string;
@@ -38,6 +38,7 @@ export type ResumeTemplate = React.FC<{ data: ResumeData }>;
 interface ResumeDetailsProps {
   resume: ResumeData;
   onChange: (r: ResumeData) => void;
+  isPremiumUser?: boolean;
 }
 
 interface ImproveTextResponse {
@@ -50,7 +51,11 @@ interface ImproveTextResponse {
   };
 }
 
-const ResumeDetails: React.FC<ResumeDetailsProps> = ({ resume, onChange }) => {
+const ResumeDetails: React.FC<ResumeDetailsProps> = ({
+  resume,
+  onChange,
+  isPremiumUser = false,
+}) => {
   const [improvingField, setImprovingField] = React.useState<string | null>(
     null,
   );
@@ -62,12 +67,23 @@ const ResumeDetails: React.FC<ResumeDetailsProps> = ({ resume, onChange }) => {
     onChange({ ...resume, ...patch });
   };
 
+  const requirementErrors = getResumeRequirementErrors(resume);
+
   const improveText = async (
     fieldId: string,
     text: string,
     onImproved: (value: string) => void,
     topic?: string,
   ) => {
+    if (!isPremiumUser) {
+      Notification({
+        toastMessage:
+          "Text improvement is a premium feature. Upgrade to use AI assistance.",
+        toastStatus: "error",
+      });
+      return;
+    }
+
     const normalized = text?.trim() ?? "";
     if (normalized.length < 5) {
       Notification({
@@ -228,7 +244,6 @@ const ResumeDetails: React.FC<ResumeDetailsProps> = ({ resume, onChange }) => {
     let completed = 0;
     let total = 0;
 
-    
     const personalFields = [
       "fullName",
       "email",
@@ -237,26 +252,21 @@ const ResumeDetails: React.FC<ResumeDetailsProps> = ({ resume, onChange }) => {
       "country",
       "nationality",
       "dateOfBirth",
-      "drivingLicense",
     ] as const;
     personalFields.forEach((field) => {
       total++;
       if (resume[field]) completed++;
     });
 
-    
     total++;
     if (resume.summary) completed++;
 
-    
     total++;
     if (resume.experience && resume.experience.length > 0) completed++;
 
-    
     total++;
     if (resume.education && resume.education.length > 0) completed++;
 
-    
     total++;
     if (resume.skills && resume.skills.length > 0) completed++;
 
@@ -288,6 +298,24 @@ const ResumeDetails: React.FC<ResumeDetailsProps> = ({ resume, onChange }) => {
           />
         </div>
       </div>
+
+      {requirementErrors.length > 0 && (
+        <div className="rounded-md border border-red-200 bg-red-50 p-4 text-sm text-red-800 space-y-2">
+          <div className="font-semibold">Required details are missing.</div>
+          <ul className="list-disc pl-5 space-y-1">
+            {requirementErrors.map((error) => (
+              <li key={error.field}>{error.message}</li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {!isPremiumUser && (
+        <div className="rounded-md border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
+          AI-powered improvements are a premium feature. Upgrade to use the
+          Improve with AI actions in this form.
+        </div>
+      )}
 
       <AiUsageBlock usage={latestAiUsage} />
 
@@ -351,15 +379,6 @@ const ResumeDetails: React.FC<ResumeDetailsProps> = ({ resume, onChange }) => {
             value: resume.dateOfBirth || "",
             onChange: (value) => update({ dateOfBirth: value }),
             className: "border border-gray-300 drop-shadow-xs p-2 rounded-sm",
-          })}
-          {renderInputWithImprove({
-            fieldId: "drivingLicense",
-            placeholder: "Driving License",
-            value: resume.drivingLicense || "",
-            onChange: (value) => update({ drivingLicense: value }),
-            className:
-              "border border-gray-300 drop-shadow-xs p-2 rounded-sm col-span-2",
-            improve: false,
           })}
         </div>
       </section>

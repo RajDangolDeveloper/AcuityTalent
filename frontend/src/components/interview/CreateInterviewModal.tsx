@@ -25,6 +25,7 @@ export default function CreateInterviewModal({
   const [scheduledAt, setScheduledAt] = useState("");
   const [meetingLink, setMeetingLink] = useState("");
   const [notes, setNotes] = useState("");
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const createInterview = useCreateInterview();
 
@@ -40,9 +41,11 @@ export default function CreateInterviewModal({
     e.preventDefault();
 
     if (!scheduledAt) {
-      alert("Please choose date and time.");
+      setErrorMessage("Please choose a date and time.");
       return;
     }
+
+    setErrorMessage(null);
 
     createInterview.mutate(
       {
@@ -80,6 +83,11 @@ export default function CreateInterviewModal({
         </div>
 
         <form className="space-y-5" onSubmit={handleSubmit}>
+          {errorMessage && (
+            <div className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
+              {errorMessage}
+            </div>
+          )}
           <div>
             <label className="text-sm font-semibold text-gray-800">
               Interview Type

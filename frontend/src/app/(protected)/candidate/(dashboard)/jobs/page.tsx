@@ -23,8 +23,8 @@ export default function CandidateJobsPage() {
   const [selectedResumeId, setSelectedResumeId] = useState<number | null>(null);
   const [coverLetter, setCoverLetter] = useState("");
   const [showApplyForm, setShowApplyForm] = useState(false);
+  const [applyError, setApplyError] = useState<string | null>(null);
 
-  
   const [filters, setFilters] = useState({
     location: "",
     employmentType: "" as EmploymentType | "",
@@ -32,7 +32,6 @@ export default function CandidateJobsPage() {
     remoteOnly: false,
   });
 
-  
   const { data: jobsData, isLoading: jobsLoading } = getAllJobs(page, limit, {
     ...filters,
     search: searchTerm,
@@ -66,21 +65,18 @@ export default function CandidateJobsPage() {
 
   const handleApply = async () => {
     if (!selectedResumeId) {
-      Notification({
-        toastMessage: "Please select a resume",
-        toastStatus: "error",
-      });
+      setApplyError("Please select a resume before applying.");
       return;
     }
 
     try {
+      setApplyError(null);
       await createApplicationMutation.mutateAsync({
         jobId: selectedJobId!,
         resumeId: selectedResumeId,
         coverLetter,
       });
 
-      
       if (!savedJobIds.has(selectedJobId!)) {
         await saveJobMutation.mutateAsync(selectedJobId!);
       }
@@ -90,7 +86,6 @@ export default function CandidateJobsPage() {
         toastStatus: "success",
       });
 
-      
       setSelectedResumeId(null);
       setCoverLetter("");
       setShowApplyForm(false);
@@ -429,6 +424,11 @@ export default function CandidateJobsPage() {
                     <label className="block text-sm font-semibold text-gray-700 mb-2">
                       Select Resume <span className="text-red-500">*</span>
                     </label>
+                    {applyError && (
+                      <div className="mb-3 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
+                        {applyError}
+                      </div>
+                    )}
                     {resumes.length === 0 ? (
                       <div className="bg-yellow-50 border border-yellow-200 rounded p-3 text-yellow-700 text-sm">
                         No resumes found. Please upload a resume first.

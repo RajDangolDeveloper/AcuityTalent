@@ -18,6 +18,19 @@ import {
   useUpdateRecruiterProfile,
 } from "@/src/hooks/useRecruiterApi";
 
+type OnboardingFieldErrors = Partial<
+  Record<
+    | "selectedCompanyName"
+    | "name"
+    | "description"
+    | "companySize"
+    | "email"
+    | "industry"
+    | "address",
+    string
+  >
+>;
+
 const OnboardingFlow = () => {
   const [step, setStep] = useState(1);
   const router = useRouter();
@@ -44,6 +57,8 @@ const OnboardingFlow = () => {
   const [backgroundPreview, setBackgroundPreview] = useState<string | null>(
     null,
   );
+  const [formMessage, setFormMessage] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<OnboardingFieldErrors>({});
 
   const INDUSTRY_OPTIONS = [
     "TECHNOLOGY",
@@ -82,15 +97,38 @@ const OnboardingFlow = () => {
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+    setFieldErrors((prev) => ({ ...prev, [name]: undefined }));
+    setFormMessage(null);
   };
 
+  const isValidEmail = (value: string) => /\S+@\S+\.\S+/.test(value);
+
   const handleCompanyCreate = async () => {
-    if (!formData.name || !formData.email) {
-      alert("Please fill in at least the company name and email.");
+    const errors: OnboardingFieldErrors = {};
+    if (!formData.name.trim()) errors.name = "Company name is required.";
+    if (!formData.description.trim()) {
+      errors.description = "Company description is required.";
+    }
+    if (!formData.companySize.trim()) {
+      errors.companySize = "Company size is required.";
+    }
+    if (!formData.email.trim()) {
+      errors.email = "Company email is required.";
+    } else if (!isValidEmail(formData.email.trim())) {
+      errors.email = "Please enter a valid company email.";
+    }
+    if (!formData.industry.trim()) errors.industry = "Industry is required.";
+    if (!formData.address.trim()) errors.address = "Address is required.";
+
+    if (Object.keys(errors).length > 0) {
+      setFieldErrors(errors);
+      setFormMessage("Please correct the highlighted fields.");
       return;
     }
 
     try {
+      setFieldErrors({});
+      setFormMessage(null);
       const company = await createCompany.mutateAsync({
         ownerId: Number(session?.user?.id),
         name: formData.name,
@@ -112,28 +150,34 @@ const OnboardingFlow = () => {
         });
       }
 
-      alert("Company created successfully!");
+      setFormMessage("Company created successfully.");
       setSelectedCompanyName(formData.name);
       setStep(1);
     } catch (error) {
-      alert("Failed to create company. Please try again.");
+      setFormMessage("Failed to create company. Please try again.");
     }
   };
 
   const handleCompanySubmit = async () => {
-    if (!selectedCompanyName) {
-      alert("Please select a company");
+    if (!selectedCompanyName.trim()) {
+      setFieldErrors({ selectedCompanyName: "Please select a company." });
+      setFormMessage("Please select a company.");
       return;
     }
 
     const company = companies.find((c: any) => c.name === selectedCompanyName);
 
     if (!company) {
-      alert("Please select a valid company from the list");
+      setFieldErrors({
+        selectedCompanyName: "Please select a valid company from the list.",
+      });
+      setFormMessage("Please select a valid company from the list.");
       return;
     }
 
     try {
+      setFieldErrors({});
+      setFormMessage(null);
       if (!session?.user?.id) return;
       const userId = Number(session.user.id);
 
@@ -163,7 +207,7 @@ const OnboardingFlow = () => {
 
       router.push("/recruiter/dashboard");
     } catch (error) {
-      alert("Failed to submit onboarding data. Please try again.");
+      setFormMessage("Failed to submit onboarding data. Please try again.");
     }
   };
 
@@ -174,6 +218,11 @@ const OnboardingFlow = () => {
           <h1 className="text-[32px] font-bold text-black mb-8">
             Find your Business
           </h1>
+          {formMessage && (
+            <div className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
+              {formMessage}
+            </div>
+          )}
           <div className="mb-8">
             <label className="block text-[15px] font-bold text-black mb-1">
               Company
@@ -181,13 +230,29 @@ const OnboardingFlow = () => {
             <input
               type="text"
               list="companies-list"
-              className="w-full border border-gray-200 rounded-lg p-4 text-gray-700 mb-6"
+              className={`w-full border rounded-lg p-4 text-gray-700 mb-2 ${
+                fieldErrors.selectedCompanyName
+                  ? "border-red-400"
+                  : "border-gray-200"
+              }`}
               placeholder={
                 companiesLoading ? "Loading..." : "Type to search..."
               }
               value={selectedCompanyName}
-              onChange={(e) => setSelectedCompanyName(e.target.value)}
+              onChange={(e) => {
+                setSelectedCompanyName(e.target.value);
+                setFieldErrors((prev) => ({
+                  ...prev,
+                  selectedCompanyName: undefined,
+                }));
+                setFormMessage(null);
+              }}
             />
+            {fieldErrors.selectedCompanyName && (
+              <p className="mb-4 text-xs text-red-600">
+                {fieldErrors.selectedCompanyName}
+              </p>
+            )}
             <datalist id="companies-list">
               {companies.map((company: any) => (
                 <option key={company.id} value={company.name} />
@@ -219,6 +284,11 @@ const OnboardingFlow = () => {
           <h1 className="text-[32px] font-bold text-black mb-8">
             Create your Company
           </h1>
+          {formMessage && (
+            <div className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
+              {formMessage}
+            </div>
+          )}
 
           <div className="grid grid-cols-3 gap-x-10 mb-10 items-start">
             <div className="col-span-2">
@@ -233,8 +303,15 @@ const OnboardingFlow = () => {
                   value={formData.name}
                   onChange={handleInputChange}
                   placeholder="Company Name"
-                  className="w-full border border-gray-200 rounded-lg p-4 text-sm"
+                  className={`w-full border rounded-lg p-4 text-sm ${
+                    fieldErrors.name ? "border-red-400" : "border-gray-200"
+                  }`}
                 />
+                {fieldErrors.name && (
+                  <p className="mt-1 text-xs text-red-600">
+                    {fieldErrors.name}
+                  </p>
+                )}
               </div>
               <div>
                 <label className="block text-sm text-black mb-1">
@@ -246,8 +323,17 @@ const OnboardingFlow = () => {
                   value={formData.description}
                   onChange={handleInputChange}
                   placeholder="What does your company do?"
-                  className="w-full border border-gray-200 rounded-lg p-4 text-sm"
+                  className={`w-full border rounded-lg p-4 text-sm ${
+                    fieldErrors.description
+                      ? "border-red-400"
+                      : "border-gray-200"
+                  }`}
                 />
+                {fieldErrors.description && (
+                  <p className="mt-1 text-xs text-red-600">
+                    {fieldErrors.description}
+                  </p>
+                )}
               </div>
             </div>
             <div className="w-[200px] flex flex-col items-center gap-4 pt-10">
@@ -332,7 +418,9 @@ const OnboardingFlow = () => {
                 name="companySize"
                 value={formData.companySize}
                 onChange={handleInputChange}
-                className="w-full border border-gray-200 rounded-lg p-4 text-sm bg-white"
+                className={`w-full border rounded-lg p-4 text-sm bg-white ${
+                  fieldErrors.companySize ? "border-red-400" : "border-gray-200"
+                }`}
               >
                 <option value="">Select Size</option>
                 <option value="ONE_TO_TEN">1-10 Employees</option>
@@ -348,6 +436,11 @@ const OnboardingFlow = () => {
                 </option>
                 <option value="THOUSAND_PLUS">1000+ Employees</option>
               </select>
+              {fieldErrors.companySize && (
+                <p className="mt-1 text-xs text-red-600">
+                  {fieldErrors.companySize}
+                </p>
+              )}
             </div>
             <div>
               <label className="block text-sm text-black mb-1">Email</label>
@@ -357,8 +450,13 @@ const OnboardingFlow = () => {
                 value={formData.email}
                 onChange={handleInputChange}
                 placeholder="example@company.com"
-                className="w-full border border-gray-200 rounded-lg p-4 text-sm"
+                className={`w-full border rounded-lg p-4 text-sm ${
+                  fieldErrors.email ? "border-red-400" : "border-gray-200"
+                }`}
               />
+              {fieldErrors.email && (
+                <p className="mt-1 text-xs text-red-600">{fieldErrors.email}</p>
+              )}
             </div>
           </div>
 
@@ -369,7 +467,9 @@ const OnboardingFlow = () => {
                 name="industry"
                 value={formData.industry}
                 onChange={handleInputChange}
-                className="w-full border border-gray-200 rounded-lg p-4 text-sm bg-white"
+                className={`w-full border rounded-lg p-4 text-sm bg-white ${
+                  fieldErrors.industry ? "border-red-400" : "border-gray-200"
+                }`}
               >
                 <option value="">Select Industry</option>
                 {INDUSTRY_OPTIONS.map((opt) => (
@@ -378,6 +478,11 @@ const OnboardingFlow = () => {
                   </option>
                 ))}
               </select>
+              {fieldErrors.industry && (
+                <p className="mt-1 text-xs text-red-600">
+                  {fieldErrors.industry}
+                </p>
+              )}
             </div>
             <div>
               <label className="block text-sm text-black mb-1">Address</label>
@@ -387,8 +492,15 @@ const OnboardingFlow = () => {
                 value={formData.address}
                 onChange={handleInputChange}
                 placeholder="Company Address"
-                className="w-full border border-gray-200 rounded-lg p-4 text-sm"
+                className={`w-full border rounded-lg p-4 text-sm ${
+                  fieldErrors.address ? "border-red-400" : "border-gray-200"
+                }`}
               />
+              {fieldErrors.address && (
+                <p className="mt-1 text-xs text-red-600">
+                  {fieldErrors.address}
+                </p>
+              )}
             </div>
           </div>
 
