@@ -15,6 +15,10 @@ export default withAuth(
     const isOnRegister = nextUrl.pathname.includes("/register");
     const isOnboardingRoute = nextUrl.pathname.includes("/onboarding");
 
+    if ((token?.exp as number) * 1000 < Date.now()) {
+      return NextResponse.redirect(new URL("/logout", request.url));
+    }
+
     if (token?.error === "AccessTokenError") {
       return NextResponse.redirect(new URL("/logout", request.url));
     }

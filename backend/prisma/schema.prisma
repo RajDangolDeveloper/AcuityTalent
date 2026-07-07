@@ -125,6 +125,16 @@ enum InterviewType {
   SYSTEM_DESIGN
 }
 
+enum InterviewRequestStatus {
+  SENT
+  PENDING_CANDIDATE
+  PENDING_RECRUITER
+  CONFIRMED
+  DECLINED
+  EXPIRED
+  CANCELLED
+}
+
 enum InterviewStatus {
   PENDING
   SCHEDULED
@@ -155,6 +165,32 @@ enum FileType {
   TXT
 }
 
+enum ActionType {
+  APPLICATION_APPLIED
+  APPLIACTION_WITHDRAWN
+  APPLICATION_SHORTLISTED
+  APPLICATION_REVIEWED
+  APPLICATION_REJECTED
+  APPLICATION_OFFER
+  APPLICATION_ACCEPTED
+  INTERVIEW_REQUEST
+  INTERVIEW_SCHEDULED
+  INTERVIEW_ACCEPTED
+}
+
+model ActivityLog {
+  id Int @id @default(autoincrement())
+  userId Int
+  actionType ActionType
+  activityTitle String
+  createdAt DateTime @default(now())
+
+  user User @relation(fields:[userId], references: [id], onDelete: Cascade)
+
+  @@index([id])
+  @@index([userId])
+}
+
 model User {
   id           Int      @id @default(autoincrement())
   email        String   @unique
@@ -179,7 +215,7 @@ model User {
   candidate CandidateProfile?
   ownedCompanies        Company[]
   subscriptionPayments SubscriptionPayment[]
-
+  activityLogs ActivityLog[]
   interviewParticipants InterviewParticipant[]
 }
 
@@ -254,6 +290,7 @@ model RecruiterProfile {
   company             Company     @relation(fields: [companyId], references: [id], onDelete: Cascade)
   jobs                Job[]
   interviewsConducted Interview[] @relation("RecruiterInterviews")
+  interviewRequests InterviewRequest[]
 
   @@index([userId])
   @@index([companyId])
@@ -288,6 +325,7 @@ model CandidateProfile {
   workHistory      WorkExperience[]
   education        Education[]
   savedJobs        SavedJob[]
+  interviewRequests InterviewRequest[]
   interviewsJoined InterviewParticipant[]
 
   @@index([userId])
@@ -371,6 +409,7 @@ model Job {
   recruiter    RecruiterProfile @relation(fields: [recruiterId], references: [id], onDelete: Cascade)
   applications Application[]
   savedBy      SavedJob[]
+  interviewRequests InterviewRequest[]
 
   @@index([companyId])
   @@index([recruiterId])
@@ -475,6 +514,24 @@ model InterviewParticipant {
   candidateProfileId Int?
 
   @@unique([interviewId, userId])
+}
+
+model InterviewRequest {
+  id  Int @id @default(autoincrement())
+  jobId Int
+  candidateId Int 
+  recruiterId Int
+  availableDateRange DateTime[]
+  selectedDateTime DateTime?
+  status InterviewRequestStatus @default(SENT)
+  locationType LocationType
+  createdAt   DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  confirmedAt DateTime?
+
+  job Job      @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  candidate CandidateProfile   @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  recruiter RecruiterProfile      @relation(fields: [recruiterId], references: [id], onDelete: Cascade)
 }
 
 model Interview {

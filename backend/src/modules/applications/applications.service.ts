@@ -9,7 +9,12 @@ import {
 import { CreateApplicationDto } from './dto/create-application.dto';
 import { GetApplicationsQueryDto } from './dto/get-applications-query.dto';
 import { ApplicationResponseDto } from './dto/application-response.dto';
-import { ApplicationStatus, InterviewStatus, JobStatus } from '@prisma/client';
+import {
+  ActionType,
+  ApplicationStatus,
+  InterviewStatus,
+  JobStatus,
+} from '@prisma/client';
 import { AiService } from '../ai/ai.service';
 import { MatchRequest } from '../ai/dto/match-request.dto';
 import { MatchResponse } from '../ai/dto/match-response.dto';
@@ -18,6 +23,8 @@ import { CandidateService } from '../candidates/candidate.service';
 import { firstValueFrom } from 'rxjs';
 import { PrismaService } from '../../prisma/prisma.service';
 import { EmailService } from '../../config/email.service';
+import { ActivityService } from '../activity/activity.service';
+import { CreateActivityDto } from '../activity/dto/create-activity.dto';
 
 @Injectable()
 export class ApplicationService {
@@ -26,6 +33,7 @@ export class ApplicationService {
     private emailService: EmailService,
     private aiService: AiService,
     private candidateProfileService: CandidateService,
+    private activityService: ActivityService,
   ) {}
 
   async createApplication(
@@ -34,6 +42,9 @@ export class ApplicationService {
   ): Promise<ApplicationResponseDto> {
     const candidate = await this.prisma.candidateProfile.findUnique({
       where: { userId },
+      include: {
+        user: true,
+      },
     });
 
     if (!candidate) {
@@ -125,6 +136,12 @@ export class ApplicationService {
       application,
       job.recruiter.user.email,
     );
+
+    await this.activityService.createUserActivity({
+      userId: job.recruiter.userId,
+      activityTitle: `${candidate.user.firstName} ${candidate.user.lastName} Applied for ${job.title}`,
+      actionType: ActionType.APPLICATION_APPLIED,
+    });
 
     return this.formatApplicationResponse(application);
   }
@@ -472,6 +489,12 @@ export class ApplicationService {
     ) {
       await this.completeActiveInterviewsForApplication(applicationId);
     }
+
+    await this.activityService.createUserActivity({
+      userId: application.job.recruiter.userId,
+      activityTitle: `${application.candidate.user.firstName} ${application.candidate.user.lastName} Applied for ${application.job.title}`,
+      actionType: this.mapApplicationStatusToActivityStatus(newStatus),
+    });
 
     await this.handleStatusChangeNotifications(updatedApplication, newStatus);
 
@@ -880,8 +903,6 @@ export class ApplicationService {
     return trimmed;
   }
 
-  async getRecommendedJobs(id: number) {}
-
   async getRecentJobApplications(id: number) {
     const candidateProfile =
       await this.candidateProfileService.getCandidateProfileByUserId(id);
@@ -902,5 +923,19 @@ export class ApplicationService {
     return recentApplications;
   }
 
-  async getUserActivity(id: number) {}
+  private mapApplicationStatusToActivityStatus(
+    status: ApplicationStatus,
+  ): ActionType {
+    const mapping: Record<ApplicationStatus, ActionType> = {
+      APPLIED: ActionType.APPLICATION_APPLIED,
+      REVIEWED: ActionType.APPLICATION_REVIEWED,
+      ACCEPTED: ActionType.INTERVIEW_ACCEPTED,
+      REJECTED: ActionType.APPLICATION_REJECTED,
+      SHORTLISTED: ActionType.APPLICATION_SHORTLISTED,
+      INTERVIEWING: ActionType.INTERVIEW_SCHEDULED,
+      OFFER_EXTENDED: ActionType.APPLICATION_OFFER,
+      WITHDRAWN: ActionType.APPLICATION_OFFER,
+    };
+    return mapping[status];
+  }
 }

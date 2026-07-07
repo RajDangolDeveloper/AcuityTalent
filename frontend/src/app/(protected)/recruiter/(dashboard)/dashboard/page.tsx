@@ -2,11 +2,28 @@
 
 import { useMemo } from "react";
 import Link from "next/link";
-import { Briefcase, Users, Calendar, TrendingUp, Plus } from "lucide-react";
+import {
+  File,
+  Briefcase,
+  Users,
+  Calendar,
+  TrendingUp,
+  Plus,
+  FileSearch,
+  Handshake,
+  XCircle,
+} from "lucide-react";
 import { useGetRecruiterJobs } from "@/src/hooks/useRecruiterApi";
+import { useGetLatestUserActivity } from "@/src/hooks/useActivityApi";
+import { ViewDependentTime } from "@/src/utils";
 
 export default function RecruiterDashboard() {
-  const { data: jobsData, isLoading } = useGetRecruiterJobs(1, 50);
+  const { data: jobsData, isLoading: isJobsLoading } = useGetRecruiterJobs(
+    1,
+    50,
+  );
+  const { data: activityData, isLoading: isActivityLoading } =
+    useGetLatestUserActivity();
   const jobs = jobsData?.data || [];
 
   const sortedJobs = useMemo(
@@ -15,7 +32,7 @@ export default function RecruiterDashboard() {
         (a, b) =>
           new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
       ),
-    [jobs],
+    [jobs]
   );
 
   const currentMonth = new Date().getMonth();
@@ -93,6 +110,34 @@ export default function RecruiterDashboard() {
     },
   ];
 
+  const ACTIVITY_CONFIG: Record<
+    string,
+    {
+      bg: string;
+      icon?: React.ComponentType<{ className?: string; size?: number }>;
+    }
+  > = {
+    APPLICATION_APPLIED: {
+      bg: "bg-blue-500",
+    },
+    APPLICATION_REVIEWED: {
+      bg: "bg-amber-500",
+      icon: FileSearch,
+    },
+    APPLICATION_REJECTED: {
+      bg: "bg-rose-500",
+      icon: XCircle,
+    },
+    INTERVIEW: {
+      bg: "bg-indigo-500",
+      icon: Calendar,
+    },
+    OFFER: {
+      bg: "bg-emerald-500",
+      icon: Handshake,
+    },
+  };
+
   return (
     <div className="flex min-h-dvh bg-gray-50">
       <div className="flex-1 overflow-y-auto">
@@ -116,26 +161,75 @@ export default function RecruiterDashboard() {
           </div>
 
           {/* Stats Grid */}
-          <div className="grid grid-cols-4 gap-6 mb-8">
-            {stats.map((stat) => {
-              const Icon = stat.icon ?? "";
-              return (
-                <div
-                  key={stat.label ?? ""}
-                  className="bg-white rounded-lg border border-gray-200 p-6"
-                >
-                  <div
-                    className={`${stat.color ?? ""} w-12 h-12 rounded-lg flex items-center justify-center mb-4`}
-                  >
-                    <Icon size={24} />
+          <div className="grid grid-cols-2 w-full gap-4 mb-2">
+            <div className="max-w-5xl rounded-sm">
+              <div className="grid grid-cols-2 gap-6 mb-8">
+                {stats.map((stat) => {
+                  const Icon = stat.icon ?? "";
+                  return (
+                    <div
+                      key={stat.label ?? ""}
+                      className="bg-white rounded-lg border border-gray-200 p-6"
+                    >
+                      <div
+                        className={`${stat.color ?? ""} w-12 h-12 rounded-lg flex items-center justify-center mb-4`}
+                      >
+                        <Icon size={24} />
+                      </div>
+                      <p className="text-gray-600 text-sm mb-1">{stat.label}</p>
+                      <p className="text-3xl font-bold text-gray-900">
+                        {stat.value ?? ""}
+                      </p>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+            <div>
+              <div className="border border-gray-200 bg-white rounded-md h-93 w-full px-6 py-5">
+                <div className="font-semibold text-2xl">Activity</div>
+                {isActivityLoading && (
+                  <div className="py-3">
+                    {Array.from({ length: 4 }, (_, i) => (
+                      <div className="bg-gray-200 h-10 animate-pulse w-full my-4 rounded-sm"></div>
+                    ))}
                   </div>
-                  <p className="text-gray-600 text-sm mb-1">{stat.label}</p>
-                  <p className="text-3xl font-bold text-gray-900">
-                    {stat.value ?? ""}
-                  </p>
-                </div>
-              );
-            })}
+                )}
+                {!isActivityLoading && activityData && (
+                  <div>
+                    {activityData?.map((activity) => {
+                      const config = ACTIVITY_CONFIG[activity.actionType] || {
+                        bg: "bg-gray-500",
+                        icon: File,
+                      };
+                      const Icon = config.icon ?? File;
+                      return (
+                        <div
+                          key={activity.id}
+                          className="h-15 py-3 w-full rounded-sm flex justify-between items-center"
+                        >
+                          <div className="flex items-center gap-4 mt-4">
+                            <div>
+                              <div
+                                className={`rounded-full ${config.bg} h-10 w-10 flex items-center justify-center`}
+                              >
+                                <Icon className="text-white" size={20} />
+                              </div>
+                            </div>
+                            <div className="text-lg font-medium">
+                              {activity.activityTitle}
+                            </div>
+                          </div>
+                          <div className="font-light border border-gray-300 rounded-sm p-1 text-end ">
+                            {ViewDependentTime(activity.createdAt)}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
 
           {/* Recent Jobs */}
@@ -144,7 +238,7 @@ export default function RecruiterDashboard() {
               <h2 className="text-2xl font-bold text-gray-900">Recent Jobs</h2>
             </div>
 
-            {isLoading ? (
+            {isJobsLoading ? (
               <div className="p-6 text-center text-gray-500">Loading...</div>
             ) : jobs.length === 0 ? (
               <div className="p-6 text-center text-gray-500">

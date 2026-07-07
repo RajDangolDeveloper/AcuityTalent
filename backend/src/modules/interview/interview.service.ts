@@ -65,7 +65,7 @@ export class InterviewsService {
     const scheduledAt = new Date(createInterviewDto.scheduledAt);
     const shouldStartImmediately = scheduledAt <= new Date();
 
-    const recruiter = await this.recruiterService.getRecruiterProfile(
+    const recruiter = await this.recruiterService.getRecruiterProfileById(
       createInterviewDto.interviewerId,
     );
 

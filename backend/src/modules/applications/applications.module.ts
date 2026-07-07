@@ -7,6 +7,7 @@ import { HttpModule } from '@nestjs/axios';
 import { CandidateService } from '../candidates/candidate.service';
 import { PrismaService } from '../../prisma/prisma.service';
 import { EmailService } from '../../config/email.service';
+import { ActivityService } from '../activity/activity.service';
 
 @Module({
   imports: [HttpModule],
@@ -17,6 +18,7 @@ import { EmailService } from '../../config/email.service';
     PrismaService,
     EmailService,
     AiService,
+    ActivityService,
   ],
   exports: [ApplicationService],
 })

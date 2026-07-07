@@ -69,8 +69,8 @@ export class RecruiterService {
     return response;
   }
 
-  async getRecruiterProfile(id: number) {
-    return this.prisma.recruiterProfile.findUnique({
+  async getRecruiterProfileById(id: number) {
+    return await this.prisma.recruiterProfile.findUnique({
       where: {
         id: id,
       },

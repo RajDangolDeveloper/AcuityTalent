@@ -213,7 +213,6 @@ export class ApplicationController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @UseGuards(JwtAuthGuard)
   @Patch(':id/shortlist')
   async shortlistApplication(
     @Param('id') id: string,
@@ -230,7 +229,6 @@ export class ApplicationController {
     };
   }
 
-  @UseGuards(JwtAuthGuard)
   @UseGuards(JwtAuthGuard)
   @Patch(':id/interview')
   async updateToInterviewing(
@@ -249,7 +247,6 @@ export class ApplicationController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @UseGuards(JwtAuthGuard)
   @Patch(':id/accept')
   async acceptApplication(
     @Param('id') id: string,
@@ -267,7 +264,6 @@ export class ApplicationController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @UseGuards(JwtAuthGuard)
   @Patch(':id/offer')
   async extendOffer(
     @Param('id') id: string,
@@ -284,7 +280,6 @@ export class ApplicationController {
     };
   }
 
-  @UseGuards(JwtAuthGuard)
   @UseGuards(JwtAuthGuard)
   @Patch(':id/reject')
   async rejectApplication(

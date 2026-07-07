@@ -9,3 +9,14 @@ export function setCookie(name: string, value: string) {
 export function removeCookie(name: string) {
   cookieStore.remove(name);
 }
+
+export function ViewDependentTime(isoString: string) {
+  const dateObj = new Date(isoString);
+
+  const viewedTime = dateObj.toLocaleTimeString([], {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: true,
+  });
+  return viewedTime;
+}

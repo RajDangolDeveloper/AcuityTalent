@@ -2,7 +2,6 @@
 
 import CustomButton from "@/src/components/CustomButton";
 import CustomInput from "@/src/components/CustomInput";
-import Notification from "@/src/element/Notification";
 import { Key, Mail } from "lucide-react";
 import { signIn, useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -10,7 +9,6 @@ import { useState } from "react";
 
 export default function LoginPageClient() {
   const router = useRouter();
-  const { data: session } = useSession();
   const searchParams = useSearchParams();
   const [error, setError] = useState("");
 
@@ -23,21 +21,12 @@ export default function LoginPageClient() {
       redirect: false,
     });
     if (result?.error) {
-      Notification({
-        toastMessage: "Invalid email or password",
-        toastStatus: "error",
-      });
       setError("Invalid email or password");
     } else {
-      Notification({
-        toastMessage: "Login successful!",
-        toastStatus: "success",
-      });
-
       const updatedSession = await fetch("/api/auth/session").then((res) =>
         res.json(),
       );
-      const role = updatedSession?.user?.role?.toLowerCase() || "recruiter";
+      const role = updatedSession?.user?.role?.toLowerCase() || "candidate";
       const callbackUrl =
         searchParams?.get("callbackUrl") || `/${role}/dashboard`;
 

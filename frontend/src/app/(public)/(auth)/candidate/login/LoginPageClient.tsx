@@ -23,17 +23,8 @@ export default function LoginPageClient() {
       redirect: false,
     });
     if (result?.error) {
-      Notification({
-        toastMessage: "Invalid email or password",
-        toastStatus: "error",
-      });
       setError("Invalid email or password");
     } else {
-      Notification({
-        toastMessage: "Login successful!",
-        toastStatus: "success",
-      });
-
       const updatedSession = await fetch("/api/auth/session").then((res) =>
         res.json(),
       );
@@ -80,7 +71,11 @@ export default function LoginPageClient() {
         <CustomButton color="primary" type="submit">
           Sign In
         </CustomButton>
-        {error && <p style={{ color: "red" }}>{error}</p>}
+        {error && (
+          <p className="text-center text-red-500 font-semibold bg-red-50 border border-red-500 py-2 px-2 rounded-md">
+            {error}
+          </p>
+        )}
         <a href="/forget-password" className="self-end">
           Forgot your password?
         </a>

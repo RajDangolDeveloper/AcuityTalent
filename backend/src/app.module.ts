@@ -19,6 +19,9 @@ import { UserModule } from './modules/user/user.module';
 import { SubscriptionsModule } from './modules/subscriptions/subscriptions.module';
 import { SpacesModule } from './modules/spaces/spaces.module';
 import { PrismaService } from './prisma/prisma.service';
+import { ActivityModule } from './modules/activity/activity.module';
+import { InterviewRequestController } from './modules/interviewRequest/interviewRequests.controller';
+import { InterviewRequestModule } from './modules/interviewRequest/interviewRequests.module';
 
 @Module({
   imports: [
@@ -42,6 +45,8 @@ import { PrismaService } from './prisma/prisma.service';
     AdminModule,
     SpacesModule,
     SubscriptionsModule,
+    ActivityModule,
+    InterviewRequestModule,
   ],
   controllers: [AppController],
   providers: [AppService, PrismaService, EmailService],

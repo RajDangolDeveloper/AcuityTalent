@@ -25,7 +25,7 @@ export class RecruiterController {
 
   @Get('profile')
   async GetRecruiterProfile(@Body() id: number) {
-    return this.recruiterService.getRecruiterProfile(id);
+    return this.recruiterService.getRecruiterProfileById(id);
   }
 
   @Get('profile/current')

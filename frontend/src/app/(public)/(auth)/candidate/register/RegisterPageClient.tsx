@@ -3,7 +3,7 @@
 import apiClient from "@/src/app/api/api-client";
 import CustomButton from "@/src/components/CustomButton";
 import CustomInput from "@/src/components/CustomInput";
-import { Key, Mail } from "lucide-react";
+import { Key, Mail, OctagonX, TriangleAlert } from "lucide-react";
 import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
@@ -14,6 +14,7 @@ export default function RegisterPageClient() {
   const callbackUrl =
     searchParams?.get("callbackUrl") || "/recruiter/dashboard";
   const [error, setError] = useState("");
+  const [warning, setWarning] = useState("");
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -25,7 +26,7 @@ export default function RegisterPageClient() {
     const confirmPassword = formData.get("confirmPassword");
 
     if (password !== confirmPassword) {
-      setError("Passwords do not match");
+      setWarning("Passwords do not match");
       return;
     }
 
@@ -94,10 +95,25 @@ export default function RegisterPageClient() {
             required
           />
         </div>
-        <CustomButton color="primary" className="self-center" type="submit">
+        <CustomButton
+          color="primary"
+          className="self-center mb-3"
+          type="submit"
+        >
           Sign Up
         </CustomButton>
-        {error && <p style={{ color: "red" }}>{error}</p>}
+        {error && (
+          <p className="text-center text-red-500 font-semibold bg-red-50 border border-red-500 py-2 px-2 rounded-md flex gap-2 justify-center">
+            <OctagonX className="text-red-500" />
+            {error}
+          </p>
+        )}
+        {warning && (
+          <p className=" text-orange-500 font-semibold bg-orange-50 border border-orange-500 py-2 px-2 rounded-md flex gap-2 justify-center">
+            <TriangleAlert className="text-orange-500" />
+            {warning}
+          </p>
+        )}
       </form>
       <div className="flex flex-col gap-3 self-center ">
         <div className="self-center">

@@ -10,11 +10,11 @@ import { Role } from '@prisma/client';
 
 export class CreateUserDto {
   @IsEmail()
-  email: string;
+  email!: string;
 
   @IsString()
   @MinLength(8)
-  password: string;
+  password!: string;
 
   @IsString()
   @IsOptional()
@@ -33,7 +33,7 @@ export class CreateUserDto {
   contactEmail?: string;
 
   @IsEnum(Role)
-  role: Role;
+  role!: Role;
 
   @IsBoolean()
   @IsOptional()
