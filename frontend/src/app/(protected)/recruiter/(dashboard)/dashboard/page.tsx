@@ -32,7 +32,7 @@ export default function RecruiterDashboard() {
         (a, b) =>
           new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
       ),
-    [jobs]
+    [jobs],
   );
 
   const currentMonth = new Date().getMonth();
@@ -139,27 +139,9 @@ export default function RecruiterDashboard() {
   };
 
   return (
-    <div className="flex min-h-dvh bg-gray-50">
+    <div className="flex min-h-dvh bg-primary-50">
       <div className="flex-1 overflow-y-auto">
         <div className="p-8">
-          <div className="flex items-center justify-between mb-8">
-            <div>
-              <h1 className="text-4xl font-bold text-gray-900 mb-2">
-                Welcome back
-              </h1>
-              <p className="text-gray-600">
-                Here's what happening with your jobs today.
-              </p>
-            </div>
-            <Link
-              href="/recruiter/jobs/create"
-              className="flex items-center gap-2 px-6 py-3 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition font-semibold"
-            >
-              <Plus size={20} />
-              Create Job
-            </Link>
-          </div>
-
           {/* Stats Grid */}
           <div className="grid grid-cols-2 w-full gap-4 mb-2">
             <div className="max-w-5xl rounded-sm">
@@ -169,7 +151,7 @@ export default function RecruiterDashboard() {
                   return (
                     <div
                       key={stat.label ?? ""}
-                      className="bg-white rounded-lg border border-gray-200 p-6"
+                      className="bg-gray-50 rounded-lg border border-gray-300 p-6"
                     >
                       <div
                         className={`${stat.color ?? ""} w-12 h-12 rounded-lg flex items-center justify-center mb-4`}
@@ -186,7 +168,7 @@ export default function RecruiterDashboard() {
               </div>
             </div>
             <div>
-              <div className="border border-gray-200 bg-white rounded-md h-93 w-full px-6 py-5">
+              <div className="border border-gray-300 bg-gray-50 rounded-md h-93 w-full px-6 py-5">
                 <div className="font-semibold text-2xl">Activity</div>
                 {isActivityLoading && (
                   <div className="py-3">
@@ -196,7 +178,7 @@ export default function RecruiterDashboard() {
                   </div>
                 )}
                 {!isActivityLoading && activityData && (
-                  <div>
+                  <div className="mt-2">
                     {activityData?.map((activity) => {
                       const config = ACTIVITY_CONFIG[activity.actionType] || {
                         bg: "bg-gray-500",
@@ -208,7 +190,7 @@ export default function RecruiterDashboard() {
                           key={activity.id}
                           className="h-15 py-3 w-full rounded-sm flex justify-between items-center"
                         >
-                          <div className="flex items-center gap-4 mt-4">
+                          <div className="flex items-center gap-4">
                             <div>
                               <div
                                 className={`rounded-full ${config.bg} h-10 w-10 flex items-center justify-center`}
@@ -220,7 +202,7 @@ export default function RecruiterDashboard() {
                               {activity.activityTitle}
                             </div>
                           </div>
-                          <div className="font-light border border-gray-300 rounded-sm p-1 text-end ">
+                          <div className="font-light rounded-sm p-1 text-end ">
                             {ViewDependentTime(activity.createdAt)}
                           </div>
                         </div>
@@ -233,8 +215,8 @@ export default function RecruiterDashboard() {
           </div>
 
           {/* Recent Jobs */}
-          <div className="bg-white rounded-lg border border-gray-200">
-            <div className="p-6 border-b border-gray-200">
+          <div className="bg-gray-50 rounded-lg border border-gray-300 h-[470px]">
+            <div className="p-6 border-b border-gray-300">
               <h2 className="text-2xl font-bold text-gray-900">Recent Jobs</h2>
             </div>
 
@@ -250,15 +232,23 @@ export default function RecruiterDashboard() {
                   <Link
                     key={job.id}
                     href={`/recruiter/jobs?jobId=${job.id}`}
-                    className="p-6 hover:bg-gray-50 transition-colors flex justify-between items-center"
+                    className="px-8 py-6 hover:bg-gray-50 transition-colors flex justify-between items-center "
                   >
-                    <div>
+                    <div className="h-6 w-md">
                       <h3 className="font-semibold text-gray-900">
                         {job.title}
                       </h3>
+                    </div>
+                    <div className="h-6 w-md">
                       <p className="text-sm text-gray-600 mt-1">
                         {job.applicationCount} applicants
                       </p>
+                    </div>
+                    <div className="h-6 w-md">
+                      <span>{job.location}</span>
+                    </div>
+                    <div className="h-6 w-md">
+                      <span>{job.salaryRange}</span>
                     </div>
                     <span className="text-sm font-medium text-gray-600 capitalize">
                       {job.status}

@@ -1,8 +1,9 @@
 "use client";
 
 import React, { useRef } from "react";
-import { CandidateApplication } from "@/src/types/recruiter";
+
 import { Mail, Phone, MapPin, Calendar } from "lucide-react";
+import { CandidateApplication } from "@/src/types/candidate";
 
 interface Props {
   candidate: CandidateApplication;
@@ -20,9 +21,7 @@ export default function CandidatePreviewCard({ candidate, onClick }: Props) {
         const p = videoRef.current.play();
         if (p && typeof p.catch === "function") p.catch(() => {});
       }
-    } catch (e) {
-      
-    }
+    } catch (e) {}
   };
 
   const handleMouseLeave = () => {
@@ -31,9 +30,7 @@ export default function CandidatePreviewCard({ candidate, onClick }: Props) {
         videoRef.current.pause();
         videoRef.current.currentTime = 0;
       }
-    } catch (e) {
-      
-    }
+    } catch (e) {}
   };
 
   return (
@@ -82,7 +79,7 @@ export default function CandidatePreviewCard({ candidate, onClick }: Props) {
       <div className="w-48 h-28 bg-gray-100 rounded-md overflow-hidden flex-shrink-0">
         {}
         {}
-        {"" as any }
+        {"" as any}
         {(candidate as any).videoUrl ? (
           <video
             ref={videoRef}

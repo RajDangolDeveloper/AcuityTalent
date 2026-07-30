@@ -21,17 +21,16 @@ export class SpacesService {
   private bucket: string;
   private endpoint: string;
   constructor(private configService: ConfigService) {
-    this.endpoint = this.configService.get<string>('DO_SPACES_ENDPOINT')!;
+    this.endpoint = this.configService.get<string>('AWS_ENDPOINT')!;
     this.s3Client = new S3Client({
-      endpoint: `https://${this.endpoint}`,
-      region: this.configService.get<string>('DO_SPACES_REGION')!,
+      region: this.configService.get<string>('AWS_REGION')!,
       credentials: {
-        accessKeyId: this.configService.get<string>('DO_SPACES_KEY')!,
-        secretAccessKey: this.configService.get<string>('DO_SPACES_SECRET')!,
+        accessKeyId: this.configService.get<string>('AWS_KEY')!,
+        secretAccessKey: this.configService.get<string>('AWS_SECRET')!,
       },
       forcePathStyle: false,
     });
-    this.bucket = this.configService.get<string>('DO_SPACES_BUCKET')!;
+    this.bucket = this.configService.get<string>('AWS_BUCKET')!;
   }
 
   private generateFileName(originalName: string): string {

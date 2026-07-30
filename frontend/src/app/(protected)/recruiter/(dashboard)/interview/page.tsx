@@ -283,8 +283,8 @@ export default function RecruiterInterviewPage() {
           </div>
         </div>
 
-        <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_320px] xl:grid-cols-[minmax(0,1fr)_320px]">
-          <div className="rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden">
+        <div className="grid gap-4 grid-cols-3 grid-rows-[200px_minmax(520px,1fr)_100px]">
+          <div className="col-span-2 row-span-full rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden">
             <div className="flex flex-col gap-4 border-b border-gray-100 p-4 sm:flex-row sm:items-center sm:justify-between">
               <div className="inline-flex rounded-xl bg-gray-100 p-1">
                 {[
@@ -420,8 +420,8 @@ export default function RecruiterInterviewPage() {
             )}
           </div>
 
-          <div className="space-y-4">
-            <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+          <div className="row-span-full flex flex-col gap-4">
+            <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm flex-1">
               <div className="mb-4 flex items-center justify-between">
                 <h2 className="text-lg font-semibold text-gray-900">
                   Recent Actions
@@ -493,7 +493,7 @@ export default function RecruiterInterviewPage() {
               )}
             </div>
 
-            <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+            <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm flex-1">
               <div className="mb-4 flex items-center justify-between">
                 <h2 className="text-lg font-semibold text-gray-900">
                   Recently Closed Interviews

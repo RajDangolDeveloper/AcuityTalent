@@ -12,6 +12,7 @@ import {
   XCircle,
   Clock,
   Star,
+  Phone,
 } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useGetApplicationById } from "@/src/hooks/useApplicationApi";
@@ -90,14 +91,10 @@ export default function ApplicationDetailPage() {
     }
   };
 
-  useEffect(() => {
-    document.title = "Application Details - AcuityTalent";
-  }, []);
-
   if (!params?.applicationId || isNaN(applicationId)) {
     return (
       <div className="min-h-screen bg-white p-8">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-7xl mx-auto">
           <button
             onClick={() => router.back()}
             className="flex items-center gap-2 text-blue-600 hover:text-blue-700 mb-6"
@@ -126,7 +123,7 @@ export default function ApplicationDetailPage() {
   if (error) {
     return (
       <div className="min-h-screen bg-white p-8">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-7xl mx-auto">
           <button
             onClick={() => router.back()}
             className="flex items-center gap-2 text-blue-600 hover:text-blue-700 mb-6"
@@ -149,7 +146,7 @@ export default function ApplicationDetailPage() {
   if (!application) {
     return (
       <div className="min-h-screen bg-white p-8">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-7xl mx-auto">
           <button
             onClick={() => router.back()}
             className="flex items-center gap-2 text-blue-600 hover:text-blue-700 mb-6"
@@ -191,23 +188,31 @@ export default function ApplicationDetailPage() {
 
   return (
     <div className="min-h-screen bg-white p-8">
-      <div className="max-w-4xl mx-auto">
-        <button
-          onClick={() => router.back()}
-          className="flex items-center gap-2 text-blue-600 hover:text-blue-700 mb-6"
-        >
-          <ArrowLeft size={20} />
-          Back to Applications
-        </button>
+      <div className="max-w-7xl mx-auto">
+        <div className="flex gap-4 items-center-safe">
+          <button
+            onClick={() => router.back()}
+            className="flex items-center gap-2 text-blue-600 hover:text-blue-700 mb-6"
+          >
+            <ArrowLeft size={20} />
+            Back to Applications
+          </button>
+          <div className="flex gap-1 items-center mb-6">
+            <div className="font-light text-md text-gray-400">POSITION : </div>
+            <div className="text-md font-semibold bg-gray-200 px-2 py-1 rounded-md">
+              {application.jobTitle}
+            </div>
+          </div>
+        </div>
 
         <div className="bg-white rounded-lg border border-gray-200">
           <div className="p-8">
-            <div className="flex justify-between items-start mb-8">
+            <div className="flex justify-between items-end mb-8">
               <div>
                 <h1 className="text-3xl font-bold text-gray-900 mb-2">
                   {application.candidateName}
                 </h1>
-                <p className="text-gray-600">{application.jobTitle}</p>
+                <p className="text-gray-600"></p>
               </div>
               <span
                 className={`px-4 py-2 rounded-full text-sm font-medium ${getStatusBadgeColor(
@@ -218,7 +223,7 @@ export default function ApplicationDetailPage() {
               </span>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 pt-4 border-t border-gray-200">
               <div className="flex items-center gap-3">
                 <Mail className="text-gray-400" size={20} />
                 <div>
@@ -231,7 +236,13 @@ export default function ApplicationDetailPage() {
                   </a>
                 </div>
               </div>
-
+              <div className="flex items-center gap-3">
+                <Phone className="text-gray-400" size={20} />
+                <div>
+                  <p className="text-sm text-gray-500">Phone</p>
+                  <div className="">{application.candidatePhone}</div>
+                </div>
+              </div>
               <div className="flex items-center gap-3">
                 <Briefcase className="text-gray-400" size={20} />
                 <div>
@@ -241,7 +252,6 @@ export default function ApplicationDetailPage() {
                   </p>
                 </div>
               </div>
-
               <div className="flex items-center gap-3">
                 <Calendar className="text-gray-400" size={20} />
                 <div>
@@ -367,7 +377,7 @@ export default function ApplicationDetailPage() {
               </div>
             </div>
 
-            <div className="pt-4 border-t border-gray-200">
+            <div className="pt-4 border-t border-gray-200 flex justify-end">
               <p className="text-sm text-gray-500">
                 Last updated:{" "}
                 {new Date(application.updatedAt).toLocaleDateString(undefined, {

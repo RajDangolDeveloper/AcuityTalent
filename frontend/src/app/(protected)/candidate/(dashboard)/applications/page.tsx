@@ -2,7 +2,8 @@
 
 import { useEffect } from "react";
 import { useGetCandidateApplications } from "@/src/hooks/useCandidateApi";
-import { CandidateApplication, ApplicationStatus } from "@/src/types/candidate";
+import { ApplicationStatus, CandidateApplication } from "@/src/types/candidate";
+
 import {
   Briefcase,
   Building2,

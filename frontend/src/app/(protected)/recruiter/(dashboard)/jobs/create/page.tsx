@@ -6,6 +6,7 @@ import { ArrowLeft } from "lucide-react";
 import { useCreateJob } from "@/src/hooks/useRecruiterApi";
 import Notification from "@/src/element/Notification";
 import { LocationType } from "@/src/types/recruiter";
+import ReactEditor from "@/src/components/Editor";
 
 export default function CreateJobPage() {
   const router = useRouter();
@@ -104,6 +105,21 @@ export default function CreateJobPage() {
       }));
     }
   };
+
+  const handleEditorChange =
+    (fieldName: "description" | "requirements") => (content: string) => {
+      setFormData((prev) => ({
+        ...prev,
+        [fieldName]: content,
+      }));
+
+      if (errors[fieldName]) {
+        setErrors((prev) => ({
+          ...prev,
+          [fieldName]: "",
+        }));
+      }
+    };
 
   return (
     <div className="min-h-screen bg-gray-50 p-8">
@@ -239,14 +255,13 @@ export default function CreateJobPage() {
                   )}
                 </div>
               </div>
-
-              {}
               <div>
                 <label className="block text-sm font-semibold text-gray-900 mb-2">
                   Job Description <span className="text-red-500">*</span>
                 </label>
-                <textarea
-                  name="description"
+                <ReactEditor
+                  value={formData.description}
+                  onChange={handleEditorChange("description")}
                   placeholder="Write a detailed job description using markdown formatting...
 
 **Example:**
@@ -271,12 +286,6 @@ In this role, you'll be responsible for creating intuitive, user-centered design
 - Bachelor's degree in Design, HCI, or related field
 - Experience working in Agile/Scrum environments
 - Familiarity with front-end technologies (HTML, CSS, React)"
-                  value={formData.description}
-                  onChange={handleChange}
-                  className={`w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-primary-500 font-mono text-sm h-60 ${
-                    errors.description ? "border-red-500" : "border-gray-300"
-                  }`}
-                  rows={20}
                 />
                 {errors.description && (
                   <p className="text-red-500 text-sm mt-1">
@@ -289,25 +298,18 @@ In this role, you'll be responsible for creating intuitive, user-centered design
                 <label className="block text-sm font-semibold text-gray-900 mb-2">
                   Requirements <span className="text-red-500">*</span>
                 </label>
-                <textarea
-                  name="requirements"
-                  placeholder="Write about the requirements for you position"
+                <ReactEditor
+                  placeholder="Write about the requirements for your position"
                   value={formData.requirements}
-                  onChange={handleChange}
-                  className={`w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-primary-500 font-mono text-sm h-60 ${
-                    errors.description ? "border-red-500" : "border-gray-300"
-                  }`}
-                  rows={20}
-                />
-                {errors.description && (
+                  onChange={handleEditorChange("requirements")}
+                ></ReactEditor>
+                {errors.requirements && (
                   <p className="text-red-500 text-sm mt-1">
-                    {errors.description}
+                    {errors.requirements}
                   </p>
                 )}
               </div>
             </div>
-
-            {}
             <div className="flex justify-end gap-4 pt-6 border-t border-gray-200">
               <button
                 type="button"

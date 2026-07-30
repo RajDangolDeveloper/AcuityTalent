@@ -4,7 +4,6 @@ import {
   PaginatedResponse,
   Job,
   JobDetails,
-  CandidateApplication,
   SingleResponse,
   SavedJob,
   CandidateProfile,
@@ -103,7 +102,6 @@ export const useCreateCandidateProfile = () => {
   });
 };
 
-
 export const useCandidateSavedJobs = (page: number = 1, limit: number = 10) => {
   return useQuery({
     queryKey: ["candidate-saved-jobs", page, limit],
@@ -119,7 +117,6 @@ export const useCandidateSavedJobs = (page: number = 1, limit: number = 10) => {
     },
   });
 };
-
 
 export const useCandidateProfile = () => {
   return useQuery({
@@ -179,7 +176,6 @@ export const useUpdateCandidateProfile = () => {
     },
   });
 };
-
 
 export const useCandidateResumes = () => {
   return useQuery({
@@ -244,7 +240,6 @@ export const useCreateWorkExperience = () => {
   });
 };
 
-
 export const useCandidateEducations = () => {
   return useQuery({
     queryKey: ["candidate-educations"],
@@ -265,13 +260,12 @@ export const useGetCandidateById = (id: number | undefined) => {
   return useQuery({
     queryKey: ["candidate", id],
     queryFn: async () => {
-      
       const response = await apiClient.get<SingleResponse<any>>(
         `/candidates/${id}`,
       );
       return response.data.data;
     },
-    
+
     enabled: typeof id === "number",
   });
 };

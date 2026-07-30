@@ -7,6 +7,7 @@ import { useUpdateJob } from "@/src/hooks/useRecruiterApi";
 import { useJobDetails } from "@/src/hooks/useJobApi";
 import Notification from "@/src/element/Notification";
 import { LocationType } from "@/src/types/recruiter";
+import ReactEditor from "@/src/components/Editor";
 
 export default function UpdateJobPage() {
   const router = useRouter();
@@ -14,7 +15,6 @@ export default function UpdateJobPage() {
   const jobId = Number(params.id);
   const updateJobMutation = useUpdateJob();
   const { data: jobData } = useJobDetails(Number.isNaN(jobId) ? null : jobId);
-  
 
   const [formData, setFormData] = useState({
     title: "",
@@ -123,7 +123,7 @@ export default function UpdateJobPage() {
       ...prev,
       [name]: value,
     }));
-    
+
     if (errors[name]) {
       setErrors((prev) => ({
         ...prev,
@@ -131,6 +131,21 @@ export default function UpdateJobPage() {
       }));
     }
   };
+
+  const handleEditorChange =
+    (fieldName: "description" | "requirements") => (content: string) => {
+      setFormData((prev) => ({
+        ...prev,
+        [fieldName]: content,
+      }));
+
+      if (errors[fieldName]) {
+        setErrors((prev) => ({
+          ...prev,
+          [fieldName]: "",
+        }));
+      }
+    };
 
   return (
     <div className="min-h-screen bg-gray-50 p-8">
@@ -271,43 +286,37 @@ export default function UpdateJobPage() {
                 </div>
               </div>
 
-              {}
               <div>
                 <label className="block text-sm font-semibold text-gray-900 mb-2">
                   Job Description <span className="text-red-500">*</span>
                 </label>
-                <textarea
-                  name="description"
-                  placeholder="Write a detailed job description using markdown formatting...
-
-**Example:**
-We're looking for a talented Senior UI/UX Designer to join our team.
-
-## About the Role
-In this role, you'll be responsible for creating intuitive, user-centered designs that drive engagement and delight our customers.
-
-## What You'll Do
-- Design intuitive user interfaces
-- Collaborate with cross-functional teams
-- Lead design reviews and presentations
-- Conduct user research and usability testing
-
-## Required Qualifications
-- 5+ years of experience in UI/UI design
-- Expert proficiency in Figma, Sketch, or Adobe XD
-- Strong portfolio demonstrating user-centered design solutions
-- Deep understanding of accessibility standards (WCAG 2.1)
-
-## Preferred Qualifications
-- Bachelor's degree in Design, HCI, or related field
-- Experience working in Agile/Scrum environments
-- Familiarity with front-end technologies (HTML, CSS, React)"
+                <ReactEditor
                   value={formData.description}
-                  onChange={handleChange}
-                  className={`w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-primary-500 font-mono text-sm h-60 ${
-                    errors.description ? "border-red-500" : "border-gray-300"
-                  }`}
-                  rows={20}
+                  onChange={handleEditorChange("description")}
+                  placeholder="Write a detailed job description using markdown formatting...
+              
+              **Example:**
+              We're looking for a talented Senior UI/UX Designer to join our team.
+              
+              ## About the Role
+              In this role, you'll be responsible for creating intuitive, user-centered designs that drive engagement and delight our customers.
+              
+              ## What You'll Do
+              - Design intuitive user interfaces
+              - Collaborate with cross-functional teams
+              - Lead design reviews and presentations
+              - Conduct user research and usability testing
+              
+              ## Required Qualifications
+              - 5+ years of experience in UI/UI design
+              - Expert proficiency in Figma, Sketch, or Adobe XD
+              - Strong portfolio demonstrating user-centered design solutions
+              - Deep understanding of accessibility standards (WCAG 2.1)
+              
+              ## Preferred Qualifications
+              - Bachelor's degree in Design, HCI, or related field
+              - Experience working in Agile/Scrum environments
+              - Familiarity with front-end technologies (HTML, CSS, React)"
                 />
                 {errors.description && (
                   <p className="text-red-500 text-sm mt-1">
@@ -320,25 +329,18 @@ In this role, you'll be responsible for creating intuitive, user-centered design
                 <label className="block text-sm font-semibold text-gray-900 mb-2">
                   Requirements <span className="text-red-500">*</span>
                 </label>
-                <textarea
-                  name="requirements"
-                  placeholder="Write about the requirements for you position"
+                <ReactEditor
+                  placeholder="Write about the requirements for your position"
                   value={formData.requirements}
-                  onChange={handleChange}
-                  className={`w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-primary-500 font-mono text-sm h-60 ${
-                    errors.description ? "border-red-500" : "border-gray-300"
-                  }`}
-                  rows={20}
-                />
-                {errors.description && (
+                  onChange={handleEditorChange("requirements")}
+                ></ReactEditor>
+                {errors.requirements && (
                   <p className="text-red-500 text-sm mt-1">
-                    {errors.description}
+                    {errors.requirements}
                   </p>
                 )}
               </div>
             </div>
-
-            {}
             <div className="flex justify-end gap-4 pt-6 border-t border-gray-200">
               <button
                 type="button"

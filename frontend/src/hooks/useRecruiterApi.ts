@@ -3,14 +3,13 @@ import apiClient from "@/src/app/api/api-client";
 import {
   PaginatedResponse,
   Job,
-  CandidateApplication,
   SingleResponse,
   ApplicationDetail,
-  CandidateProfile,
   ApplicationStatus,
   LocationType,
 } from "../types/recruiter";
 import Notification from "../element/Notification";
+import { CandidateApplication, CandidateProfile } from "../types/candidate";
 
 export const useGetRecruiterJobs = (page: number = 1, limit: number = 10) => {
   return useQuery({
@@ -26,7 +25,6 @@ export const useGetRecruiterJobs = (page: number = 1, limit: number = 10) => {
     },
   });
 };
-
 
 export const useJobApplications = (
   jobId: number,
@@ -47,7 +45,6 @@ export const useJobApplications = (
   });
 };
 
-
 export const useApplicationDetail = (applicationId: number) => {
   return useQuery({
     queryKey: ["application-detail", applicationId],
@@ -61,7 +58,6 @@ export const useApplicationDetail = (applicationId: number) => {
   });
 };
 
-
 export const useCandidateProfile = (candidateId: number) => {
   return useQuery({
     queryKey: ["candidate-profile", candidateId],
@@ -74,7 +70,6 @@ export const useCandidateProfile = (candidateId: number) => {
     enabled: !!candidateId,
   });
 };
-
 
 export const useUpdateApplicationStatus = () => {
   const queryClient = useQueryClient();
@@ -133,7 +128,6 @@ export const useUpdateApplicationStatus = () => {
   });
 };
 
-
 export const useCreateJob = () => {
   const queryClient = useQueryClient();
 
@@ -165,7 +159,6 @@ export const useCreateJob = () => {
     },
   });
 };
-
 
 export const useGetRecruiterCompanies = () => {
   return useQuery({

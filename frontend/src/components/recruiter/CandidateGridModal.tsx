@@ -1,7 +1,8 @@
 "use client";
-import { CandidateApplication } from "@/src/types/recruiter";
+
 import { X } from "lucide-react";
 import CandidateCard from "./CandidateCard";
+import { CandidateApplication } from "@/src/types/candidate";
 
 interface CandidateGridModalProps {
   candidates: CandidateApplication[];

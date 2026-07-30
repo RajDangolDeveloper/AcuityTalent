@@ -43,7 +43,6 @@ export class JobService {
       throw new NotFoundException('Company does not exist');
     }
 
-    
     const entitlementCheck =
       await this.entitlements.canRecruiterCreateJob(recruiterId);
     if (!entitlementCheck.allowed) {
@@ -63,7 +62,6 @@ export class JobService {
       },
     });
 
-    
     await this.recomputeJobEmbedding(job.id);
 
     return job;
@@ -210,6 +208,7 @@ export class JobService {
         where,
         include: {
           company: true,
+          applications: true,
           _count: {
             select: {
               applications: true,
@@ -227,6 +226,7 @@ export class JobService {
       ...job,
       companyName: job.company?.name,
       applicationCount: job._count?.applications ?? 0,
+      latestAppliedDate: job.applications[0].appliedAt,
     }));
 
     return {
@@ -244,7 +244,6 @@ export class JobService {
       throw new NotFoundException('Job not found');
     }
 
-    
     await this.prisma.job.update({
       where: { id },
       data: { viewsCount: { increment: 1 } },
@@ -394,7 +393,13 @@ export class JobService {
     };
   }
 
-  async getJobRecommendations() {}
+  async getManyJobsById(jobIds: number[]) {
+    return this.prisma.job.findMany({
+      where: {
+        id: { in: jobIds },
+      },
+    });
+  }
 
   private async findJobWithRelations(id: number) {
     return this.prisma.job.findUnique({
@@ -449,8 +454,6 @@ export class JobService {
       }
 
       await this.createJobEmbedding(job.id, embeddingResult.embedding);
-    } catch (error) {
-      
-    }
+    } catch (error) {}
   }
 }

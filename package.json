@@ -3,5 +3,11 @@
     "backend": "cd backend && npm run start:dev",
     "frontend": "cd frontend && npm run dev",
     "python": "cd ai && .\\venv\\Scripts\\activate && uvicorn main:app --reload"
+  },
+  "dependencies": {
+    "dompurify": "^3.4.12"
+  },
+  "devDependencies": {
+    "@types/dompurify": "^3.0.5"
   }
 }

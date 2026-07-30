@@ -17,9 +17,14 @@ export default function JobCard({ job, isSelected, onClick }: JobCardProps) {
       }`}
     >
       <h3 className="font-semibold text-primary-700">{job.title}</h3>
-      <p className="text-sm text-gray-600">
-        No of applicants: {job.applicationCount}
-      </p>
+      <div className="flex mt-1 justify-between items-center">
+        <p className="text-sm text-gray-600">
+          No of applicants: {job.applicationCount}
+        </p>
+        <p className="text-sm text-gray-600">
+          Applied Date: {new Date(job.latestAppliedDate).toLocaleDateString()}
+        </p>
+      </div>
     </div>
   );
 }

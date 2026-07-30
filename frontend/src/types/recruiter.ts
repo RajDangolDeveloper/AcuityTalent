@@ -1,5 +1,3 @@
-
-
 export type ApplicationStatus =
   | "APPLIED"
   | "REVIEWED"
@@ -36,10 +34,10 @@ export interface Job {
   postedDate?: Date | null;
   applicationDeadline?: Date | null;
   viewsCount: number;
+  latestAppliedDate: Date;
   createdAt: Date;
   updatedAt: Date;
 
-  
   recruiterName?: string;
   recruiterEmail?: string;
   companyId: number;
@@ -47,38 +45,22 @@ export interface Job {
   applicationCount?: number;
 }
 
-
-export interface CandidateApplication {
-  id: number;
-  candidateId: number;
-  candidateName: string;
-  candidateEmail: string;
-  location: string;
-  phone?: string;
-  profileImage?: string;
-  yearsOfExperience?: number;
-  status: ApplicationStatus;
-  matchScore?: number;
-  riskScore?: number;
-  appliedAt: string;
-}
-
 export interface CandidateProfile {
   id: number;
   userId?: number;
-  name: string; 
-  email: string; 
+  name: string;
+  email: string;
   phone?: string;
   location?: string;
   profileImage?: string;
-  yearsOfExperience?: number; 
+  yearsOfExperience?: number;
   summary?: string;
   skills: string[];
   workExperience: WorkExperience[];
   education: Education[];
   resumeId?: number;
   resumeFileName?: string;
-  appliedDate?: string; 
+  appliedDate?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -104,14 +86,13 @@ export interface Education {
   description?: string;
 }
 
-
 export interface ApplicationDetail {
   id: number;
   jobId: number;
   candidateId: number;
   resumeId: number;
   status: ApplicationStatus;
-  appliedAt: string; 
+  appliedAt: string;
   matchScore?: number;
   riskScore?: number;
   coverLetter?: string;
@@ -123,7 +104,6 @@ export interface ApplicationDetail {
   };
   resumeFileName?: string;
 }
-
 
 export interface PaginationMeta {
   page: number;

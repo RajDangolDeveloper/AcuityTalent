@@ -14,6 +14,7 @@ import { Job, EmploymentType, ExperienceLevel } from "@/src/types/candidate";
 import Notification from "@/src/element/Notification";
 import Markdown from "react-markdown";
 import { useCreateApplication } from "@/src/hooks/useApplicationApi";
+import { CustomMarkdown } from "@/src/components/CustomMarkdown";
 
 export default function CandidateJobsPage() {
   const [page, setPage] = useState(1);
@@ -391,35 +392,30 @@ export default function CandidateJobsPage() {
                 </div>
               </div>
 
-              {}
               <div className="flex-1 overflow-y-auto px-8 py-6">
-                {}
                 <div className="mb-8">
                   <h2 className="text-xl font-semibold text-black mb-4">
                     About the job
                   </h2>
-                  <Markdown>{selectedJob.description}</Markdown>
+                  <CustomMarkdown content={selectedJob.description} />
                 </div>
 
-                {}
                 {selectedJob.requirements && (
                   <div className="mb-8">
                     <h2 className="text-xl font-semibold text-gray-900 mb-4">
                       Qualifications & Soft Skills
                     </h2>
-                    <Markdown>{selectedJob.requirements}</Markdown>
+                    <CustomMarkdown content={selectedJob.requirements} />
                   </div>
                 )}
               </div>
 
-              {}
               {showApplyForm && !appliedJobIds.has(selectedJobId) && (
                 <div className="border-t border-gray-200 bg-gray-50 p-6">
                   <h3 className="text-lg font-bold text-gray-900 mb-4">
                     Apply for this position
                   </h3>
 
-                  {}
                   <div className="mb-4">
                     <label className="block text-sm font-semibold text-gray-700 mb-2">
                       Select Resume <span className="text-red-500">*</span>

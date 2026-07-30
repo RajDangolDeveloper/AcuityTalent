@@ -8,6 +8,8 @@ import { CandidateService } from '../candidates/candidate.service';
 import { PrismaService } from '../../prisma/prisma.service';
 import { EmailService } from '../../config/email.service';
 import { ActivityService } from '../activity/activity.service';
+import { JobService } from '../jobs/job.service';
+import { EntitlementsService } from '../subscriptions/entitlements.service';
 
 @Module({
   imports: [HttpModule],
@@ -19,6 +21,8 @@ import { ActivityService } from '../activity/activity.service';
     EmailService,
     AiService,
     ActivityService,
+    JobService,
+    EntitlementsService,
   ],
   exports: [ApplicationService],
 })

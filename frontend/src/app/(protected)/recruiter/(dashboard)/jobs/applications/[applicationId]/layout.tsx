@@ -3,10 +3,7 @@
 import { useEffect, useState } from "react";
 import React from "react";
 import { ChevronDown, ChevronRight } from "lucide-react";
-import {
-  useGetRecruiterJobs,
-  useJobApplications,
-} from "@/src/hooks/useRecruiterApi";
+import { useGetRecruiterJobs } from "@/src/hooks/useRecruiterApi";
 import JobCard from "@/src/components/recruiter/JobCard";
 
 export default function ApplicationLayout({
@@ -23,10 +20,6 @@ export default function ApplicationLayout({
   const statusOrder = ["ACTIVE", "DRAFT", "CLOSED", "ARCHIVED"];
 
   const { data: jobsData, isLoading: jobsLoading } = useGetRecruiterJobs(1, 50);
-  const { data: _candidatesData } = useJobApplications(
-    selectedJobId || 0,
-    page,
-  );
 
   const jobs = jobsData?.data || [];
 

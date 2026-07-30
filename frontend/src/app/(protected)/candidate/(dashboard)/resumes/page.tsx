@@ -1,4 +1,3 @@
-
 "use client";
 
 import CustomSidebar from "@/src/components/CustomSidebar";
@@ -18,7 +17,6 @@ export default function ResumesPage() {
   const [deletingId, setDeletingId] = useState<number | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
-  
   const deleteMutation = useDeleteResume();
 
   const handleDownload = async (resumeId: number, fileName: string) => {
@@ -75,7 +73,6 @@ export default function ResumesPage() {
     }
   };
 
-  
   useEffect(() => {
     return () => {
       if (previewUrl) URL.revokeObjectURL(previewUrl);
@@ -167,10 +164,8 @@ export default function ResumesPage() {
         </div>
       </div>
 
-      {}
       <div className="flex-1 flex flex-col min-w-0">
         {selectedResumeID === null ? (
-          
           <div className="h-full w-full flex flex-col items-center justify-center text-gray-500">
             <FileText className="w-16 h-16 text-gray-300 mb-4" />
             <p className="text-lg font-medium">Select a resume to preview</p>
@@ -179,9 +174,7 @@ export default function ResumesPage() {
             </p>
           </div>
         ) : (
-          
           <div className="h-full flex flex-col">
-            {}
             <div className="flex items-center justify-between px-6 py-3 border-b border-gray-200 bg-white">
               <div className="flex items-center gap-3 min-w-0">
                 <FileText className="w-5 h-5 text-gray-400 shrink-0" />
@@ -191,7 +184,6 @@ export default function ResumesPage() {
                 >
                   {selectedResume?.fileName}
                 </h3>
-                <span className="text-xs text-gray-400">â€¢</span>
                 <span className="text-xs text-gray-500">
                   {selectedResume &&
                     new Date(selectedResume.uploadedAt).toLocaleDateString()}
@@ -204,7 +196,6 @@ export default function ResumesPage() {
               </div>
 
               <div className="flex items-center gap-2">
-                {}
                 <button
                   onClick={() =>
                     router.push(`/candidate/resumes/edit/${selectedResumeID}`)
@@ -215,7 +206,6 @@ export default function ResumesPage() {
                   Edit
                 </button>
 
-                {}
                 <button
                   onClick={() =>
                     selectedResumeID && handleDelete(selectedResumeID)
@@ -233,7 +223,6 @@ export default function ResumesPage() {
               </div>
             </div>
 
-            {}
             <div className="flex-1 p-6 overflow-hidden bg-gray-100">
               <div className="h-full w-full max-w-5xl mx-auto bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
                 {previewUrl ? (
@@ -241,10 +230,9 @@ export default function ResumesPage() {
                     src={`${previewUrl}#toolbar=0&navpanes=0&scrollbar=0`}
                     className="w-full h-full"
                     title="Resume Preview"
-                    
                     style={{
                       border: "none",
-                      
+
                       display: "block",
                     }}
                   />
@@ -259,7 +247,6 @@ export default function ResumesPage() {
         )}
       </div>
 
-      {}
       <Link href="/candidate/resumes/create">
         <button className="absolute bottom-6 right-6 flex items-center gap-2 px-4 py-2.5 rounded-full bg-indigo-600 text-white text-sm font-medium shadow-lg hover:bg-indigo-700 transition-colors">
           <FileText className="w-4 h-4" />

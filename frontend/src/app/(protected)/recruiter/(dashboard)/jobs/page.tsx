@@ -5,11 +5,7 @@ import { redirect, useRouter } from "next/navigation";
 import React from "react";
 import Link from "next/link";
 import JobCard from "@/src/components/recruiter/JobCard";
-import {
-  useDeleteJob,
-  useGetRecruiterJobs,
-  useJobApplications,
-} from "@/src/hooks/useRecruiterApi";
+import { useDeleteJob, useGetRecruiterJobs } from "@/src/hooks/useRecruiterApi";
 import { useGetCurrentUser } from "@/src/hooks/useUserApi";
 import {
   Briefcase,
@@ -25,10 +21,10 @@ import {
   ArrowUpRight,
   Share2,
 } from "lucide-react";
-import Markdown from "react-markdown";
 import { useUpdateJobStatus } from "@/src/hooks/useJobApi";
 import { isPremiumUser } from "@/src/utils/subscription";
 import Notification from "@/src/element/Notification";
+import { CustomMarkdown } from "@/src/components/CustomMarkdown";
 
 export default function JobsPage() {
   const [selectedJobId, setSelectedJobId] = useState<number | null>(null);
@@ -41,9 +37,6 @@ export default function JobsPage() {
 
   const { data: jobsData, isLoading: jobsLoading } = useGetRecruiterJobs(1, 50);
   const { data: currentUser } = useGetCurrentUser();
-
-  const { data: candidatesData, isLoading: candidatesLoading } =
-    useJobApplications(selectedJobId || 0, page);
 
   const jobs = jobsData?.data || [];
 
@@ -198,7 +191,7 @@ export default function JobsPage() {
 
         {selectedJob ? (
           <div className="flex flex-col gap-4 w-full">
-            <div className="relative flex justify-between items-end gap-8 w-full py-12 h-48 px-6 bg-white border border-gray-200 shadow-sm rounded-sm">
+            <div className="relative flex justify-between items-end gap-8 w-full py-12 h-48 px-8 bg-white border border-gray-200 shadow-sm rounded-sm">
               <div className="flex flex-col gap-4">
                 <div className="flex items-center gap-3">
                   <h2 className="text-3xl font-bold text-[#4B4B7C]">
@@ -292,14 +285,14 @@ export default function JobsPage() {
                 </button>
               </div>
             </div>
-            <div className="max-w-7xl px-12 py-8 overflow-clip">
+            <div className="max-w-7xl px-8 py-4 overflow-clip">
               <div className="pb-12">
                 <div className="text-2xl font-semibold">Description</div>
-                <Markdown>{selectedJob.description}</Markdown>
+                <CustomMarkdown content={selectedJob.description} />
               </div>
               <div className="pb-12">
                 <div className="text-2xl font-semibold">Requirements</div>
-                <Markdown>{selectedJob.requirements}</Markdown>
+                <CustomMarkdown content={selectedJob.requirements ?? ""} />
               </div>
             </div>
           </div>

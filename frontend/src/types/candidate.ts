@@ -22,7 +22,7 @@ export interface Job {
   id: number;
   title: string;
   description: string;
-  requirements?: string;
+  requirements: string;
   location: string;
   employmentType: EmploymentType;
   experienceLevel?: ExperienceLevel;
@@ -44,26 +44,6 @@ export interface JobDetails extends Job {
   recruiterEmail?: string;
 }
 
-export interface CandidateApplication {
-  id: number;
-  candidateId: number;
-  jobId: number;
-  resumeId: number;
-  status: ApplicationStatus;
-  coverLetter?: string;
-  matchScore?: number;
-  riskScore?: number;
-  appliedAt: string;
-  reviewedAt?: string;
-  updatedAt: string;
-
-  candidateName?: string;
-  candidateEmail?: string;
-  jobTitle?: string;
-  companyName?: string;
-  resumeFileName?: string;
-}
-
 export interface Resume {
   id: number;
   fileName: string;
@@ -72,6 +52,39 @@ export interface Resume {
   resumeText: string;
   aiScore?: number;
   uploadedAt: string;
+}
+
+export interface CandidateApplication {
+  // Core identifiers
+  id: number;
+  candidateId: number;
+  jobId: number;
+  resumeId: number;
+
+  // Candidate details
+  candidateName: string;
+  candidateEmail: string;
+  candidatePhone?: string;
+  candidateSkills: string[];
+  candidateExperience?: WorkExperience[];
+  location?: string;
+  phone?: string;
+  profileImage?: string;
+  yearsOfExperience?: number;
+
+  // Job details
+  jobTitle?: string;
+  companyName?: string;
+  resumeFileName?: string;
+
+  // Application status & metadata
+  status: ApplicationStatus;
+  coverLetter?: string;
+  matchScore?: number;
+  riskScore?: number;
+  appliedAt: string;
+  reviewedAt?: string;
+  updatedAt: string;
 }
 
 export interface SavedJob {

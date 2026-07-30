@@ -17,14 +17,13 @@ import {
 } from '@prisma/client';
 import { AiService } from '../ai/ai.service';
 import { MatchRequest } from '../ai/dto/match-request.dto';
-import { MatchResponse } from '../ai/dto/match-response.dto';
 import { RiskAssessmentRequest } from '../ai/dto/risk-assessment-request.dto';
 import { CandidateService } from '../candidates/candidate.service';
 import { firstValueFrom } from 'rxjs';
 import { PrismaService } from '../../prisma/prisma.service';
 import { EmailService } from '../../config/email.service';
 import { ActivityService } from '../activity/activity.service';
-import { CreateActivityDto } from '../activity/dto/create-activity.dto';
+import { JobService } from '../jobs/job.service';
 
 @Injectable()
 export class ApplicationService {
@@ -33,6 +32,7 @@ export class ApplicationService {
     private emailService: EmailService,
     private aiService: AiService,
     private candidateProfileService: CandidateService,
+    private jobService: JobService,
     private activityService: ActivityService,
   ) {}
 
@@ -278,7 +278,7 @@ export class ApplicationService {
             },
             include: {
               candidate: {
-                include: { user: true },
+                include: { user: true, workHistory: true },
               },
               job: {
                 include: {
@@ -492,7 +492,7 @@ export class ApplicationService {
 
     await this.activityService.createUserActivity({
       userId: application.job.recruiter.userId,
-      activityTitle: `${application.candidate.user.firstName} ${application.candidate.user.lastName} Applied for ${application.job.title}`,
+      activityTitle: `${application.candidate.user.firstName} ${application.candidate.user.lastName} currently ${application.status} for ${application.job.title}`,
       actionType: this.mapApplicationStatusToActivityStatus(newStatus),
     });
 
@@ -623,6 +623,9 @@ export class ApplicationService {
     return {
       id: application.id,
       candidateId: application.candidateId,
+      candidatePhone: application.candidate.phone,
+      candidateSkills: application.candidate.skills,
+      candidateExperience: application.candidate.workHistory,
       jobId: application.jobId,
       resumeId: application.resumeId,
       status: application.status,
@@ -921,6 +924,26 @@ export class ApplicationService {
     });
 
     return recentApplications;
+  }
+  async getLatestApplicationDateOfJobs(jobs: number[]) {
+    const findJob = await this.jobService.getManyJobsById(jobs);
+
+    if (!findJob) {
+      return new NotFoundException('One or More Job was not found');
+    }
+
+    const latestApplicationDate = await this.prisma.application.groupBy({
+      by: ['jobId'],
+      _max: { appliedAt: true },
+      where: { jobId: { in: jobs } },
+    });
+
+    const flattenedArray = latestApplicationDate.map((item) => ({
+      jobId: item.jobId,
+      appliedAt: item._max.appliedAt,
+    }));
+
+    return flattenedArray;
   }
 
   private mapApplicationStatusToActivityStatus(

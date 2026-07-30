@@ -3,6 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import apiClient from "@/src/app/api/api-client";
 import { CandidateApplication, SingleResponse } from "@/src/types/candidate";
+
 import { candidateQueryKeys } from "@/src/constants/candidate/query-keys";
 
 export const useCreateApplication = () => {
@@ -61,8 +62,6 @@ export const useCreateApplication = () => {
 };
 
 export const useGetApplicationById = (applicationId: number) => {
-  const isValidId = applicationId && !isNaN(applicationId) && applicationId > 0;
-
   return useQuery({
     queryKey: ["application", applicationId],
     queryFn: async () => {

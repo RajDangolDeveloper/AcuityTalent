@@ -1,12 +1,12 @@
 "use client";
 
-import { CandidateApplication } from "@/src/types/recruiter";
 import { MapPin, Mail, Phone, Briefcase, Calendar } from "lucide-react";
 import { Badge } from "./Badge";
+import { CandidateApplication } from "@/src/types/candidate";
 
 interface CandidateCardProps {
   candidate: CandidateApplication;
-  job?: any; 
+  job?: any;
   isSelected?: boolean;
   onClick?: () => void;
   showModal?: boolean;

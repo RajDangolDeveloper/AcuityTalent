@@ -1,8 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import React from "react";
+import { useState } from "react";
 import Link from "next/link";
 import CandidateCard from "@/src/components/recruiter/CandidateCard";
 import JobCard from "@/src/components/recruiter/JobCard";
@@ -19,18 +17,15 @@ import {
   useGetRecruiterJobs,
   useJobApplications,
 } from "@/src/hooks/useRecruiterApi";
+import { SearchBar } from "@/src/components/SearchBar";
 
 export default function JobsPage() {
-  useEffect(() => {
-    document.title = "Applications - AcuityTalent";
-  }, []);
-
-  const [selectedJobId, setSelectedJobId] = useState<number | null>(null);
+  const [selectedJobId, setSelectedJobId] = useState<number | null>(0);
   const [showGridModal, setShowGridModal] = useState(false);
-  const [selectedCandidateId, setSelectedCandidateId] = useState<number | null>(
-    null,
-  );
   const [page, setPage] = useState(1);
+  const [riskFilter, setRiskFilter] = useState("all");
+  const [compatibilityFilter, setCompatibilityFilter] = useState("all");
+  const [searchQuery, setSearchQuery] = useState("");
   const statusOrder = ["ACTIVE", "DRAFT", "CLOSED", "ARCHIVED"];
 
   const { data: jobsData, isLoading: jobsLoading } = useGetRecruiterJobs(1, 50);
@@ -39,7 +34,28 @@ export default function JobsPage() {
 
   const jobs = jobsData?.data || [];
   const candidates = candidatesData?.data || [];
+
   const selectedJob = jobs.find((j) => j.id === selectedJobId);
+
+  const getRiskCategory = (
+    matchScore?: number,
+    riskScore?: number,
+  ): "uncategorised" | "potential" | "balanced" | "highrisk" => {
+    if (matchScore == null || riskScore == null) return "uncategorised";
+    if (matchScore >= 75 && riskScore <= 33) return "potential";
+    if (matchScore >= 55 && riskScore <= 66) return "balanced";
+    return "highrisk";
+  };
+
+  const getCompatibilityCategory = (
+    matchScore?: number,
+  ): "uncategorised" | "low" | "medium" | "high" | "perfect" => {
+    if (matchScore == null) return "uncategorised";
+    if (matchScore >= 90) return "perfect";
+    if (matchScore >= 70) return "high";
+    if (matchScore >= 40) return "medium";
+    return "low";
+  };
 
   const groupedJobs = jobs.reduce(
     (acc, job) => {
@@ -75,23 +91,40 @@ export default function JobsPage() {
     setExpandedStatuses((prev) => ({ ...prev, [status]: !prev[status] }));
   };
 
-  const handleSelectCandidateFromModal = (candidateId: number) => {
-    setSelectedCandidateId(candidateId);
-  };
-
   const getCandidateCategory = (
     matchScore?: number,
     riskScore?: number,
   ): string => {
-    if (matchScore == null || riskScore == null) return "Uncategorized";
-    if (matchScore >= 75 && riskScore <= 33) return "High Potential";
-    if (matchScore >= 55 && riskScore <= 66) return "Balanced";
-    return "High Risk";
+    const riskCategory = getRiskCategory(matchScore, riskScore);
+
+    if (riskCategory === "potential") return "High Potential";
+    if (riskCategory === "balanced") return "Balanced";
+    if (riskCategory === "highrisk") return "High Risk";
+    return "Uncategorized";
   };
 
-  if (selectedCandidateId) {
-    return <CandidateDetailRedirect candidateId={selectedCandidateId} />;
-  }
+  const filteredCandidates = candidates.filter((candidate) => {
+    const riskCategory = getRiskCategory(
+      candidate.matchScore,
+      candidate.riskScore,
+    );
+    const compatibilityCategory = getCompatibilityCategory(
+      candidate.matchScore,
+    );
+    const query = searchQuery.trim().toLowerCase();
+
+    const matchesRisk = riskFilter === "all" || riskFilter === riskCategory;
+    const matchesCompatibility =
+      compatibilityFilter === "all" ||
+      compatibilityFilter === compatibilityCategory;
+    const matchesSearch =
+      query.length === 0 ||
+      [candidate.candidateName, candidate.candidateEmail, candidate.location]
+        .filter(Boolean)
+        .some((value) => String(value).toLowerCase().includes(query));
+
+    return matchesRisk && matchesCompatibility && matchesSearch;
+  });
 
   if (jobsLoading) {
     return (
@@ -164,47 +197,60 @@ export default function JobsPage() {
           <div className="flex-1 flex flex-col">
             <div className="p-6 border-b border-gray-300 bg-gray-50">
               <div className="flex items-center justify-between mb-2">
-                <h2 className="text-2xl font-bold text-gray-900">
-                  {selectedJob.title}
-                </h2>
-                <span className="text-sm text-gray-600">
-                  {selectedJob.applicationCount} applicants
-                </span>
-              </div>
+                <div>
+                  <h2 className="text-2xl font-bold text-gray-900">
+                    {selectedJob.title}
+                  </h2>
 
-              <div className="flex flex-wrap gap-3 mt-3">
-                <span className="flex items-center gap-2 bg-gray-100 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium">
-                  <MapPin size={16} />
-                  {String(selectedJob.location).toLowerCase().includes("remote")
-                    ? "Remote"
-                    : "On-site"}
-                </span>
+                  <div className="flex flex-wrap gap-3 mt-3">
+                    <span className="flex items-center gap-2 bg-green-100 text-green-700 px-4 py-2 rounded-lg text-sm font-medium">
+                      <MapPin size={16} />
+                      {String(selectedJob.location)
+                        .toLowerCase()
+                        .includes("remote")
+                        ? "Remote"
+                        : "On-site"}
+                    </span>
 
-                {selectedJob.employmentType && (
-                  <span className="flex items-center gap-2 bg-gray-100 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium">
-                    <Briefcase size={16} />
-                    {selectedJob.employmentType === "FULL_TIME"
-                      ? "Full-time"
-                      : selectedJob.employmentType}
+                    {selectedJob.employmentType && (
+                      <span className="flex items-center gap-2 bg-blue-100 text-blue-700 px-4 py-2 rounded-lg text-sm font-medium">
+                        <Briefcase size={16} />
+                        {selectedJob.employmentType === "FULL_TIME"
+                          ? "Full-time"
+                          : selectedJob.employmentType}
+                      </span>
+                    )}
+
+                    {selectedJob.salaryRange !== undefined && (
+                      <span className="flex items-center gap-2 bg-yellow-100 text-yellow-700 px-4 py-2 rounded-lg text-sm font-medium">
+                        ${selectedJob.salaryRange}
+                      </span>
+                    )}
+
+                    <span className="flex items-center gap-2 bg-purple-100 text-purple-700 px-4 py-2 rounded-lg text-sm font-medium">
+                      3-5 Years
+                    </span>
+
+                    {selectedJob.createdAt && (
+                      <span className="flex items-center gap-2 bg-gray-100 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium">
+                        <Calendar size={16} />
+                        {new Date(selectedJob.createdAt).toLocaleDateString()}
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                <div className="flex flex-col justify-between">
+                  <a
+                    className="mb-4 self-center px-2 py-1 border-2 rounded-sm text-gray-200 bg-gray-800 border-gray-600"
+                    href={`/recruiter/jobs/edit/${selectedJob.id}`}
+                  >
+                    Edit Job
+                  </a>
+                  <span className="text-sm text-gray-600">
+                    {selectedJob.applicationCount} applicants
                   </span>
-                )}
-
-                {selectedJob.salaryRange !== undefined && (
-                  <span className="flex items-center gap-2 bg-gray-100 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium">
-                    ${selectedJob.salaryRange}
-                  </span>
-                )}
-
-                <span className="flex items-center gap-2 bg-gray-100 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium">
-                  3-5 Years
-                </span>
-
-                {selectedJob.createdAt && (
-                  <span className="flex items-center gap-2 bg-gray-100 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium">
-                    <Calendar size={16} />
-                    {new Date(selectedJob.createdAt).toLocaleDateString()}
-                  </span>
-                )}
+                </div>
               </div>
             </div>
 
@@ -219,12 +265,45 @@ export default function JobsPage() {
                 </div>
               ) : (
                 <div
-                  className="flex-1 gap-4 overflow-y-auto"
+                  className="flex-1 gap-4 overflow-y-auto bg-gray-100"
                   style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
                 >
+                  <div className="filter px-4 pt-4 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+                    <div className="category flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+                      <select
+                        name="risk"
+                        value={riskFilter}
+                        onChange={(e) => setRiskFilter(e.target.value)}
+                        className="rounded-xl border border-gray-300 bg-white px-4 py-2 text-sm text-gray-700 shadow-sm outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20"
+                      >
+                        <option value="all">All risk levels</option>
+                        <option value="uncategorised">Uncategorised</option>
+                        <option value="potential">High Potential</option>
+                        <option value="balanced">Balanced</option>
+                        <option value="highrisk">High Risk</option>
+                      </select>
+                      <select
+                        name="compatibility"
+                        value={compatibilityFilter}
+                        onChange={(e) => setCompatibilityFilter(e.target.value)}
+                        className="rounded-xl border border-gray-300 bg-white px-4 py-2 text-sm text-gray-700 shadow-sm outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20"
+                      >
+                        <option value="all">All compatibility levels</option>
+                        <option value="low">Low Compatibility</option>
+                        <option value="medium">Medium Compatibility</option>
+                        <option value="high">High Compatibility</option>
+                        <option value="perfect">Perfect Compatibility</option>
+                      </select>
+                    </div>
+                    <SearchBar
+                      value={searchQuery}
+                      onChange={setSearchQuery}
+                      className="lg:max-w-sm"
+                    />
+                  </div>
                   {!showGridModal ? (
                     <div className="flex flex-col px-4 py-4 gap-4 overflow-y-auto">
-                      {candidates.map((candidate) => (
+                      {filteredCandidates.map((candidate) => (
                         <Link
                           key={candidate.id}
                           href={`/recruiter/jobs/applications/${candidate.id}`}
@@ -288,6 +367,19 @@ export default function JobsPage() {
                                 </div>
                               )}
 
+                              <div className="flex flex-wrap items-center gap-1.5 pt-2">
+                                {candidate.candidateSkills.map(
+                                  (skill, index) => (
+                                    <div
+                                      key={index}
+                                      className="text-xs font-medium px-2.5 py-1 bg-slate-100 text-slate-700 border border-slate-300 rounded-md"
+                                    >
+                                      {skill}
+                                    </div>
+                                  ),
+                                )}
+                              </div>
+
                               <div className="mt-4 flex items-center gap-8 text-sm text-gray-900 font-medium">
                                 <div>
                                   Experience :{" "}
@@ -322,7 +414,7 @@ export default function JobsPage() {
                     </div>
                   ) : (
                     <div className="p-4 grid grid-cols-2 gap-4">
-                      {candidates.map((candidate) => (
+                      {filteredCandidates.map((candidate) => (
                         <Link
                           key={candidate.id}
                           href={`/recruiter/jobs/applications/${candidate.id}`}
@@ -353,14 +445,4 @@ export default function JobsPage() {
       </div>
     </div>
   );
-}
-
-function CandidateDetailRedirect({ candidateId }: { candidateId: number }) {
-  const router = useRouter();
-
-  React.useEffect(() => {
-    router.push(`/recruiter/jobs/applications/${candidateId}`);
-  }, [candidateId, router]);
-
-  return null;
 }
