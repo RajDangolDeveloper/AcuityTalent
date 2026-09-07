@@ -4,9 +4,7 @@ import * as bcrypt from 'bcrypt';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { Pool } from 'pg';
 
-
 dotenv.config({ path: resolve(process.cwd(), '.env') });
-
 
 import {
   PrismaClient,
@@ -44,7 +42,6 @@ async function main() {
 
   const commonPassword = await hashPassword('Password123!');
 
-  
   const adminUser = await prisma.user.upsert({
     where: { email: 'admin@acuitytech.com' },
     update: {
@@ -66,7 +63,6 @@ async function main() {
     },
   });
 
-  
   const company = await prisma.company.upsert({
     where: { id: 1 },
     update: {
@@ -89,7 +85,6 @@ async function main() {
     },
   });
 
-  
   const recruiterUser = await prisma.user.upsert({
     where: { email: 'recruiter@acuitytech.com' },
     update: {
@@ -131,7 +126,6 @@ async function main() {
     },
   });
 
-  
   const candidateUser = await prisma.user.upsert({
     where: { email: 'candidate@example.com' },
     update: {
@@ -218,7 +212,6 @@ async function main() {
     },
   });
 
-  
   const job = await prisma.job.upsert({
     where: { id: 1 },
     update: {
@@ -249,7 +242,6 @@ async function main() {
     },
   });
 
-  
   const resume =
     (await prisma.resume.findFirst({
       where: { candidateId: candidateProfile.id },
@@ -266,7 +258,6 @@ async function main() {
       },
     }));
 
-  
   const application =
     (await prisma.application.findUnique({
       where: {
@@ -287,7 +278,6 @@ async function main() {
       },
     }));
 
-  
   const existingInterview = await prisma.interview.findFirst({
     where: { applicationId: application.id },
   });
@@ -321,7 +311,6 @@ async function main() {
     });
   }
 
-  
   await prisma.savedJob.upsert({
     where: {
       candidateId_jobId: {

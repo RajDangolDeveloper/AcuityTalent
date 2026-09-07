@@ -251,11 +251,11 @@ export class ApplicationService {
     }
 
     const recruiterProfile = await this.prisma.recruiterProfile.findUnique({
-      where: { userId },
+      where: { userId: userId },
     });
 
     const candidateProfile = await this.prisma.candidateProfile.findUnique({
-      where: { userId },
+      where: { userId: userId },
     });
 
     const isRecruiter =

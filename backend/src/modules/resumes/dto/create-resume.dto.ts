@@ -7,10 +7,6 @@ import {
 } from 'class-validator';
 import { FileType } from '@prisma/client';
 
-
-
-
-
 export class CreateResumeDto {
   @IsString()
   @MinLength(3)
@@ -18,18 +14,18 @@ export class CreateResumeDto {
   fileName!: string;
 
   @IsString()
-  filePath!: string; 
+  filePath!: string;
 
   @IsString()
-  fileType!: FileType; 
+  fileType!: FileType;
 
   @IsInt()
-  fileSize!: number; 
+  fileSize!: number;
 
   @IsInt()
-  aiScore!: number; 
+  aiScore!: number;
 
   @IsOptional()
   @IsString()
-  textContent?: string; 
+  textContent?: string;
 }

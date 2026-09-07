@@ -11,13 +11,8 @@ import { ResumeResponseDto } from './dto/resume-response.dto';
 import { FileType } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
 import { SpacesService } from '../spaces/spaces.service';
-
-interface UploadFile {
-  buffer: Buffer;
-  originalname: string;
-  mimetype: string;
-  size: number;
-}
+import { UploadFileDto } from '../spaces/dto/upload-file.dto';
+import { UploadType } from '../spaces/types/types';
 
 @Injectable()
 export class ResumeService {
@@ -182,7 +177,7 @@ export class ResumeService {
   }
 
   async createFromLocalFile(
-    file: UploadFile,
+    file: File,
     userId: number,
     textContent: string,
     resumeText: string,
@@ -194,16 +189,21 @@ export class ResumeService {
     if (!candidateProfile) {
       throw new NotFoundException('Candidate profile not found for this user');
     }
+    const dto = Object.assign(new UploadFileDto(), {
+      fileName: file.name,
+      fileType: 'application/pdf',
+      uploadType: UploadType.UserResume,
+      id: userId,
+    });
 
-    const fileType = this.mapMimeToFileType(file.mimetype);
-    const s3Key = await this.spacesService.uploadResume(file);
+    const s3Key = await this.spacesService.uploadPrivateFile(file, dto);
 
     const resume = await this.prisma.resume.create({
       data: {
         candidateId: candidateProfile.id,
         filePath: s3Key,
-        fileName: file.originalname,
-        fileType,
+        fileName: file.name,
+        fileType: FileType.PDF,
         fileSize: file.size,
         aiScore: 0,
         resumeText: resumeText,
@@ -212,17 +212,6 @@ export class ResumeService {
       },
     });
     return resume;
-  }
-
-  private mapMimeToFileType(mime: string): FileType {
-    if (mime === 'application/pdf') return 'PDF';
-    if (mime === 'application/msword') return 'DOC';
-    if (
-      mime ===
-      'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-    )
-      return 'DOCX';
-    return 'PDF';
   }
 
   private formatResumeResponse(resume: any): ResumeResponseDto {

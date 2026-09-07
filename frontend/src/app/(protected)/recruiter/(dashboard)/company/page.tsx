@@ -1,16 +1,28 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Building2 } from "lucide-react";
+import { Building, Building2, Factory, Globe } from "lucide-react";
 import {
   useUpdateCompany,
   useUploadCompanyLogo,
   useUploadCompanyBackground,
 } from "@/src/hooks/useCompanyApi";
 import { useGetRecruiterCompanies } from "@/src/hooks/useRecruiterApi";
+import { useGetImageUrl } from "@/src/hooks/useImageApi";
+import { Panel, Tab, TabList, TabPanels } from "@/src/components/Tab";
 export default function ViewCompanyPage() {
   const { data: company, isLoading, error } = useGetRecruiterCompanies();
+  const { data: logoUrl } = useGetImageUrl(company?.logoUrl, false);
+
+  const { data: backgroundUrl } = useGetImageUrl(
+    company?.backgroundImgUrl,
+    false,
+  );
   const updateCompany = useUpdateCompany();
+
+  const companyLogoPreviewUrl = logoUrl?.data ?? null;
+  const companyBackgroundPreviewUrl = backgroundUrl?.data ?? null;
+
   const uploadLogo = useUploadCompanyLogo();
   const uploadBackground = useUploadCompanyBackground();
 
@@ -41,10 +53,11 @@ export default function ViewCompanyPage() {
         website: company.websiteUrl || "",
         description: company.description || "",
       });
-      setLogoPreview(company.logoUrl || null);
-      setBackgroundPreview(company.backgroundImgUrl || null);
+
+      setLogoPreview(companyLogoPreviewUrl);
+      setBackgroundPreview(companyBackgroundPreviewUrl);
     }
-  }, [company]);
+  }, [company, companyLogoPreviewUrl, companyBackgroundPreviewUrl]);
 
   const handleChange = (
     e: React.ChangeEvent<
@@ -112,8 +125,9 @@ export default function ViewCompanyPage() {
         website: company.websiteUrl || "",
         description: company.description || "",
       });
-      setLogoPreview(company.logoUrl || null);
-      setBackgroundPreview(company.backgroundImgUrl || null);
+
+      setLogoPreview(companyLogoPreviewUrl);
+      setBackgroundPreview(companyBackgroundPreviewUrl);
     }
     setLogoFile(null);
     setBackgroundFile(null);
@@ -133,15 +147,20 @@ export default function ViewCompanyPage() {
     );
 
   return (
-    <div className="bg-gray-50 min-h-screen p-6">
-      <div className="max-w-7xl mx-auto bg-white rounded-lg border border-gray-200 overflow-hidden">
+    <div className="bg-gray-50 min-h-screen p-4">
+      <div className="max-w-11/12 mx-auto bg-white rounded-lg border border-gray-200 overflow-hidden">
         {!isEditing ? (
           <>
-            <div className="p-8 border-b border-gray-200">
-              <div className="flex justify-between items-center px-4">
+            <img
+              className="h-40 object-cover w-full"
+              src={backgroundUrl?.data}
+              alt=""
+            />
+            <div className="px-8 py-4 border-b border-gray-200">
+              <div className="flex justify-between items-center">
                 <div>
                   <div className="flex gap-4">
-                    <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                    <h1 className="text-3xl font-bold text-gray-900 mb-4">
                       {company.name}
                     </h1>
                     {company.isVerified && (
@@ -169,25 +188,42 @@ export default function ViewCompanyPage() {
                   </div>
                   <div className="flex items-center gap-2 text-sm text-gray-600 mb-4">
                     {company.websiteUrl && (
-                      <a
-                        href={company.websiteUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-primary-500 hover:underline"
-                      >
-                        {company.websiteUrl}
-                      </a>
+                      <>
+                        <Globe />
+                        <a
+                          href={`https://` + company.websiteUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-primary-500 hover:underline"
+                        >
+                          {company.websiteUrl}
+                        </a>
+                      </>
                     )}
-                    <span>â€¢</span>
-                    <span>{company.industry || "N/A"}</span>
-                    <span>â€¢</span>
-                    <span>{company.officeAddress || "N/A"}</span>
+                    {company.size && (
+                      <>
+                        <Building />
+                        <span>{company.size || "N/A"}</span>
+                      </>
+                    )}
+                    {company.industry && (
+                      <>
+                        <Factory />
+                        <span>{company.industry || "N/A"}</span>
+                      </>
+                    )}
+                    {company.officeAddress && (
+                      <>
+                        <Building2 />
+                        <span>{company.officeAddress || "N/A"}</span>
+                      </>
+                    )}
                   </div>
                 </div>
                 <div className="w-30 h-30 bg-gray-300 rounded-full">
-                  {company.logoUrl && (
+                  {companyLogoPreviewUrl && (
                     <img
-                      src={company.logoUrl}
+                      src={companyLogoPreviewUrl}
                       alt={company.name}
                       className="w-full h-full object-cover rounded-full"
                     />
@@ -196,14 +232,65 @@ export default function ViewCompanyPage() {
               </div>
             </div>
 
-            <div className="p-12">
-              <h2 className="text-lg font-semibold text-gray-800 mb-4">
-                About the Company
-              </h2>
-              <p className="text-gray-600 leading-relaxed">
-                {company.description || "No description provided."}
-              </p>
-            </div>
+            <TabList defaultValue="overview">
+              <div
+                className="flex gap-6 border-b border-gray-200 px-8"
+                role="tablist"
+              >
+                <Tab
+                  value="overview"
+                  className="border-b-2 border-transparent px-1 py-4 text-sm font-semibold text-gray-500 transition hover:text-gray-900"
+                >
+                  Overview
+                </Tab>
+                <Tab
+                  value="details"
+                  className="border-b-2 border-transparent px-1 py-4 text-sm font-semibold text-gray-500 transition hover:text-gray-900"
+                >
+                  Company details
+                </Tab>
+              </div>
+              <TabPanels>
+                <Panel value="overview">
+                  <div className="p-8">
+                    <h2 className="mb-4 text-lg font-semibold text-gray-800">
+                      About the Company
+                    </h2>
+                    <p className="leading-relaxed text-gray-600">
+                      {company.description || "No description provided."}
+                    </p>
+                  </div>
+                </Panel>
+                <Panel value="details">
+                  <div className="grid gap-6 p-8 sm:grid-cols-2">
+                    <div>
+                      <p className="text-sm text-gray-500">Company size</p>
+                      <p className="mt-1 font-medium text-gray-900">
+                        {company.companySize || "Not provided"}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-500">Industry</p>
+                      <p className="mt-1 font-medium text-gray-900">
+                        {company.industry || "Not provided"}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-500">Office address</p>
+                      <p className="mt-1 font-medium text-gray-900">
+                        {company.officeAddress || "Not provided"}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-500">Website</p>
+                      <p className="mt-1 font-medium text-gray-900">
+                        {company.websiteUrl || "Not provided"}
+                      </p>
+                    </div>
+                  </div>
+                </Panel>
+              </TabPanels>
+            </TabList>
           </>
         ) : (
           <div className="p-8">
@@ -354,11 +441,16 @@ export default function ViewCompanyPage() {
                         const file = e.target.files?.[0] ?? null;
                         setLogoFile(file);
                         if (!file) {
-                          setLogoPreview(company?.logoUrl || null);
+                          setLogoPreview(companyLogoPreviewUrl);
                           return;
                         }
                         const nextUrl = URL.createObjectURL(file);
-                        setLogoPreview(nextUrl);
+                        setLogoPreview((prevUrl) => {
+                          if (prevUrl?.startsWith("blob:")) {
+                            URL.revokeObjectURL(prevUrl);
+                          }
+                          return nextUrl;
+                        });
                       }}
                     />
                     <button
@@ -396,13 +488,16 @@ export default function ViewCompanyPage() {
                         const file = e.target.files?.[0] ?? null;
                         setBackgroundFile(file);
                         if (!file) {
-                          setBackgroundPreview(
-                            company?.backgroundImgUrl || null,
-                          );
+                          setBackgroundPreview(companyBackgroundPreviewUrl);
                           return;
                         }
                         const nextUrl = URL.createObjectURL(file);
-                        setBackgroundPreview(nextUrl);
+                        setBackgroundPreview((prevUrl) => {
+                          if (prevUrl?.startsWith("blob:")) {
+                            URL.revokeObjectURL(prevUrl);
+                          }
+                          return nextUrl;
+                        });
                       }}
                     />
                     <button
@@ -439,7 +534,7 @@ export default function ViewCompanyPage() {
       </div>
 
       {!isEditing && (
-        <div className="max-w-7xl flex mx-auto justify-end items-end mt-4">
+        <div className="max-w-11/12 flex mx-auto justify-end items-end mt-4">
           <button
             onClick={() => setIsEditing(true)}
             className="bg-primary-500 text-white px-6 py-4 rounded-xl hover:bg-primary-600 transition"

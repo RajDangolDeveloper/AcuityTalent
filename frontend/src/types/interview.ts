@@ -1,3 +1,11 @@
+import { Job } from "./job";
+
+export enum ActionType {
+  ACCEPTED = "ACCEPTED",
+  RESCHEDUELED = "RESCHEDUELED",
+  REJECTED = "REJECTED",
+}
+
 export enum InterviewType {
   SCREENING = "SCREENING",
   TECHNICAL = "TECHNICAL",
@@ -14,6 +22,55 @@ export enum InterviewStatus {
   CANCELLED = "CANCELLED",
   RESCHEDULED = "RESCHEDULED",
   NO_SHOW = "NO_SHOW",
+}
+
+export interface InterviewRequest {
+  id: number;
+  jobId: number;
+  candidateId: number;
+  recruiterId: number;
+  applicationId: number;
+  status: string;
+  interviewType: InterviewType;
+  createdAt: string;
+  updatedAt: string;
+
+  job: Job;
+  availableDateRange: string[];
+  selectedDateTime: string;
+}
+
+export enum InterviewRequestStatus {
+  SENT = "SENT",
+  PENDING_CANDIDATE = "PENDING_CANDIDATE",
+  PENDING_RECRUITER = "PENDING_RECRUITER",
+  CONFIRMED = "CONFIRMED",
+  DECLINED = "DECLINED",
+  EXPIRED = "EXPIRED",
+  CANCELLED = "CANCELLED",
+}
+
+export interface InterviewRequestData {
+  interviewType: string;
+  selectedDateTime: string;
+  availableDateRange: string[];
+}
+
+export interface CreateInterviewRequestDto {
+  jobId: number;
+  candidateId: number;
+  applicationId: number;
+  interviewType: InterviewType;
+  availableDateRange: string[];
+  selectedDateTime: string;
+}
+
+export interface UpdateInterviewRequestDto {
+  id: number;
+  status?: string;
+  interviewType: InterviewType;
+  availableDateRange?: string[];
+  selectedDateTime?: string;
 }
 
 export interface Interview {

@@ -3,22 +3,6 @@ import type { DefaultSession, NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import apiClient from "../../api-client";
 
-declare module "next-auth" {
-  interface Session extends DefaultSession {
-    user: {
-      id: string;
-      role: string;
-      isOnboarded: boolean;
-    } & DefaultSession["user"];
-    accessToken?: string;
-  }
-  interface User {
-    role: string;
-    access_token?: string;
-    isOnboarded: boolean;
-  }
-}
-
 export const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
@@ -56,6 +40,7 @@ export const authOptions: NextAuthOptions = {
             email: userData.email,
             role: userData.role,
             isOnboarded: userData.isOnboarded,
+            expiresIn: userData.expiresIn,
             access_token: userData.access_token,
           };
         } catch {
@@ -71,6 +56,7 @@ export const authOptions: NextAuthOptions = {
         token.accessToken = user.access_token;
         token.role = user.role;
         token.isOnboarded = user.isOnboarded;
+        token.expiresIn = user.expiresIn;
       }
 
       if (trigger === "update" && token.id) {
@@ -96,6 +82,7 @@ export const authOptions: NextAuthOptions = {
         session.user.id = (token.id as string) || "";
         session.user.role = token.role as string;
         session.accessToken = token.accessToken as string;
+        session.expiresIn = token.expiresIn as number;
         session.user.isOnboarded = token.isOnboarded as boolean;
       }
       return session;
@@ -103,7 +90,7 @@ export const authOptions: NextAuthOptions = {
   },
   session: {
     strategy: "jwt",
-    maxAge: 23 * 60 * 60,
+    maxAge: 24 * 60 * 60,
   },
 };
 

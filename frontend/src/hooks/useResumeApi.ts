@@ -1,7 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import apiClient from "../app/api/api-client";
-import { PaginatedResponse, SingleResponse } from "../types/recruiter";
-import { Resume } from "../types/candidate";
+import { PaginatedResponse, Resume, SingleResponse } from "../types/candidate";
 import { UpdateResumeDto, UploadResumeParams } from "../types/resume";
 
 export const useGetAllResumes = (params?: {
@@ -67,7 +66,6 @@ export const useUpdateResume = () => {
       return response.data.data;
     },
     onSuccess: async (updatedResume) => {
-      
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ["resumes"] }),
         queryClient.invalidateQueries({ queryKey: ["candidate-resumes"] }),
@@ -136,7 +134,6 @@ export const useUploadResume = () => {
         queryClient.invalidateQueries({ queryKey: ["candidate-profile"] }),
       ]);
     },
-    onError: (error) => {
-    },
+    onError: (error) => {},
   });
 };

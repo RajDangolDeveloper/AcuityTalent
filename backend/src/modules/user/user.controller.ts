@@ -22,6 +22,8 @@ import { UpdateUserDto } from './dto/updateUser.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { AdminGuard } from '../auth/guards/admin.guard';
 import { SpacesService } from '../spaces/spaces.service';
+import { UploadFileDto } from '../spaces/dto/upload-file.dto';
+import { UploadType } from '../spaces/types/types';
 
 @Controller('users')
 @UseGuards(JwtAuthGuard)
@@ -51,11 +53,17 @@ export class UserController {
       };
     }
 
-    const imagePath = await this.spacesService.uploadProfileImage(file);
-    const imageUrl = this.spacesService.getPublicUrl(imagePath);
+    const dto = Object.assign(new UploadFileDto(), {
+      fileName: file.name,
+      fileType: 'image/jpeg',
+      uploadType: UploadType.UserProfile,
+      id: Number(req.user.id),
+    });
+
+    const imagePath = await this.spacesService.uploadPublicFile(file, dto);
     const user = await this.userService.updateProfilePicture(
       req.user.id,
-      imageUrl,
+      imagePath,
     );
 
     return {

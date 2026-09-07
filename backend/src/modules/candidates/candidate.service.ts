@@ -160,7 +160,6 @@ export class CandidateService {
     });
   }
 
-  
   async createWorkExperience(
     userId: number,
     createDto: CreateWorkExperienceDto,
@@ -266,7 +265,6 @@ export class CandidateService {
     await this.recomputeCandidateEmbedding(candidate.id);
   }
 
-  
   async createEducation(
     userId: number,
     createDto: CreateEducationDto,
@@ -503,9 +501,7 @@ export class CandidateService {
     if (!existingEmbedding) {
       try {
         await this.recomputeCandidateEmbedding(candidate.id);
-      } catch {
-        
-      }
+      } catch {}
     }
 
     const recommendationResult = await firstValueFrom(

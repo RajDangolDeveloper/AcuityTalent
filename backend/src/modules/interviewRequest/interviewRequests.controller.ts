@@ -41,8 +41,14 @@ export class InterviewRequestController {
   }
 
   @Post()
-  async createInterviewRequest(@Body() dto: createInterviewRequestDto) {
-    return this.interviewRequestService.createInterviewRequest(dto);
+  async createInterviewRequest(
+    @Req() req,
+    @Body() dto: createInterviewRequestDto,
+  ) {
+    return this.interviewRequestService.createInterviewRequest(
+      dto,
+      req.user.id,
+    );
   }
 
   @Patch()

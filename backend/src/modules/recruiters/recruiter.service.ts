@@ -1,12 +1,16 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateRecruiterProfileDto } from './dto/CreateRecruiterProfile.dto';
 import { UpdateRecruiterProfileDto } from './dto/UpdateRecruiterProfile.dto';
 import { DeleteRecruiterProfileDto } from './dto/DeleteRecruiterProfile.dto';
 import { PrismaService } from '../../prisma/prisma.service';
+import { UserService } from '../user/user.service';
 
 @Injectable()
 export class RecruiterService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private userService: UserService,
+  ) {}
 
   async createRecruiterProfile(userData: CreateRecruiterProfileDto) {
     const currentTime = new Date();
@@ -14,7 +18,7 @@ export class RecruiterService {
       data: {
         userId: userData.userId!,
         companyId: userData.companyId!,
-        positionTitle: userData.positionTitle,
+        positionTitle: userData.positionTitle!,
         updatedAt: currentTime,
         createdAt: currentTime,
       },
@@ -82,14 +86,21 @@ export class RecruiterService {
   }
 
   async getRecruiterProfileByUserId(id: number) {
-    return this.prisma.recruiterProfile.findUnique({
+    const findUser = await this.userService.getUserById(id);
+
+    if (!findUser) {
+      throw new Error(`User with ID ${id} not found`);
+    }
+
+    const findRecruiterProfile = await this.prisma.recruiterProfile.findUnique({
       where: {
         userId: id,
       },
-      include: {
-        user: true,
-        company: true,
-      },
     });
+
+    return {
+      statusCode: HttpStatus.ACCEPTED,
+      data: findRecruiterProfile,
+    };
   }
 }

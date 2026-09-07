@@ -1,5 +1,7 @@
+import { getToken } from "next-auth/jwt";
 import { withAuth } from "next-auth/middleware";
 import { NextResponse } from "next/server";
+import { jwtDecode } from "jwt-decode";
 
 export default withAuth(
   function middleware(request) {
@@ -15,18 +17,25 @@ export default withAuth(
     const isOnRegister = nextUrl.pathname.includes("/register");
     const isOnboardingRoute = nextUrl.pathname.includes("/onboarding");
 
-    if ((token?.exp as number) * 1000 < Date.now()) {
+    if (token?.accessToken && !isOnLogout) {
+      const decoded = jwtDecode(token!.accessToken as string) as any;
+      if (decoded?.exp && decoded.exp * 1000 < Date.now()) {
+        return NextResponse.redirect(new URL("/logout", request.url));
+      }
+    }
+
+    if (
+      !token &&
+      !isOnLogin &&
+      !isOnLogout &&
+      !isOnRegister &&
+      (isOnCandidate || isOnRecruiter || isOnAdmin || isOnboardingRoute)
+    ) {
       return NextResponse.redirect(new URL("/logout", request.url));
     }
 
-    if (token?.error === "AccessTokenError") {
+    if ((token?.expiresIn as number) * 1000 < Date.now()) {
       return NextResponse.redirect(new URL("/logout", request.url));
-    }
-
-    if (token?.error === "RefreshAccessTokenError") {
-      return NextResponse.redirect(
-        new URL("/candidate/login?error=SessionExpired", request.url),
-      );
     }
 
     if (
@@ -82,7 +91,7 @@ export default withAuth(
   },
   {
     callbacks: {
-      authorized: ({ token, req }) => {
+      authorized: async ({ token, req }) => {
         const { pathname } = req.nextUrl;
 
         if (
@@ -106,7 +115,7 @@ export default withAuth(
           return !!token;
         }
 
-        return true;
+        return !!token;
       },
     },
     pages: {

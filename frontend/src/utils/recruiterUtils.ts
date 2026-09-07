@@ -1,8 +1,3 @@
-
-
-
-
-
 export const formatDate = (dateString: string): string => {
   const date = new Date(dateString);
   return date.toLocaleDateString("en-US", {
@@ -11,9 +6,6 @@ export const formatDate = (dateString: string): string => {
     day: "numeric",
   });
 };
-
-
-
 
 export const formatRelativeTime = (dateString: string): string => {
   const date = new Date(dateString);
@@ -29,9 +21,6 @@ export const formatRelativeTime = (dateString: string): string => {
   if (days < 7) return `${days} days ago`;
   return formatDate(dateString);
 };
-
-
-
 
 export const getStatusColor = (
   status: string,
@@ -85,9 +74,6 @@ export const getStatusColor = (
   );
 };
 
-
-
-
 export const getEmploymentTypeLabel = (type: string): string => {
   const typeMap: Record<string, string> = {
     FULL_TIME: "Full-time",
@@ -98,18 +84,12 @@ export const getEmploymentTypeLabel = (type: string): string => {
   return typeMap[type] || type;
 };
 
-
-
-
 export const getMatchScoreColor = (score: number): string => {
   if (score >= 80) return "text-green-600";
   if (score >= 60) return "text-yellow-600";
   if (score >= 40) return "text-orange-600";
   return "text-red-600";
 };
-
-
-
 
 export const formatSalaryRange = (
   min?: number,
@@ -119,16 +99,10 @@ export const formatSalaryRange = (
   return `$${min}k - $${max}k`;
 };
 
-
-
-
 export const truncateText = (text: string, length: number): string => {
   if (text.length <= length) return text;
   return text.substring(0, length) + "...";
 };
-
-
-
 
 export const getInitials = (name: string): string => {
   return name
@@ -138,9 +112,6 @@ export const getInitials = (name: string): string => {
     .toUpperCase()
     .substring(0, 2);
 };
-
-
-
 
 export const isCurrentYear = (year: number): boolean => {
   return new Date().getFullYear() === year;

@@ -2,10 +2,6 @@ import { IsOptional, IsEnum, IsInt, Min, Max } from 'class-validator';
 import { ApplicationStatus, JobStatus } from '@prisma/client';
 import { Type } from 'class-transformer';
 
-
-
-
-
 export class GetApplicationsQueryDto {
   @IsOptional()
   @IsEnum(ApplicationStatus)

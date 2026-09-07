@@ -297,6 +297,30 @@ export class InterviewsService {
     });
   }
 
+  async findByRecruiter(recruiterId: number): Promise<Interview[]> {
+    await this.startDueScheduledInterviews();
+
+    return this.prisma.interview.findMany({
+      where: {
+        interviewer: {
+          user: {
+            id: recruiterId,
+          },
+        },
+      },
+      include: {
+        interviewer: {
+          include: {
+            user: true,
+          },
+        },
+      },
+      orderBy: {
+        scheduledAt: 'desc',
+      },
+    });
+  }
+
   async findByCurrentCandidateUserId(userId: number): Promise<Interview[]> {
     const candidate = await this.prisma.candidateProfile.findUnique({
       where: { userId },

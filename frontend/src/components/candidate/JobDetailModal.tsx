@@ -11,10 +11,10 @@ import {
   Send,
 } from "lucide-react";
 import { useCandidateResumes } from "@/src/hooks/useCandidateApi";
-import { JobDetails } from "@/src/types/candidate";
 import Notification from "@/src/element/Notification";
 import { useCreateApplication } from "@/src/hooks/useApplicationApi";
 import { useSaveJob, useRemoveSavedJob } from "@/src/hooks/useJobApi";
+import { JobDetails } from "@/src/types/job";
 
 interface JobDetailModalProps {
   job: JobDetails;
@@ -182,7 +182,6 @@ export default function JobDetailModal({
             </div>
           </div>
 
-          {}
           {job.requirements && (
             <div className="mb-6">
               <h3 className="text-2xl font-bold text-gray-900 mb-4">
@@ -194,11 +193,10 @@ export default function JobDetailModal({
             </div>
           )}
 
-          {}
           <div className="bg-gray-50 p-4 rounded-lg mb-6 text-sm text-gray-600">
             <p>
               Posted on{" "}
-              {job.postedDate
+              {job.postedDate && job.postedDate
                 ? new Date(job.postedDate).toLocaleDateString()
                 : "Unknown"}
             </p>

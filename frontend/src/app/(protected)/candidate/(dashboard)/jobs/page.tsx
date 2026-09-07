@@ -10,9 +10,8 @@ import {
 import { useGetCandidateApplications } from "@/src/hooks/useCandidateApi";
 import { getAllJobs, useJobDetails } from "@/src/hooks/useJobApi";
 import { useSaveJob, useRemoveSavedJob } from "@/src/hooks/useJobApi";
-import { Job, EmploymentType, ExperienceLevel } from "@/src/types/candidate";
+import { EmploymentType, ExperienceLevel } from "@/src/types/candidate";
 import Notification from "@/src/element/Notification";
-import Markdown from "react-markdown";
 import { useCreateApplication } from "@/src/hooks/useApplicationApi";
 import { CustomMarkdown } from "@/src/components/CustomMarkdown";
 
@@ -166,7 +165,6 @@ export default function CandidateJobsPage() {
               <option value="EXECUTIVE">Executive</option>
             </select>
 
-            {}
             <select
               value={filters.remoteOnly ? "remote" : ""}
               onChange={(e) =>
@@ -202,7 +200,6 @@ export default function CandidateJobsPage() {
               <option value="FREELANCE">Freelance</option>
             </select>
 
-            {}
             <select
               value={filters.location}
               onChange={(e) =>
@@ -219,7 +216,6 @@ export default function CandidateJobsPage() {
             </select>
           </div>
 
-          {}
           <form onSubmit={handleSearch} className="flex gap-2 w-80">
             <div className="flex-1 relative">
               <input
@@ -238,9 +234,7 @@ export default function CandidateJobsPage() {
         </div>
       </div>
 
-      {}
       <div className="flex flex-1 overflow-hidden">
-        {}
         <div className="w-full md:w-1/3 border-r border-gray-200 bg-white overflow-y-auto">
           {jobsLoading ? (
             <div className="text-center py-12">
@@ -302,11 +296,9 @@ export default function CandidateJobsPage() {
           )}
         </div>
 
-        {}
         <div className="hidden md:flex md:w-2/3 flex-col bg-white">
           {selectedJobId && selectedJob ? (
             <>
-              {}
               <div className="border-b border-gray-200 px-8 py-6">
                 <div className="flex items-start justify-between gap-4">
                   <div>
@@ -319,12 +311,10 @@ export default function CandidateJobsPage() {
                       </div>
                     </div>
 
-                    {}
                     <h1 className="text-3xl font-bold text-gray-900 mb-4">
                       {selectedJob.title}
                     </h1>
 
-                    {}
                     <div className="flex gap-2 mb-4">
                       {selectedJob.employmentType && (
                         <span className="px-3 py-1 border border-gray-300 rounded text-sm text-gray-700 font-medium">
@@ -351,7 +341,6 @@ export default function CandidateJobsPage() {
                       )}
                     </div>
 
-                    {}
                     <div className="flex gap-2">
                       {appliedJobIds.has(selectedJobId) ? (
                         <button
@@ -449,7 +438,6 @@ export default function CandidateJobsPage() {
                     )}
                   </div>
 
-                  {}
                   <div className="mb-4">
                     <label className="block text-sm font-semibold text-gray-700 mb-2">
                       Cover Letter (Optional)
@@ -463,7 +451,6 @@ export default function CandidateJobsPage() {
                     />
                   </div>
 
-                  {}
                   <div className="flex gap-2">
                     <button
                       onClick={handleApply}

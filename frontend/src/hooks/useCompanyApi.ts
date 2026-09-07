@@ -143,6 +143,9 @@ export const useUploadCompanyLogo = () => {
         queryClient.invalidateQueries({ queryKey: ["get-companies"] }),
         queryClient.invalidateQueries({ queryKey: ["recruiter-companies"] }),
         queryClient.invalidateQueries({ queryKey: ["company", company.id] }),
+        queryClient.invalidateQueries({
+          queryKey: ["image-url", company.logoUrl, false],
+        }),
       ]);
     },
   });
@@ -171,6 +174,9 @@ export const useUploadCompanyBackground = () => {
         queryClient.invalidateQueries({ queryKey: ["get-companies"] }),
         queryClient.invalidateQueries({ queryKey: ["recruiter-companies"] }),
         queryClient.invalidateQueries({ queryKey: ["company", company.id] }),
+        queryClient.invalidateQueries({
+          queryKey: ["image-url", company.backgroundImgUrl, false],
+        }),
       ]);
     },
   });

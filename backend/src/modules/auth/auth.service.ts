@@ -1,5 +1,3 @@
-
-
 import {
   Injectable,
   UnauthorizedException,
@@ -22,6 +20,8 @@ import { CreateRecruiterProfileDto } from '../recruiters/dto/CreateRecruiterProf
 import { EmailService } from '../../config/email.service';
 import { PasswordService } from '../../config/password.service';
 import { PrismaService } from '../../prisma/prisma.service';
+import { RefreshTokenDto } from './dto/refreshToken.dto';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AuthService {
@@ -29,7 +29,6 @@ export class AuthService {
     private prisma: PrismaService,
     private passwordService: PasswordService,
     private candidateService: CandidateService,
-    private recruiterService: RecruiterService,
     private emailService: EmailService,
     private jwtService: JwtService,
   ) {}
@@ -129,7 +128,6 @@ export class AuthService {
       const emptyProfile = new CreateCandidateProfileDto();
       this.candidateService.createCandidateProfile(result.id, emptyProfile);
     }
-
 
     const accessToken = this.jwtService.sign({
       id: result.id,
@@ -277,5 +275,9 @@ export class AuthService {
     });
 
     return { success: true, message: 'OTP verified successfully!' };
+  }
+
+  async refreshUserToken(dto: RefreshTokenDto) {
+    const decoded = this.jwtService.verify(dto.token);
   }
 }

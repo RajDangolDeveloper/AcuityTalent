@@ -4,9 +4,9 @@ import { Transform } from 'class-transformer';
 export class LoginDto {
   @IsEmail()
   @Transform(({ value }) => value?.toLowerCase())
-  email: string;
+  email!: string;
 
   @IsString()
   @MinLength(6)
-  password: string;
+  password!: string;
 }

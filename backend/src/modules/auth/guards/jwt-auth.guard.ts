@@ -25,7 +25,6 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
   }
 
   handleRequest(err: any, user: any, info: any) {
-    
     if (err) {
       throw new UnauthorizedException({
         message: 'Invalid or expired JWT token',
@@ -40,7 +39,6 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
       });
     }
 
-    
     if (!user.id || !user.email || !user.role) {
       throw new UnauthorizedException({
         message: 'Incomplete user data in JWT token',

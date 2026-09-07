@@ -6,12 +6,6 @@ import {
 } from '@nestjs/common';
 import { EntitlementsService } from '../../subscriptions/entitlements.service';
 
-
-
-
-
-
-
 @Injectable()
 export class PremiumGuard implements CanActivate {
   constructor(private readonly entitlements: EntitlementsService) {}
@@ -19,14 +13,12 @@ export class PremiumGuard implements CanActivate {
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
 
-    
     if (!request.user || !request.user.id) {
       throw new ForbiddenException('User not authenticated');
     }
 
     const userId = request.user.id;
 
-    
     const isPremium = await this.entitlements.isCandidatePremium(userId);
 
     if (!isPremium) {

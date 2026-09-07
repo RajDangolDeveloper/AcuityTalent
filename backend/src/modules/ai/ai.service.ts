@@ -283,9 +283,6 @@ export class AiService {
     );
   }
 
-  
-
-
   improveText(data: RewriteRequest): Observable<RewriteResponse> {
     const url = `${this.baseUrl}/improve-text`;
     return this.httpService.post(url, data).pipe(
@@ -296,9 +293,6 @@ export class AiService {
       }),
     );
   }
-
-  
-
 
   reviewResume(data: ReviewRequest): Observable<ReviewResponse> {
     const url = `${this.baseUrl}/review-resume`;
@@ -356,9 +350,6 @@ export class AiService {
     }
   }
 
-  
-
-
   getJobRecommendations(
     candidateId: number,
     topK: number = 10,
@@ -376,9 +367,6 @@ export class AiService {
       }),
     );
   }
-
-  
-
 
   testDatabase(): Observable<any> {
     const url = `${this.baseUrl}/testdatabase`;

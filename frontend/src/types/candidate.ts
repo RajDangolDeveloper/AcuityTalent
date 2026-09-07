@@ -18,32 +18,6 @@ export type EmploymentType =
 
 export type ExperienceLevel = "ENTRY" | "MID" | "SENIOR" | "EXECUTIVE";
 
-export interface Job {
-  id: number;
-  title: string;
-  description: string;
-  requirements: string;
-  location: string;
-  employmentType: EmploymentType;
-  experienceLevel?: ExperienceLevel;
-  salaryRange?: string;
-  remoteAvailable: boolean;
-  companyName: string;
-  companyId: number;
-  postedDate?: string;
-  applicationDeadline?: string;
-  viewsCount: number;
-  applicationCount: number;
-  matchScore?: number;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface JobDetails extends Job {
-  recruiterName?: string;
-  recruiterEmail?: string;
-}
-
 export interface Resume {
   id: number;
   fileName: string;
@@ -55,13 +29,11 @@ export interface Resume {
 }
 
 export interface CandidateApplication {
-  // Core identifiers
   id: number;
   candidateId: number;
   jobId: number;
   resumeId: number;
 
-  // Candidate details
   candidateName: string;
   candidateEmail: string;
   candidatePhone?: string;
@@ -72,12 +44,10 @@ export interface CandidateApplication {
   profileImage?: string;
   yearsOfExperience?: number;
 
-  // Job details
   jobTitle?: string;
   companyName?: string;
   resumeFileName?: string;
 
-  // Application status & metadata
   status: ApplicationStatus;
   coverLetter?: string;
   matchScore?: number;
@@ -87,12 +57,6 @@ export interface CandidateApplication {
   updatedAt: string;
 }
 
-export interface SavedJob {
-  id: number;
-  jobId: number;
-  job: Job;
-  createdAt: string;
-}
 
 export interface CandidateProfile {
   id: number;
@@ -122,7 +86,7 @@ export interface WorkExperience {
   company: string;
   position: string;
   startDate: string;
-  endDate?: string | null;
+  endDate: string | undefined;
   isCurrent: boolean;
   description?: string | null;
   createdAt: string;

@@ -21,14 +21,6 @@ import {
   Briefcase,
 } from "lucide-react";
 
-const typeLabelMap: Record<InterviewType, string> = {
-  SCREENING: "Screening",
-  TECHNICAL: "Technical",
-  FINAL: "Final",
-  HR: "HR",
-  SYSTEM_DESIGN: "System Design",
-};
-
 const statusConfig = {
   SCHEDULED: {
     label: "Scheduled",
@@ -283,7 +275,7 @@ export default function RecruiterInterviewPage() {
           </div>
         </div>
 
-        <div className="grid gap-4 grid-cols-3 grid-rows-[200px_minmax(520px,1fr)_100px]">
+        <div className="min-h-[800px] grid gap-4 lg:grid-cols-3">
           <div className="col-span-2 row-span-full rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden">
             <div className="flex flex-col gap-4 border-b border-gray-100 p-4 sm:flex-row sm:items-center sm:justify-between">
               <div className="inline-flex rounded-xl bg-gray-100 p-1">
@@ -424,14 +416,14 @@ export default function RecruiterInterviewPage() {
             <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm flex-1">
               <div className="mb-4 flex items-center justify-between">
                 <h2 className="text-lg font-semibold text-gray-900">
-                  Recent Actions
+                  Interview Requests
                 </h2>
                 <ChevronRight className="h-4 w-4 text-gray-400" />
               </div>
               <div className="space-y-3">
                 {recentActions.length === 0 ? (
                   <div className="rounded-xl bg-gray-50 p-4 text-sm text-gray-500">
-                    No recent interview activity.
+                    No recent interview requests.
                   </div>
                 ) : (
                   paginatedActions.map((interview) => (

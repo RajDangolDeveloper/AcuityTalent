@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import {
   ArrowLeft,
@@ -15,9 +15,19 @@ import {
   Phone,
 } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
-import { useGetApplicationById } from "@/src/hooks/useApplicationApi";
-import apiClient from "@/src/app/api/api-client";
+import {
+  useGetApplicationById,
+  useUpdateApplicationById,
+} from "@/src/hooks/useApplicationApi";
+import Notification from "@/src/element/Notification";
 import { downloadResume } from "@/src/library/downloadResume";
+import {
+  InterviewRequestData,
+  InterviewStatus,
+  InterviewType,
+} from "@/src/types/interview";
+import { useCreateInterviewRequest } from "@/src/hooks/useInterviewRequestApi";
+import { ApplicationStatus } from "@/src/types/application";
 
 export default function ApplicationDetailPage() {
   const router = useRouter();
@@ -31,11 +41,13 @@ export default function ApplicationDetailPage() {
     isLoading,
     error,
   } = useGetApplicationById(applicationId);
-  const queryClient = useQueryClient();
-
   const [actionLoading, setActionLoading] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
   const [downloadingId, setDownloadingId] = useState<number | null>(null);
+  const [isInterviewOpen, setIsInterviewOpen] = useState(false);
+  const [InterviewData, setInterviewData] = useState<InterviewRequestData>();
+  const updateApplicationMutation = useUpdateApplicationById();
+  const useCreateInterviewRequestMutation = useCreateInterviewRequest();
 
   const handleDownload = async (resumeId: number, fileName?: string) => {
     if (!resumeId) {
@@ -57,28 +69,17 @@ export default function ApplicationDetailPage() {
   };
 
   const handleStatusUpdate = async (action: string) => {
-    if (!applicationId || applicationId === 0) {
-      setActionError("Invalid application ID");
-      console.error("Invalid application ID:", applicationId);
-      return;
-    }
-
     setActionLoading(true);
     setActionError(null);
     try {
-      const endpoints: Record<string, string> = {
-        INTERVIEW: `/applications/${applicationId}/interview`,
-        OFFERED: `/applications/${applicationId}/offer`,
-        REJECTED: `/applications/${applicationId}/reject`,
-        SHORTLIST: `/applications/${applicationId}/shortlist`,
-      };
+      await updateApplicationMutation.mutateAsync({
+        action: action,
+        applicationId: applicationId,
+      });
 
-      const endpoint = endpoints[action];
-      if (!endpoint) throw new Error("Invalid action");
-
-      await apiClient.patch(endpoint);
-      await queryClient.invalidateQueries({
-        queryKey: ["application", applicationId],
+      Notification({
+        toastMessage: "Application submitted successfully!",
+        toastStatus: "success",
       });
     } catch (err: any) {
       const message =
@@ -186,10 +187,194 @@ export default function ApplicationDetailPage() {
     return "text-red-600";
   };
 
+  const formatDate = (dateString?: string) => {
+    if (!dateString) return "";
+    const date = new Date(dateString);
+    return date.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+    });
+  };
+
   return (
     <div className="min-h-screen bg-white p-8">
+      {isInterviewOpen && InterviewData && (
+        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-150">
+            <div className="bg-primary-800 text-white p-5 flex justify-between items-center">
+              <div>
+                <h2 className="text-lg font-bold flex items-center gap-2">
+                  <Clock className="text-purple-400" size={20} />
+                  Interview Request Details
+                </h2>
+                <p className="text-xs text-slate-400 mt-0.5">
+                  Applicant:{" "}
+                  <span className="text-white font-medium">
+                    {application.candidateName}
+                  </span>
+                </p>
+              </div>
+              <button
+                onClick={() => setIsInterviewOpen(false)}
+                className="text-slate-400 hover:text-white text-xl font-semibold px-2 rounded"
+              >
+                ✕
+              </button>
+            </div>
+
+            <form
+              onSubmit={async (e: React.FormEvent) => {
+                e.preventDefault();
+                (useCreateInterviewRequestMutation.mutateAsync({
+                  jobId: application.jobId,
+                  candidateId: application.candidateId,
+                  interviewType: InterviewData.interviewType as InterviewType,
+                  applicationId: application.id,
+                  availableDateRange: [
+                    InterviewData.availableDateRange[0]
+                      ? new Date(
+                          InterviewData.availableDateRange[0],
+                        ).toISOString()
+                      : "",
+                    InterviewData.availableDateRange[1]
+                      ? new Date(
+                          InterviewData.availableDateRange[1],
+                        ).toISOString()
+                      : "",
+                  ].filter(Boolean),
+                  selectedDateTime: new Date(
+                    InterviewData.selectedDateTime,
+                  ).toISOString(),
+                }),
+                  setIsInterviewOpen(false));
+                if (useCreateInterviewRequestMutation.isSuccess) {
+                  handleStatusUpdate("INTERVIEW");
+                }
+              }}
+              className="p-6 space-y-5 text-sm"
+            >
+              <div>
+                <label className="text-xs font-semibold uppercase text-gray-500 mb-1 flex items-center justify-between">
+                  <span>Interview Type</span>
+                </label>
+                <select
+                  name="InterviewType"
+                  className="w-full bg-slate-50 border border-gray-300 rounded-lg p-2.5 font-mono text-xs text-gray-800 outline-none focus:ring-2 focus:ring-purple-500"
+                  id=""
+                  onChange={(e) =>
+                    setInterviewData({
+                      ...InterviewData,
+                      interviewType: e.target.value,
+                    })
+                  }
+                >
+                  <option>{InterviewType.FINAL}</option>
+                  <option>{InterviewType.HR}</option>
+                  <option>{InterviewType.SCREENING}</option>
+                  <option>{InterviewType.SYSTEM_DESIGN}</option>
+                  <option>{InterviewType.TECHNICAL}</option>
+                </select>
+              </div>
+              <div>
+                <label className="text-xs font-semibold uppercase text-gray-500 mb-1 flex items-center justify-between">
+                  <span>Selected Date & Time</span>
+                  <span className="text-[10px] text-purple-600 font-bold uppercase">
+                    Scheduled
+                  </span>
+                </label>
+
+                <input
+                  type="datetime-local"
+                  value={InterviewData.selectedDateTime}
+                  onChange={(e) =>
+                    setInterviewData({
+                      ...InterviewData,
+                      selectedDateTime: e.target.value,
+                    })
+                  }
+                  className="w-full bg-slate-50 border border-gray-300 rounded-lg p-2.5 font-mono text-xs text-gray-800 outline-none focus:ring-2 focus:ring-purple-500"
+                  placeholder="2026-07-02T15:00:00.000Z"
+                />
+                <p className="text-[11px] text-gray-500 mt-1">
+                  Formatted:{" "}
+                  {new Date(
+                    InterviewData.selectedDateTime ?? new Date().toISOString(),
+                  ).toISOString()}
+                </p>
+              </div>
+
+              {/* Available Date Range Window */}
+              <div className="space-y-2">
+                <label className="block text-xs font-semibold uppercase text-gray-500">
+                  Available Date Range Window
+                </label>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <span className="text-[10px] text-gray-400 uppercase font-semibold">
+                      Start Range
+                    </span>
+                    <input
+                      type="datetime-local"
+                      value={InterviewData.availableDateRange?.[0]}
+                      onChange={(e) => {
+                        const newRange = [
+                          ...(InterviewData.availableDateRange ?? ["", ""]),
+                        ];
+                        newRange[0] = e.target.value;
+                        setInterviewData({
+                          ...InterviewData,
+                          availableDateRange: newRange,
+                        });
+                      }}
+                      className="w-full bg-slate-50 border border-gray-300 rounded-lg p-2 font-mono text-xs text-gray-800 outline-none focus:ring-2 focus:ring-purple-500"
+                    />
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-gray-400 uppercase font-semibold">
+                      End Range
+                    </span>
+                    <input
+                      type="datetime-local"
+                      value={InterviewData.availableDateRange?.[1]}
+                      onChange={(e) => {
+                        const newRange = [
+                          ...(InterviewData.availableDateRange ?? ["", ""]),
+                        ];
+                        newRange[1] = e.target.value;
+                        setInterviewData({
+                          ...InterviewData,
+                          availableDateRange: newRange,
+                        });
+                      }}
+                      className="w-full bg-slate-50 border border-gray-300 rounded-lg p-2 font-mono text-xs text-gray-800 outline-none focus:ring-2 focus:ring-purple-500"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex justify-end gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setIsInterviewOpen(false)}
+                  className="px-4 py-2 border border-gray-300 text-gray-700 hover:bg-gray-50 rounded-lg font-medium text-xs transition"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={actionLoading}
+                  className="px-5 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-semibold text-xs shadow-md transition"
+                >
+                  {actionLoading ? "Updating..." : "Save & Send Request"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
       <div className="max-w-7xl mx-auto">
-        <div className="flex gap-4 items-center-safe">
+        <div className="flex gap-4 items-center">
           <button
             onClick={() => router.back()}
             className="flex items-center gap-2 text-blue-600 hover:text-blue-700 mb-6"
@@ -207,7 +392,7 @@ export default function ApplicationDetailPage() {
 
         <div className="bg-white rounded-lg border border-gray-200">
           <div className="p-8">
-            <div className="flex justify-between items-end mb-8">
+            <div className="flex justify-between items-end mb-4">
               <div>
                 <h1 className="text-3xl font-bold text-gray-900 mb-2">
                   {application.candidateName}
@@ -223,7 +408,7 @@ export default function ApplicationDetailPage() {
               </span>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 pt-4 border-t border-gray-200">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8 pt-6 border-t border-gray-200">
               <div className="flex items-center gap-3">
                 <Mail className="text-gray-400" size={20} />
                 <div>
@@ -293,6 +478,45 @@ export default function ApplicationDetailPage() {
               </div>
             )}
 
+            {application.candidateExperience &&
+              application.candidateExperience.length > 0 && (
+                <div className="mb-8">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                    WORK EXPERIENCE
+                  </h3>
+                  <div className="space-y-6">
+                    {application.candidateExperience.map((exp, index) => (
+                      <div
+                        key={index}
+                        className="border-l-2 border-gray-200 pl-4"
+                      >
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <h4 className="text-md font-bold text-gray-900">
+                              {exp.position}
+                            </h4>
+                            <p className="text-sm font-semibold text-gray-700">
+                              {exp.company}
+                            </p>
+                          </div>
+                          <span className="text-sm text-gray-500 whitespace-nowrap">
+                            {formatDate(exp.startDate)} -{" "}
+                            {exp.isCurrent
+                              ? "Present"
+                              : formatDate(exp.endDate)}
+                          </span>
+                        </div>
+                        {exp.description && (
+                          <p className="text-sm text-gray-600 mt-1">
+                            {exp.description}
+                          </p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
             {application.coverLetter && (
               <div className="mb-8">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">
@@ -339,7 +563,20 @@ export default function ApplicationDetailPage() {
               </h3>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                 <button
-                  onClick={() => handleStatusUpdate("INTERVIEW")}
+                  onClick={() => {
+                    const today = new Date();
+                    const nextWeek = new Date(today);
+                    nextWeek.setDate(today.getDate() + 7);
+                    setIsInterviewOpen(true);
+                    setInterviewData({
+                      interviewType: InterviewType.SCREENING,
+                      selectedDateTime: today.toDateString(),
+                      availableDateRange: [
+                        today.toDateString(),
+                        nextWeek.toDateString(),
+                      ],
+                    });
+                  }}
                   disabled={
                     actionLoading || application.status === "INTERVIEWING"
                   }

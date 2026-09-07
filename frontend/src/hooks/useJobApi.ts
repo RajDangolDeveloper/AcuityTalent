@@ -1,8 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import apiClient from "../app/api/api-client";
-import { Job, PaginatedResponse, SingleResponse } from "../types/recruiter";
-import { JobDetails, SavedJob } from "../types/candidate";
-
+import { Job, JobDetails, SavedJob } from "../types/job";
+import { PaginatedResponse, SingleResponse } from "../types/candidate";
 
 export const getAllJobs = (
   page: number = 1,
@@ -41,7 +40,6 @@ export const getAllJobs = (
     },
   });
 };
-
 
 export const useJobDetails = (jobId: number | null) => {
   return useQuery({
@@ -87,7 +85,6 @@ export const useUpdateJobStatus = () => {
       return response.data.data;
     },
     onSuccess: async (_, variables) => {
-      
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ["recruiter-jobs"] }),
         queryClient.invalidateQueries({ queryKey: ["recruiter-stats"] }),
@@ -97,8 +94,7 @@ export const useUpdateJobStatus = () => {
         }),
       ]);
     },
-    onError: (error) => {
-    },
+    onError: (error) => {},
   });
 };
 

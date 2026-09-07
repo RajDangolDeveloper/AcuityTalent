@@ -1,15 +1,17 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import apiClient from "@/src/app/api/api-client";
-import {
-  PaginatedResponse,
-  Job,
-  SingleResponse,
-  ApplicationDetail,
-  ApplicationStatus,
-  LocationType,
-} from "../types/recruiter";
+
 import Notification from "../element/Notification";
-import { CandidateApplication, CandidateProfile } from "../types/candidate";
+import {
+  ApplicationStatus,
+  CandidateApplication,
+  CandidateProfile,
+  PaginatedResponse,
+  SingleResponse,
+} from "../types/candidate";
+import { Job, LocationType } from "../types/job";
+import { ApplicationDetail } from "../types/application";
+import { RecruiterProfile } from "../types/recruiter";
 
 export const useGetRecruiterJobs = (page: number = 1, limit: number = 10) => {
   return useQuery({
@@ -285,8 +287,10 @@ export const useGetCurrentRecruiterProfile = () => {
   return useQuery({
     queryKey: ["recruiter-current-profile"],
     queryFn: async () => {
-      const response = await apiClient.get("/recruiters/profile/current");
-      return response.data;
+      const response = await apiClient.get<SingleResponse<RecruiterProfile>>(
+        "/recruiters/profile/current",
+      );
+      return response.data.data;
     },
   });
 };

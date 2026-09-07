@@ -32,32 +32,20 @@ import { PremiumGuard } from './guards/premium.guard';
 export class AiController {
   constructor(private readonly aiService: AiService) {}
 
-  
-
-
   @Post('getscore')
   async getScore(@Body() data: MatchRequest): Promise<MatchResponse> {
     return firstValueFrom(this.aiService.getScore(data));
   }
-
-  
-
 
   @Post('matching-score')
   async getMatchingScore(@Body() data: MatchRequest): Promise<MatchResponse> {
     return firstValueFrom(this.aiService.getMatchingScore(data));
   }
 
-  
-
-
   @Post('resume-score')
   async getResumeScore(@Body() data: ScoreRequest): Promise<ScoreResponse> {
     return firstValueFrom(this.aiService.getResumeScore(data));
   }
-
-  
-
 
   @Post('generate-cover-letter')
   @UseGuards(JwtAuthGuard, PremiumGuard)
@@ -68,17 +56,11 @@ export class AiController {
     return firstValueFrom(this.aiService.generateCoverLetter(data));
   }
 
-  
-
-
   @Post('improve-text')
   @UseGuards(JwtAuthGuard, PremiumGuard)
   async improveText(@Body() data: RewriteRequest): Promise<RewriteResponse> {
     return firstValueFrom(this.aiService.improveText(data));
   }
-
-  
-
 
   @Post('review-resume')
   @UseGuards(JwtAuthGuard, PremiumGuard)
@@ -109,9 +91,6 @@ export class AiController {
       this.aiService.getJobRecommendations(candidateId, topK),
     );
   }
-
-  
-
 
   @Get('testdatabase')
   async testDatabase(): Promise<any> {

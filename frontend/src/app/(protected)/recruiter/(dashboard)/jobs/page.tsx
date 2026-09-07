@@ -190,7 +190,7 @@ export default function JobsPage() {
         </div>
 
         {selectedJob ? (
-          <div className="flex flex-col gap-4 w-full">
+          <div className="flex flex-1 flex-col gap-4">
             <div className="relative flex justify-between items-end gap-8 w-full py-12 h-48 px-8 bg-white border border-gray-200 shadow-sm rounded-sm">
               <div className="flex flex-col gap-4">
                 <div className="flex items-center gap-3">
@@ -260,7 +260,7 @@ export default function JobsPage() {
                   ))}
                 </select>
               </div>
-              <div className="absolute top-5 right-5 flex justify-center items-center gap-4">
+              <div className="absolute top-5 right-8 flex justify-center items-center gap-4">
                 <button
                   onClick={handleShareJob}
                   className="font-bold hover:bg-gray-50 transition-colors text-lg"
@@ -285,13 +285,13 @@ export default function JobsPage() {
                 </button>
               </div>
             </div>
-            <div className="max-w-7xl px-8 py-4 overflow-clip">
+            <div className="max-w-350 px-8 py-4">
               <div className="pb-12">
-                <div className="text-2xl font-semibold">Description</div>
+                <div className="text-2xl font-semibold mb-2">Description</div>
                 <CustomMarkdown content={selectedJob.description} />
               </div>
               <div className="pb-12">
-                <div className="text-2xl font-semibold">Requirements</div>
+                <div className="text-2xl font-semibold mb-2">Requirements</div>
                 <CustomMarkdown content={selectedJob.requirements ?? ""} />
               </div>
             </div>
@@ -319,7 +319,6 @@ export default function JobsPage() {
         </button>
       </Link>
 
-      {}
       {!isPremiumUser(currentUser ?? null) && (
         <div className="absolute bottom-20 right-2 bg-yellow-50 border border-yellow-200 rounded-md p-4 w-64">
           <div className="flex items-start gap-2">

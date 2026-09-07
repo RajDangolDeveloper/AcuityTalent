@@ -226,7 +226,7 @@ export class JobService {
       ...job,
       companyName: job.company?.name,
       applicationCount: job._count?.applications ?? 0,
-      latestAppliedDate: job.applications[0].appliedAt,
+      latestAppliedDate: job.applications[0]?.appliedAt ?? null,
     }));
 
     return {

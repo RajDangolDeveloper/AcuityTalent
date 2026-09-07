@@ -17,6 +17,7 @@ import { UpdatePasswordDto } from './dto/updatePassword.dto';
 import { VerifyOtpDto } from './dto/verifyOtp.dto';
 import { ChangePasswordDto } from './dto/changePassword.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import { RefreshTokenDto } from './dto/refreshToken.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -25,6 +26,11 @@ export class AuthController {
   @Post('login')
   async loginUser(@Body() loginData: LoginDto) {
     return await this.authService.validateUser(loginData);
+  }
+
+  @Post('refresh')
+  async refreshUserToken(@Body() refreshToken: RefreshTokenDto) {
+    return await this.authService.refreshUserToken(refreshToken);
   }
 
   @Post('register')

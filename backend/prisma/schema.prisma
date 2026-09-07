@@ -2,14 +2,13 @@ generator client {
   provider               = "prisma-client-js"
   moduleFormat           = "esm"
   generatedFileExtension = "js"
-  previewFeatures = ["postgresqlExtensions"]
+  previewFeatures        = ["postgresqlExtensions"]
 }
 
 datasource db {
-  provider = "postgresql"
+  provider   = "postgresql"
   extensions = [vector]
 }
-
 
 enum Role {
   CANDIDATE
@@ -41,16 +40,14 @@ enum ParticipantRole {
   OBSERVER
 }
 
-
 enum CompanySize {
-  ONE_TO_TEN 
-  ELEVEN_TO_FIFTY 
-  FIFTY_ONE_TO_TWO_HUNDRED 
-  TWO_HUNDRED_ONE_TO_FIVE_HUNDRED 
-  FIVE_HUNDRED_ONE_TO_THOUSAND 
-  THOUSAND_PLUS 
+  ONE_TO_TEN
+  ELEVEN_TO_FIFTY
+  FIFTY_ONE_TO_TWO_HUNDRED
+  TWO_HUNDRED_ONE_TO_FIVE_HUNDRED
+  FIVE_HUNDRED_ONE_TO_THOUSAND
+  THOUSAND_PLUS
 }
-
 
 enum Industry {
   TECHNOLOGY
@@ -79,7 +76,6 @@ enum LocationType {
   ONSITE
 }
 
-
 enum EmploymentType {
   FULL_TIME
   PART_TIME
@@ -89,7 +85,6 @@ enum EmploymentType {
   FREELANCE
 }
 
-
 enum ExperienceLevel {
   ENTRY
   MID
@@ -97,14 +92,12 @@ enum ExperienceLevel {
   EXECUTIVE
 }
 
-
 enum JobStatus {
   DRAFT
   ACTIVE
   CLOSED
   ARCHIVED
 }
-
 
 enum ApplicationStatus {
   APPLIED
@@ -145,7 +138,6 @@ enum InterviewStatus {
   NO_SHOW
 }
 
-
 enum EducationLevel {
   HIGH_SCHOOL
   ASSOCIATE
@@ -156,7 +148,6 @@ enum EducationLevel {
   CERTIFICATION
   OTHER
 }
-
 
 enum FileType {
   PDF
@@ -179,55 +170,54 @@ enum ActionType {
 }
 
 model ActivityLog {
-  id Int @id @default(autoincrement())
-  userId Int
-  actionType ActionType
+  id            Int        @id @default(autoincrement())
+  userId        Int
+  actionType    ActionType
   activityTitle String
-  createdAt DateTime @default(now())
+  createdAt     DateTime   @default(now())
 
-  user User @relation(fields:[userId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([id])
   @@index([userId])
 }
 
 model User {
-  id           Int      @id @default(autoincrement())
-  email        String   @unique
-  passwordHash String
-  firstName    String?
-  lastName     String?
-  profilePictureUrl String?
-  contactPhone String?
-  contactEmail String? 
-  role         Role
-  subscriptionPlan SubscriptionPlan @default(NON_PREMIUM)
-  coverLetterGenerationCount Int @default(0)
-  subscriptionExpiresAt DateTime?
-  isOnboarded  Boolean  @default(false)
-  isVerified   Boolean @default(false)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @default(now()) @updatedAt
+  id                         Int              @id @default(autoincrement())
+  email                      String           @unique
+  passwordHash               String
+  firstName                  String?
+  lastName                   String?
+  profilePictureUrl          String?
+  contactPhone               String?
+  contactEmail               String?
+  role                       Role
+  subscriptionPlan           SubscriptionPlan @default(NON_PREMIUM)
+  coverLetterGenerationCount Int              @default(0)
+  subscriptionExpiresAt      DateTime?
+  isOnboarded                Boolean          @default(false)
+  isVerified                 Boolean          @default(false)
+  createdAt                  DateTime         @default(now())
+  updatedAt                  DateTime         @default(now()) @updatedAt
 
-  
-  otps      Otp[]
-  recruiter RecruiterProfile?
-  candidate CandidateProfile?
+  otps                  Otp[]
+  recruiter             RecruiterProfile?
+  candidate             CandidateProfile?
   ownedCompanies        Company[]
-  subscriptionPayments SubscriptionPayment[]
-  activityLogs ActivityLog[]
+  subscriptionPayments  SubscriptionPayment[]
+  activityLogs          ActivityLog[]
   interviewParticipants InterviewParticipant[]
 }
 
 model SubscriptionPayment {
-  id            Int           @id @default(autoincrement())
-  userId        Int
-  amount        Float
-  provider      String        @default("ESEWA")
-  status        PaymentStatus @default(PENDING)
-  transactionRef String       @unique
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
+  id             Int           @id @default(autoincrement())
+  userId         Int
+  amount         Float
+  provider       String        @default("ESEWA")
+  status         PaymentStatus @default(PENDING)
+  transactionRef String        @unique
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -243,7 +233,6 @@ model Otp {
   expiresAt DateTime
   createdAt DateTime @default(now())
 
-  
   user User @relation(fields: [email], references: [email], onDelete: Cascade)
 
   @@index([email])
@@ -265,12 +254,11 @@ model Company {
   createdAt        DateTime     @default(now())
   updatedAt        DateTime     @default(now()) @updatedAt
 
-  
   recruiters RecruiterProfile[]
-  employees  CandidateProfile[] 
-  jobs       Job[] 
+  employees  CandidateProfile[]
+  jobs       Job[]
 
-  owner            User      @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  owner User @relation(fields: [ownerId], references: [id], onDelete: Cascade)
 
   @@index([name])
   @@index([industry])
@@ -278,19 +266,26 @@ model Company {
 }
 
 model RecruiterProfile {
-  id            Int      @id @default(autoincrement())
-  userId        Int      @unique
-  companyId     Int
-  positionTitle String?
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id              Int              @id @default(autoincrement())
+  userId          Int              @unique
+  companyId       Int
+  positionTitle   String
+  experienceYears Int?
+  highestDegree   EducationLevel?
+  linkedinUrl     String?
+  githubUrl       String?
+  skills          String[]
+  workHistory     WorkExperience[]
+  education       Education[]
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
 
-  
-  user                User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  company             Company     @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  jobs                Job[]
-  interviewsConducted Interview[] @relation("RecruiterInterviews")
-  interviewRequests InterviewRequest[]
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  jobs    Job[]
+
+  interviewsConducted Interview[]        @relation("RecruiterInterviews")
+  interviewRequests   InterviewRequest[]
 
   @@index([userId])
   @@index([companyId])
@@ -304,32 +299,29 @@ model CandidateProfile {
   currentCompanyId  Int?
   experienceYears   Int?
   highestDegree     EducationLevel?
-  skills            String[] 
+  skills            String[]
   preferredLocation String?
   preferredJobType  EmploymentType?
   expectedSalary    Float?
   embedding         CandidateProfileEmbedding?
   linkedinUrl       String?
   githubUrl         String?
-  phone             String? 
-  location          String? 
-  summary           String? 
+  summary           String?
   createdAt         DateTime                   @default(now())
   updatedAt         DateTime                   @updatedAt
 
-  
-  user             User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  currentCompany   Company?               @relation(fields: [currentCompanyId], references: [id], onDelete: SetNull)
-  resumes          Resume[]
-  applications     Application[]
-  workHistory      WorkExperience[]
-  education        Education[]
-  savedJobs        SavedJob[]
+  user              User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  currentCompany    Company?               @relation(fields: [currentCompanyId], references: [id], onDelete: SetNull)
+  resumes           Resume[]
+  applications      Application[]
+  workHistory       WorkExperience[]
+  education         Education[]
+  savedJobs         SavedJob[]
   interviewRequests InterviewRequest[]
-  interviewsJoined InterviewParticipant[]
+  interviewsJoined  InterviewParticipant[]
 
   @@index([userId])
-  @@index([skills]) 
+  @@index([skills])
   @@index([experienceYears])
   @@index([highestDegree])
 }
@@ -340,7 +332,7 @@ model CandidateProfileEmbedding {
   candidateProfile   CandidateProfile @relation(fields: [candidateProfileId], references: [id], onDelete: Cascade)
 
   embedding Unsupported("vector(768)")?
-  model     String  @default("all-mpnet-base-v2")
+  model     String                      @default("all-mpnet-base-v2")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -351,6 +343,7 @@ model CandidateProfileEmbedding {
 model WorkExperience {
   id          Int       @id @default(autoincrement())
   candidateId Int
+  recruiterProfileId Int?
   company     String
   position    String
   startDate   DateTime
@@ -359,8 +352,9 @@ model WorkExperience {
   description String?
   createdAt   DateTime  @default(now())
 
+  candidate          CandidateProfile  @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  recruiterProfile   RecruiterProfile? @relation(fields: [recruiterProfileId], references: [id])
   
-  candidate CandidateProfile @relation(fields: [candidateId], references: [id], onDelete: Cascade)
 
   @@index([candidateId])
 }
@@ -377,16 +371,17 @@ model Education {
   description  String?
   createdAt    DateTime       @default(now())
 
-  
-  candidate CandidateProfile @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  candidate          CandidateProfile  @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  recruiterProfile   RecruiterProfile? @relation(fields: [recruiterProfileId], references: [id])
+  recruiterProfileId Int?
 
   @@index([candidateId])
 }
 
 model Job {
   id                  Int              @id @default(autoincrement())
-  companyId           Int 
-  recruiterId         Int 
+  companyId           Int
+  recruiterId         Int
   title               String
   description         String
   requirements        String?
@@ -404,11 +399,10 @@ model Job {
   createdAt           DateTime         @default(now())
   updatedAt           DateTime         @updatedAt
 
-  
-  company      Company          @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  recruiter    RecruiterProfile @relation(fields: [recruiterId], references: [id], onDelete: Cascade)
-  applications Application[]
-  savedBy      SavedJob[]
+  company           Company            @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  recruiter         RecruiterProfile   @relation(fields: [recruiterId], references: [id], onDelete: Cascade)
+  applications      Application[]
+  savedBy           SavedJob[]
   interviewRequests InterviewRequest[]
 
   @@index([companyId])
@@ -426,7 +420,7 @@ model JobEmbedding {
   job   Job @relation(fields: [jobId], references: [id], onDelete: Cascade)
 
   embedding Unsupported("vector(768)")?
-  model     String  @default("all-mpnet-base-v2")
+  model     String                      @default("all-mpnet-base-v2")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -437,19 +431,18 @@ model JobEmbedding {
 model Resume {
   id          Int       @id @default(autoincrement())
   candidateId Int
-  filePath    String 
+  filePath    String
   fileName    String
   fileType    FileType
-  fileSize    Int 
-  aiScore     Int 
-  resumeText  String? 
-  textContent String? 
+  fileSize    Int
+  aiScore     Int
+  resumeText  String?
+  textContent String?
   uploadedAt  DateTime? @default(now())
   createdAt   DateTime  @default(now())
 
-  
   candidate    CandidateProfile @relation(fields: [candidateId], references: [id], onDelete: Cascade)
-  applications Application[] 
+  applications Application[]
 
   @@index([candidateId])
   @@index([createdAt])
@@ -463,17 +456,17 @@ model Application {
   coverLetter  String?
   status       ApplicationStatus @default(APPLIED)
   hadInterview Boolean           @default(false)
-  matchScore   Float? 
+  matchScore   Float?
   appliedAt    DateTime          @default(now())
   reviewedAt   DateTime?
   updatedAt    DateTime          @updatedAt
 
-  
   candidate CandidateProfile @relation(fields: [candidateId], references: [id], onDelete: Cascade)
   job       Job              @relation(fields: [jobId], references: [id], onDelete: Cascade)
   resume    Resume           @relation(fields: [resumeId], references: [id], onDelete: Cascade)
 
-  interviews Interview[]
+  interviews       Interview[]
+  interviewRequest InterviewRequest[]
 
   @@unique([candidateId, jobId])
   @@index([candidateId])
@@ -489,7 +482,6 @@ model SavedJob {
   jobId       Int
   createdAt   DateTime @default(now())
 
-  
   candidate CandidateProfile @relation(fields: [candidateId], references: [id], onDelete: Cascade)
   job       Job              @relation(fields: [jobId], references: [id], onDelete: Cascade)
 
@@ -503,10 +495,9 @@ model InterviewParticipant {
   interviewId Int
   userId      Int
 
-  
   role     ParticipantRole   @default(CANDIDATE)
   status   ParticipantStatus @default(WAITING)
-  joinedAt DateTime?          @default(now())
+  joinedAt DateTime?         @default(now())
 
   interview          Interview         @relation(fields: [interviewId], references: [id], onDelete: Cascade)
   user               User              @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -517,21 +508,23 @@ model InterviewParticipant {
 }
 
 model InterviewRequest {
-  id  Int @id @default(autoincrement())
-  jobId Int
-  candidateId Int 
-  recruiterId Int
+  id                 Int                    @id @default(autoincrement())
+  jobId              Int
+  candidateId        Int
+  recruiterId        Int
+  applicationId      Int
   availableDateRange DateTime[]
-  selectedDateTime DateTime?
-  status InterviewRequestStatus @default(SENT)
-  locationType LocationType
-  createdAt   DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  confirmedAt DateTime?
+  selectedDateTime   DateTime?
+  status             InterviewRequestStatus @default(SENT)
+  interviewType      InterviewType          @default(SCREENING)
+  createdAt          DateTime               @default(now())
+  updatedAt          DateTime               @updatedAt
+  confirmedAt        DateTime?
 
-  job Job      @relation(fields: [jobId], references: [id], onDelete: Cascade)
-  candidate CandidateProfile   @relation(fields: [candidateId], references: [id], onDelete: Cascade)
-  recruiter RecruiterProfile      @relation(fields: [recruiterId], references: [id], onDelete: Cascade)
+  job         Job              @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  candidate   CandidateProfile @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  recruiter   RecruiterProfile @relation(fields: [recruiterId], references: [id], onDelete: Cascade)
+  application Application      @relation(fields: [applicationId], references: [id], onDelete: Cascade)
 }
 
 model Interview {
@@ -544,9 +537,8 @@ model Interview {
   actualStartAt DateTime?
   actualEndAt   DateTime?
 
-  
   interviewType InterviewType
-  status        InterviewStatus       
+  status        InterviewStatus
   scheduledAt   DateTime
   meetingLink   String?
   notes         String?

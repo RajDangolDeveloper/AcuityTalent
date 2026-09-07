@@ -40,7 +40,7 @@ export default function CandidatePreviewCard({ candidate, onClick }: Props) {
       onMouseLeave={handleMouseLeave}
       className="border border-gray-200 rounded-lg p-4 flex items-center gap-4 hover:shadow-md transition-shadow bg-white"
     >
-      <div className="w-20 h-20 rounded-full bg-gray-200 flex-shrink-0" />
+      <div className="w-20 h-20 rounded-full bg-gray-200 shrink-0" />
 
       <div className="flex-1">
         <div className="flex items-center justify-between gap-4">
@@ -76,9 +76,7 @@ export default function CandidatePreviewCard({ candidate, onClick }: Props) {
         </div>
       </div>
 
-      <div className="w-48 h-28 bg-gray-100 rounded-md overflow-hidden flex-shrink-0">
-        {}
-        {}
+      <div className="w-48 h-28 bg-gray-100 rounded-md overflow-hidden shrink-0">
         {"" as any}
         {(candidate as any).videoUrl ? (
           <video

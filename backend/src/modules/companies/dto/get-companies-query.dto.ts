@@ -2,9 +2,6 @@ import { IsOptional, IsString, IsEnum, IsInt, Min, Max } from 'class-validator';
 import { CompanySize, Industry } from '@prisma/client';
 import { Type } from 'class-transformer';
 
-
-
-
 export class GetCompaniesQueryDto {
   @IsOptional()
   @IsString()

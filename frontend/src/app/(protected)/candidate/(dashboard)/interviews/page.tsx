@@ -1,11 +1,27 @@
 "use client";
 
 import InterviewDetailModal from "@/src/components/interview/InterviewDetailModel";
-import { useUpcomingInterviews } from "@/src/hooks/useInterviewApi";
-import { Interview } from "@/src/types/interview";
+import {
+  useCreateInterview,
+  useUpcomingInterviews,
+  useUpdateInterviewStatus,
+} from "@/src/hooks/useInterviewApi";
+import {
+  ActionType,
+  Interview,
+  InterviewRequest,
+  InterviewRequestStatus,
+  InterviewType,
+} from "@/src/types/interview";
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Search, LayoutGrid, List, ChevronRight, Clock } from "lucide-react";
+import {
+  useDeleteInterviewRequest,
+  useGetInterviewRequestsByRecruiter,
+  useUpdateInterviewRequest,
+} from "@/src/hooks/useInterviewRequestApi";
+import InterviewRequestModal from "@/src/components/interview/InterviewRequestModal";
 
 const TABLE_PAGE_SIZE = 8;
 const SIDEBAR_PAGE_SIZE = 3;
@@ -24,11 +40,17 @@ export default function InterviewsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [tablePage, setTablePage] = useState(1);
   const [upcomingPage, setUpcomingPage] = useState(1);
-  const [recentPage, setRecentPage] = useState(1);
+  const [RequestPage, setRequestPage] = useState(1);
   const [selectedInterview, setSelectedInterview] = useState<Interview | null>(
     null,
   );
+  const [interviewRequestModal, setInterviewRequestModal] = useState(false);
   const router = useRouter();
+  const getInterviewRequestsData = useGetInterviewRequestsByRecruiter();
+  const RequestInterviews = getInterviewRequestsData?.data || [];
+  const [selectedRequest, setSelectedInterviewRequest] =
+    useState<InterviewRequest>(RequestInterviews[0]);
+  const updateInterviewRequest = useUpdateInterviewRequest();
 
   const {
     data: interviews = [],
@@ -46,6 +68,40 @@ export default function InterviewsPage() {
       ),
     [interviews],
   );
+
+  const handleUpdate = async (
+    request: InterviewRequest,
+    status: ActionType,
+    startingDateTime: string | undefined,
+    endingDateTime: string | undefined,
+    selectedDateTime: string | undefined,
+  ) => {
+    if (status === ActionType.ACCEPTED) {
+      updateInterviewRequest.mutateAsync({
+        id: request.id,
+        status: InterviewRequestStatus.CONFIRMED,
+        interviewType: request.interviewType,
+        selectedDateTime: selectedDateTime!,
+      });
+    }
+
+    if (status === ActionType.RESCHEDUELED) {
+      updateInterviewRequest.mutateAsync({
+        id: request.id,
+        status: InterviewRequestStatus.PENDING_RECRUITER,
+        interviewType: request.interviewType,
+        availableDateRange: [startingDateTime!, endingDateTime!],
+      });
+    }
+
+    if (status === ActionType.REJECTED) {
+      updateInterviewRequest.mutateAsync({
+        id: request.id,
+        interviewType: request.interviewType,
+        status: InterviewRequestStatus.DECLINED,
+      });
+    }
+  };
 
   const filteredInterviews = useMemo(() => {
     const now = Date.now();
@@ -97,19 +153,6 @@ export default function InterviewsPage() {
     [sortedInterviews],
   );
 
-  const recentInterviews = useMemo(
-    () =>
-      [...sortedInterviews]
-        .filter((interview) => {
-          const scheduledTs = new Date(interview.scheduledAt).getTime();
-          return (
-            CLOSED_STATUSES.has(interview.status) || scheduledTs < Date.now()
-          );
-        })
-        .reverse(),
-    [sortedInterviews],
-  );
-
   const tableTotalPages = Math.max(
     1,
     Math.ceil(filteredInterviews.length / TABLE_PAGE_SIZE),
@@ -118,9 +161,9 @@ export default function InterviewsPage() {
     1,
     Math.ceil(upcomingInterviews.length / SIDEBAR_PAGE_SIZE),
   );
-  const recentTotalPages = Math.max(
+  const RequestTotalPages = Math.max(
     1,
-    Math.ceil(recentInterviews.length / SIDEBAR_PAGE_SIZE),
+    Math.ceil(RequestInterviews.length / SIDEBAR_PAGE_SIZE),
   );
 
   const paginatedTable = useMemo(
@@ -141,13 +184,13 @@ export default function InterviewsPage() {
     [upcomingInterviews, upcomingPage],
   );
 
-  const paginatedRecent = useMemo(
+  const paginatedRequest = useMemo(
     () =>
-      recentInterviews.slice(
-        (recentPage - 1) * SIDEBAR_PAGE_SIZE,
-        recentPage * SIDEBAR_PAGE_SIZE,
+      RequestInterviews.slice(
+        (RequestPage - 1) * SIDEBAR_PAGE_SIZE,
+        RequestPage * SIDEBAR_PAGE_SIZE,
       ),
-    [recentInterviews, recentPage],
+    [RequestInterviews, RequestPage],
   );
 
   useEffect(() => {
@@ -163,8 +206,8 @@ export default function InterviewsPage() {
   }, [upcomingPage, upcomingTotalPages]);
 
   useEffect(() => {
-    if (recentPage > recentTotalPages) setRecentPage(recentTotalPages);
-  }, [recentPage, recentTotalPages]);
+    if (RequestPage > RequestTotalPages) setRequestPage(RequestTotalPages);
+  }, [RequestPage, RequestTotalPages]);
 
   const formatDate = (dateStr: string) =>
     new Date(dateStr).toLocaleDateString("en-US", {
@@ -220,7 +263,7 @@ export default function InterviewsPage() {
   return (
     <div className="min-h-screen w-full bg-[#f5f5f5] p-4 sm:p-6 lg:p-8">
       <div className="w-full h-full ">
-        <div className="min-h-[800px] grid gap-4 lg:grid-cols-3">
+        <div className="min-h-[870px] grid gap-4 lg:grid-cols-3">
           <section className="rounded-xl border border-gray-200 bg-white shadow-sm lg:col-span-2">
             <div className="flex flex-col gap-4 border-b border-gray-100 p-4 sm:flex-row sm:items-center sm:justify-between">
               <div className="inline-flex rounded-lg bg-gray-100 p-1">
@@ -421,66 +464,72 @@ export default function InterviewsPage() {
 
               <div className="flex min-h-0 flex-col rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
                 <h3 className="mb-3 text-xl font-semibold text-gray-900">
-                  Recent Interviews
+                  Interview Requests
                 </h3>
                 <div className="space-y-3 overflow-y-auto pr-1">
-                  {recentInterviews.length === 0 ? (
+                  {RequestInterviews.length === 0 ? (
                     <div className="rounded-lg bg-gray-50 p-3 text-sm text-gray-500">
-                      No recent interviews
+                      No interviews requests
                     </div>
                   ) : (
-                    paginatedRecent.map((interview) => (
+                    paginatedRequest.map((request) => (
                       <button
-                        key={interview.id}
-                        onClick={() => setSelectedInterview(interview)}
+                        key={request.id}
+                        onClick={() => {
+                          setInterviewRequestModal(true);
+                          setSelectedInterviewRequest(request);
+                        }}
                         className="flex w-full items-center gap-3 rounded-lg bg-gray-50 p-3 text-left transition hover:bg-gray-100"
                       >
                         <div className="h-12 w-12 shrink-0 rounded-full border border-gray-300 bg-white text-center text-[10px] font-semibold leading-tight text-gray-700 flex flex-col items-center justify-center">
                           <span>
-                            {new Date(interview.scheduledAt)
+                            {new Date(request.selectedDateTime)
                               .toLocaleDateString("en-US", { month: "short" })
                               .toUpperCase()}
                           </span>
-                          <span className="text-lg leading-none">
-                            {new Date(interview.scheduledAt).getDate()}
-                          </span>
+                          <div className="flex gap-2 ">
+                            <span className="text-lg leading-none">
+                              {new Date(request.selectedDateTime).getDate()}
+                            </span>
+                          </div>
                         </div>
                         <div className="min-w-0 flex-1">
                           <p className="truncate text-sm font-semibold text-gray-900">
-                            {interview.application?.job?.title}
+                            {request.job.title}
                           </p>
                           <p className="mt-1 inline-flex items-center gap-1 text-xs text-gray-600">
                             <Clock className="h-3 w-3" />
-                            {formatTime(interview.scheduledAt)}
+                            {formatTime(request.selectedDateTime)}
                           </p>
                         </div>
+                        <ChevronRight className="h-4 w-4 text-gray-500" />
                       </button>
                     ))
                   )}
                 </div>
-                {recentInterviews.length > 0 && (
+                {RequestInterviews.length > 0 && (
                   <div className="mt-3 flex items-center justify-end gap-2 text-xs">
                     <button
                       type="button"
                       onClick={() =>
-                        setRecentPage((prev) => Math.max(1, prev - 1))
+                        setRequestPage((prev) => Math.max(1, prev - 1))
                       }
-                      disabled={recentPage === 1}
+                      disabled={RequestPage === 1}
                       className="rounded border border-gray-200 px-2 py-1 text-gray-600 disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       Prev
                     </button>
                     <span className="text-gray-500">
-                      {recentPage}/{recentTotalPages}
+                      {RequestPage}/{RequestTotalPages}
                     </span>
                     <button
                       type="button"
                       onClick={() =>
-                        setRecentPage((prev) =>
-                          Math.min(recentTotalPages, prev + 1),
+                        setRequestPage((prev) =>
+                          Math.min(RequestTotalPages, prev + 1),
                         )
                       }
-                      disabled={recentPage === recentTotalPages}
+                      disabled={RequestPage === RequestTotalPages}
                       className="rounded border border-gray-200 px-2 py-1 text-gray-600 disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       Next
@@ -492,6 +541,17 @@ export default function InterviewsPage() {
           </aside>
         </div>
       </div>
+
+      {interviewRequestModal && (
+        <InterviewRequestModal
+          isOpen={interviewRequestModal}
+          onClose={() => {
+            setInterviewRequestModal(false);
+          }}
+          request={selectedRequest}
+          onUpdate={handleUpdate}
+        />
+      )}
 
       <InterviewDetailModal
         interview={selectedInterview}

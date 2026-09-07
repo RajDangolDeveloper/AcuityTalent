@@ -1,4 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import {
+  HttpStatus,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import {
   S3Client,
@@ -7,18 +11,14 @@ import {
 } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { extname } from 'path';
-
-interface UploadFile {
-  buffer: Buffer;
-  originalname: string;
-  mimetype: string;
-  size: number;
-}
+import { UploadFileDto } from './dto/upload-file.dto';
+import { UploadType } from './types/types';
 
 @Injectable()
 export class SpacesService {
   private s3Client: S3Client;
-  private bucket: string;
+  private publicBucket: string;
+  private privateBucket: string;
   private endpoint: string;
   constructor(private configService: ConfigService) {
     this.endpoint = this.configService.get<string>('AWS_ENDPOINT')!;
@@ -30,103 +30,116 @@ export class SpacesService {
       },
       forcePathStyle: false,
     });
-    this.bucket = this.configService.get<string>('AWS_BUCKET')!;
+    this.privateBucket = this.configService.get<string>('AWS_BUCKET_PRIVATE')!;
+    this.publicBucket = this.configService.get<string>('AWS_BUCKET_PUBLIC')!;
   }
 
-  private generateFileName(originalName: string): string {
-    return `${Date.now()}-${Math.round(Math.random() * 1e9)}${extname(originalName)}`;
+  async uploadPublicFile(
+    file: Express.Multer.File,
+    dto: UploadFileDto,
+  ): Promise<string> {
+    try {
+      var fileKey;
+      if (dto.uploadType === UploadType.UserProfile) {
+        fileKey = `users/${dto.id}/images/avatar.jpeg`;
+      } else if (dto.uploadType === UploadType.CompanyProfile) {
+        fileKey = `companies/${dto.id}/images/profile/logo.jpeg`;
+      } else if (dto.uploadType === UploadType.CompanyBackground) {
+        fileKey = `companies/${dto.id}/images/background/background.jpg`;
+      } else {
+        throw new InternalServerErrorException({
+          status: HttpStatus.INTERNAL_SERVER_ERROR,
+          message: 'Invalid UploadType',
+        });
+      }
+
+      const command = new PutObjectCommand({
+        Bucket: this.publicBucket,
+        Key: fileKey,
+        Body: file.buffer,
+        ContentType: dto.fileType,
+        ACL: 'public-read',
+      });
+
+      await this.s3Client.send(command);
+
+      return fileKey;
+    } catch (error) {
+      console.error('S3 upload failed:', error);
+      throw new InternalServerErrorException('File upload failed');
+    }
   }
 
-  getPublicUrl(relativePath: string): string {
-    return `https://${this.bucket}.${this.endpoint}/${relativePath}`;
-  }
-
-  async uploadProfileImage(file: UploadFile): Promise<string> {
-    const fileName = this.generateFileName(file.originalname);
-    const key = `userProfiles/${fileName}`;
+  async uploadPrivateFile(file: File, dto: UploadFileDto): Promise<string> {
+    const sanitizedName = dto.fileName.replace(/[^a-zA-Z0–9.-]/g, '_');
+    const timestamp = Date.now();
+    var fileKey;
+    if (dto.uploadType === UploadType.UserProfile) {
+      fileKey = `users/${dto.id}/images/${timestamp}-${sanitizedName}`;
+    } else if (dto.uploadType === UploadType.CompanyProfile) {
+      fileKey = `companies/${dto.id}/images/profile/${timestamp}-${sanitizedName}`;
+    } else if (dto.uploadType === UploadType.CompanyBackground) {
+      fileKey = `companies/${dto.id}/images/background/${timestamp}-${sanitizedName}`;
+    } else {
+      throw new InternalServerErrorException({
+        status: HttpStatus.INTERNAL_SERVER_ERROR,
+        message: 'Invalid UploadType',
+      });
+    }
 
     const command = new PutObjectCommand({
-      Bucket: this.bucket,
-      Key: key,
-      Body: file.buffer,
-      ContentType: file.mimetype,
-      ACL: 'public-read',
+      Bucket: this.privateBucket,
+      Key: fileKey,
+      Body: file,
+      ContentType: dto.fileType,
+      ACL: 'private',
     });
 
     await this.s3Client.send(command);
-    return key;
+
+    return fileKey;
   }
 
-  async uploadCompanyLogo(file: UploadFile): Promise<string> {
-    const fileName = this.generateFileName(file.originalname);
-    const key = `companyLogos/${fileName}`;
-
-    const command = new PutObjectCommand({
-      Bucket: this.bucket,
-      Key: key,
-      Body: file.buffer,
-      ContentType: file.mimetype,
-    });
-
-    await this.s3Client.send(command);
-    return key;
-  }
-
-  async uploadCompanyBackground(file: UploadFile): Promise<string> {
-    const fileName = this.generateFileName(file.originalname);
-    const key = `companyBackgrounds/${fileName}`;
-
-    const command = new PutObjectCommand({
-      Bucket: this.bucket,
-      Key: key,
-      Body: file.buffer,
-      ContentType: file.mimetype,
-    });
-
-    await this.s3Client.send(command);
-    return key;
-  }
-
-  async uploadResume(file: UploadFile): Promise<string> {
-    const fileName = this.generateFileName(file.originalname);
-    const key = `resumes/${fileName}`;
-
-    const command = new PutObjectCommand({
-      Bucket: this.bucket,
-      Key: key,
-      Body: file.buffer,
-      ContentType: file.mimetype,
-    });
-
-    await this.s3Client.send(command);
-    return key;
-  }
-
-  async generateUploadUrl(
+  async generateViewUrl(
     fileName: string,
-    contentType: string,
+    privateBucket: boolean,
     expiresIn = 3600,
   ) {
-    const command = new PutObjectCommand({
-      Bucket: this.bucket,
-      Key: fileName,
-      ContentType: contentType,
-    });
+    var command;
+    if (privateBucket) {
+      command = new GetObjectCommand({
+        Bucket: this.privateBucket,
+        Key: fileName,
+      });
+    } else {
+      command = new GetObjectCommand({
+        Bucket: this.publicBucket,
+        Key: fileName,
+      });
+    }
 
-    const signedUrl = await getSignedUrl(this.s3Client, command, {
+    return await getSignedUrl(this.s3Client, command, {
       expiresIn,
     });
-
-    const publicUrl = `https://${this.bucket}.${this.endpoint}/${encodeURIComponent(fileName)}`;
-
-    return { signedUrl, publicUrl };
   }
 
-  async generateGetUrl(fileKey: string, expiresIn = 3600) {
-    const command = new GetObjectCommand({
-      Bucket: this.bucket,
-      Key: fileKey,
-    });
+  async generateGetUrl(
+    fileKey: string,
+    privateBucket: boolean,
+    expiresIn = 3600,
+  ) {
+    var command;
+    if (privateBucket) {
+      command = new GetObjectCommand({
+        Bucket: this.privateBucket,
+        Key: fileKey,
+      });
+    } else {
+      command = new GetObjectCommand({
+        Bucket: this.publicBucket,
+        Key: fileKey,
+      });
+    }
     const signedUrl = await getSignedUrl(this.s3Client, command, { expiresIn });
     return signedUrl;
   }

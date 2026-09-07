@@ -8,9 +8,6 @@ import {
 } from 'class-validator';
 import { CompanySize, Industry } from '@prisma/client';
 
-
-
-
 export class UpdateCompanyDto {
   @IsOptional()
   @IsString()

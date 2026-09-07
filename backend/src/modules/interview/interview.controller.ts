@@ -1,4 +1,3 @@
-
 import {
   Controller,
   Get,
@@ -39,7 +38,10 @@ export class InterviewsController {
         req.user.id,
       );
 
-      if (!recruiter || recruiter.id !== createInterviewDto.interviewerId) {
+      if (
+        !recruiter ||
+        recruiter.data!.id !== createInterviewDto.interviewerId
+      ) {
         throw new ForbiddenException(
           'You are not authorized to create interviews for this recruiter',
         );
@@ -76,6 +78,11 @@ export class InterviewsController {
   @Get('candidate')
   async findByCurrentCandidate(@Req() req) {
     return this.interviewsService.findByCurrentCandidateUserId(req.user.id);
+  }
+
+  @Get('recruiter')
+  async findInterviewByRecruiter(@Req() req) {
+    return this.interviewsService.findByRecruiter(req.user.id);
   }
 
   @Get('candidate/:candidateId')

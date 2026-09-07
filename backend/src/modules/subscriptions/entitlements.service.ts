@@ -1,24 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 
-
-
-
-
-
-
-
 @Injectable()
 export class EntitlementsService {
   constructor(private readonly prisma: PrismaService) {}
-
-  
-
-
-
-
-
-
 
   async canRecruiterCreateJob(recruiterId: number): Promise<{
     allowed: boolean;
@@ -26,7 +11,6 @@ export class EntitlementsService {
     limit: number;
     message?: string;
   }> {
-    
     const user = await this.prisma.user.findUnique({
       where: { id: recruiterId },
       select: { subscriptionPlan: true, subscriptionExpiresAt: true },
@@ -41,24 +25,21 @@ export class EntitlementsService {
       };
     }
 
-    
     const isSubscriptionActive = this.isSubscriptionActive(
       user.subscriptionExpiresAt,
     );
     const isPremium =
       user.subscriptionPlan === 'PREMIUM' && isSubscriptionActive;
 
-    
     if (isPremium) {
       const activeCount = await this.countActiveJobsByRecruiter(recruiterId);
       return {
         allowed: true,
         activeCount,
-        limit: -1, 
+        limit: -1,
       };
     }
 
-    
     const activeCount = await this.countActiveJobsByRecruiter(recruiterId);
     const limit = 2;
 
@@ -78,13 +59,6 @@ export class EntitlementsService {
     };
   }
 
-  
-
-
-
-
-
-
   async isCandidatePremium(candidateUserId: number): Promise<boolean> {
     const user = await this.prisma.user.findUnique({
       where: { id: candidateUserId },
@@ -101,13 +75,6 @@ export class EntitlementsService {
     );
   }
 
-  
-
-
-
-
-
-
   async isRecruiterOrgPremium(recruiterId: number): Promise<boolean> {
     const user = await this.prisma.user.findUnique({
       where: { id: recruiterId },
@@ -123,12 +90,6 @@ export class EntitlementsService {
       this.isSubscriptionActive(user.subscriptionExpiresAt)
     );
   }
-
-  
-
-
-
-
 
   async getSubscriptionStatus(userId: number): Promise<{
     isActive: boolean;
@@ -167,13 +128,6 @@ export class EntitlementsService {
     };
   }
 
-  
-
-
-
-
-
-
   async renewSubscription(
     userId: number,
     plan: 'PREMIUM' | 'NON_PREMIUM' = 'PREMIUM',
@@ -191,11 +145,6 @@ export class EntitlementsService {
     });
   }
 
-  
-
-
-
-
   async downgradeExpiredSubscription(userId: number): Promise<void> {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
@@ -203,7 +152,6 @@ export class EntitlementsService {
     });
 
     if (!user || !this.isSubscriptionActive(user.subscriptionExpiresAt)) {
-      
       return;
     }
 
@@ -212,12 +160,6 @@ export class EntitlementsService {
       data: { subscriptionPlan: 'NON_PREMIUM' },
     });
   }
-
-  
-
-
-
-
 
   private async countActiveJobsByRecruiter(
     recruiterId: number,
@@ -229,13 +171,6 @@ export class EntitlementsService {
       },
     });
   }
-
-  
-
-
-
-
-
 
   private isSubscriptionActive(expiresAt: Date | null): boolean {
     if (!expiresAt) {

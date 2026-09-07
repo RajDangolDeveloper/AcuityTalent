@@ -1,8 +1,5 @@
 import { EmploymentType, EducationLevel } from '@prisma/client';
 
-
-
-
 export class CandidateProfileResponseDto {
   id: number;
   userId: number;

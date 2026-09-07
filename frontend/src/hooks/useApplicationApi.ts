@@ -5,6 +5,7 @@ import apiClient from "@/src/app/api/api-client";
 import { CandidateApplication, SingleResponse } from "@/src/types/candidate";
 
 import { candidateQueryKeys } from "@/src/constants/candidate/query-keys";
+import { endpoints } from "../types/application";
 
 export const useCreateApplication = () => {
   const queryClient = useQueryClient();
@@ -69,6 +70,29 @@ export const useGetApplicationById = (applicationId: number) => {
         SingleResponse<CandidateApplication>
       >(`/applications/${applicationId}`);
       return response.data.data;
+    },
+  });
+};
+
+export const useUpdateApplicationById = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      action,
+      applicationId,
+    }: {
+      action: string;
+      applicationId: number;
+    }) => {
+      const endpoint = endpoints[action](applicationId);
+      const response = await apiClient.patch(endpoint);
+      return response.data.data;
+    },
+    onSuccess: async (data, variables) => {
+      await queryClient.invalidateQueries({
+        queryKey: ["application", variables.applicationId],
+      });
     },
   });
 };

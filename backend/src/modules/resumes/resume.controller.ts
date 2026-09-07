@@ -89,6 +89,7 @@ export class ResumeController {
     );
     const downloadUrl = await this.spacesService.generateGetUrl(
       resumeData.filePath,
+      true,
       3600,
     );
     return {
@@ -109,6 +110,7 @@ export class ResumeController {
     );
     const viewUrl = await this.spacesService.generateGetUrl(
       resumeData.filePath,
+      true,
       3600,
     );
     return {
@@ -164,7 +166,7 @@ export class ResumeController {
     }),
   )
   async uploadLocal(
-    @UploadedFile() file: Express.Multer.File,
+    @UploadedFile() file: File,
     @Req() req,
     @Body('textContent') textContent: string,
     @Body('resumeText') resumeText: string,

@@ -109,7 +109,7 @@ function ApplicationCard({ app }: { app: CandidateApplication }) {
     <div className="bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow duration-200 p-4 flex flex-col gap-3">
       <div className="flex items-start justify-between gap-2">
         <div className="flex items-center gap-2 min-w-0">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center flex-shrink-0">
+          <div className="w-8 h-8 rounded-lg bg-linear-to-br from-gray-100 to-gray-200 flex items-center justify-center shrink-0">
             <Building2 size={14} className="text-gray-500" />
           </div>
           <p className="text-xs font-semibold text-gray-500 truncate">
@@ -117,7 +117,7 @@ function ApplicationCard({ app }: { app: CandidateApplication }) {
           </p>
         </div>
         <span
-          className={`text-[10px] font-semibold px-2 py-0.5 rounded-full whitespace-nowrap flex-shrink-0 ${STATUS_STYLES[app.status]}`}
+          className={`text-[10px] font-semibold px-2 py-0.5 rounded-full whitespace-nowrap shrink-0 ${STATUS_STYLES[app.status]}`}
         >
           {STATUS_LABEL[app.status]}
         </span>
@@ -130,7 +130,7 @@ function ApplicationCard({ app }: { app: CandidateApplication }) {
       {app.resumeFileName && (
         <div className="flex items-center gap-1 text-xs text-gray-400">
           <Briefcase size={11} />
-          <span className="truncate max-w-[160px]">{app.resumeFileName}</span>
+          <span className="truncate max-w-40">{app.resumeFileName}</span>
         </div>
       )}
 
@@ -176,7 +176,6 @@ function KanbanColumn({
 }) {
   return (
     <div className="flex flex-col gap-3 min-w-[260px] max-w-[260px]">
-      {}
       <div
         className={`${column.color} rounded-xl px-4 py-2.5 flex items-center justify-between shadow-sm`}
       >
@@ -189,7 +188,6 @@ function KanbanColumn({
         </span>
       </div>
 
-      {}
       <div className="flex flex-col gap-3">
         {apps.length === 0 ? (
           <div className="border-2 border-dashed border-gray-200 rounded-xl p-6 flex flex-col items-center justify-center gap-2 min-h-[100px]">
@@ -231,8 +229,7 @@ export default function ApplicationsPage() {
 
   return (
     <div className="flex flex-col min-h-dvh bg-gray-50/60">
-      {}
-      <div className="px-8 py-5 border-b border-gray-200 bg-white flex items-center justify-between flex-shrink-0">
+      <div className="px-8 py-5 border-b border-gray-200 bg-white flex items-center justify-between shrink-0">
         <div>
           <h1 className="text-xl font-bold text-gray-900">My Applications</h1>
           <p className="text-sm text-gray-500 mt-0.5">

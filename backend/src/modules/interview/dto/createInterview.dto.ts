@@ -1,3 +1,4 @@
+import { InterviewType } from '@prisma/client';
 import {
   IsInt,
   IsEnum,
@@ -8,14 +9,6 @@ import {
   IsDate,
   IsDateString,
 } from 'class-validator';
-
-export enum InterviewType {
-  SCREENING = 'SCREENING',
-  TECHNICAL = 'TECHNICAL',
-  FINAL = 'FINAL',
-  HR = 'HR',
-  SYSTEM_DESIGN = 'SYSTEM_DESIGN',
-}
 
 export enum InterviewStatus {
   SCHEDULED = 'SCHEDULED',

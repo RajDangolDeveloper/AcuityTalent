@@ -1,9 +1,9 @@
-import { IsString } from 'class-validator';
+import { IsBoolean, IsString } from 'class-validator';
 
 export class GenerateUploadUrlDto {
   @IsString()
-  fileName: string;
+  fileName!: string;
 
-  @IsString()
-  contentType: string;
+  @IsBoolean()
+  isPrivate!: boolean;
 }

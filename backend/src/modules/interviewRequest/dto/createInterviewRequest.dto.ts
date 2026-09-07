@@ -1,6 +1,5 @@
-import { InterviewRequestStatus, LocationType } from '@prisma/client';
-import { IsArray, IsDate, IsEnum, IsNumber } from 'class-validator';
-import { Type } from 'class-transformer';
+import { InterviewType } from '@prisma/client';
+import { IsArray, IsDateString, IsEnum, IsNumber } from 'class-validator';
 
 export class createInterviewRequestDto {
   @IsNumber()
@@ -10,18 +9,14 @@ export class createInterviewRequestDto {
   candidateId!: number;
 
   @IsNumber()
-  recruiterId!: number;
+  applicationId!: number;
+
+  @IsEnum(InterviewType)
+  interviewType!: InterviewType;
 
   @IsArray()
-  availableDateRange!: Date[];
+  availableDateRange!: string[];
 
-  @IsDate()
-  @Type(() => Date)
-  selectedDateTime!: Date;
-
-  @IsEnum(InterviewRequestStatus)
-  status!: InterviewRequestStatus;
-
-  @IsEnum(LocationType)
-  locationType!: LocationType;
+  @IsDateString()
+  selectedDateTime!: string;
 }

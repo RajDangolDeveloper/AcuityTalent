@@ -6,9 +6,6 @@ import {
   LocationType,
 } from '@prisma/client';
 
-
-
-
 export class UpdateJobDto {
   @IsOptional()
   @IsString()
@@ -47,5 +44,5 @@ export class UpdateJobDto {
 
   @IsOptional()
   @IsEnum(JobStatus)
-  status?: JobStatus; 
+  status?: JobStatus;
 }

@@ -173,7 +173,10 @@ export default function RecruiterDashboard() {
                 {isActivityLoading && (
                   <div className="py-3">
                     {Array.from({ length: 4 }, (_, i) => (
-                      <div className="bg-gray-200 h-10 animate-pulse w-full my-4 rounded-sm"></div>
+                      <div
+                        key={i}
+                        className="bg-gray-200 h-10 animate-pulse w-full my-4 rounded-sm"
+                      ></div>
                     ))}
                   </div>
                 )}

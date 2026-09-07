@@ -23,6 +23,8 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CompanyNameResponseDto } from './dto/company-name-response.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { SpacesService } from '../spaces/spaces.service';
+import { UploadFileDto } from '../spaces/dto/upload-file.dto';
+import { UploadType } from '../spaces/types/types';
 
 @Controller('companies')
 @UseGuards(JwtAuthGuard)
@@ -137,10 +139,16 @@ export class CompanyController {
       };
     }
 
-    const logoPath = await this.spacesService.uploadCompanyLogo(file);
-    const logoUrl = this.spacesService.getPublicUrl(logoPath);
+    const dto = Object.assign(new UploadFileDto(), {
+      fileName: file.filename || file.originalname,
+      fileType: 'image/jpeg',
+      uploadType: UploadType.CompanyProfile,
+      id: Number(id),
+    });
+
+    const logoPath = await this.spacesService.uploadPublicFile(file, dto);
     const company = await this.companyService.updateCompany(parseInt(id), {
-      logoUrl,
+      logoUrl: logoPath,
     });
 
     return {
@@ -166,11 +174,16 @@ export class CompanyController {
       };
     }
 
-    const backgroundPath =
-      await this.spacesService.uploadCompanyBackground(file);
-    const backgroundImgUrl = this.spacesService.getPublicUrl(backgroundPath);
+    const dto = Object.assign(new UploadFileDto(), {
+      fileName: file.filename || file.originalname,
+      fileType: 'image/jpeg',
+      uploadType: UploadType.CompanyBackground,
+      id: Number(id),
+    });
+
+    const backgroundPath = await this.spacesService.uploadPublicFile(file, dto);
     const company = await this.companyService.updateCompany(parseInt(id), {
-      backgroundImgUrl,
+      backgroundImgUrl: backgroundPath,
     });
 
     return {
