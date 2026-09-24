@@ -1,3 +1,5 @@
+import { CandidateWorkExperience } from "./experience";
+
 export type ApplicationStatus =
   | "APPLIED"
   | "REVIEWED"
@@ -38,7 +40,7 @@ export interface CandidateApplication {
   candidateEmail: string;
   candidatePhone?: string;
   candidateSkills: string[];
-  candidateExperience?: WorkExperience[];
+  candidateExperience?: CandidateWorkExperience[];
   location?: string;
   phone?: string;
   profileImage?: string;
@@ -56,7 +58,6 @@ export interface CandidateApplication {
   reviewedAt?: string;
   updatedAt: string;
 }
-
 
 export interface CandidateProfile {
   id: number;
@@ -78,47 +79,4 @@ export interface CandidateProfile {
   resumes: Resume[];
   createdAt: string;
   updatedAt: string;
-}
-
-export interface WorkExperience {
-  id: number;
-  candidateId: number;
-  company: string;
-  position: string;
-  startDate: string;
-  endDate: string | undefined;
-  isCurrent: boolean;
-  description?: string | null;
-  createdAt: string;
-}
-
-export interface Education {
-  id: number;
-  candidateId: number;
-  institution: string;
-  degree: string;
-  fieldOfStudy?: string | null;
-  startDate: string;
-  endDate?: string | null;
-  gpa?: number | null;
-  description?: string | null;
-  createdAt: string;
-}
-
-export interface PaginationMeta {
-  page: number;
-  limit: number;
-  total: number;
-  totalPages: number;
-}
-
-export interface PaginatedResponse<T> {
-  statusCode: number;
-  data: T[];
-  pagination: PaginationMeta;
-}
-
-export interface SingleResponse<T> {
-  statusCode: number;
-  data: T;
 }

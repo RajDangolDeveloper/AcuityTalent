@@ -22,6 +22,8 @@ import { PrismaService } from './prisma/prisma.service';
 import { ActivityModule } from './modules/activity/activity.module';
 import { InterviewRequestController } from './modules/interviewRequest/interviewRequests.controller';
 import { InterviewRequestModule } from './modules/interviewRequest/interviewRequests.module';
+import { WorkExperienceModule } from './modules/workExperience/work-experience.module';
+import { EducationModule } from './modules/education/education.module';
 
 @Module({
   imports: [
@@ -47,6 +49,8 @@ import { InterviewRequestModule } from './modules/interviewRequest/interviewRequ
     SubscriptionsModule,
     ActivityModule,
     InterviewRequestModule,
+    WorkExperienceModule,
+    EducationModule,
   ],
   controllers: [AppController],
   providers: [AppService, PrismaService, EmailService],

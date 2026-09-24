@@ -1,19 +1,16 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import apiClient from "@/src/app/api/api-client";
 import {
-  PaginatedResponse,
-  Job,
-  JobDetails,
-  SingleResponse,
-  SavedJob,
   CandidateProfile,
   Resume,
   EmploymentType,
-  WorkExperience,
-  Education,
 } from "@/src/types/candidate";
 import { ApplicationsResponse } from "../types/application";
 import { candidateQueryKeys } from "../constants/candidate/query-keys";
+import { SavedJob, Job } from "../types/job";
+import { Education } from "../types/education";
+import { CandidateWorkExperience } from "../types/experience";
+import { PaginatedResponse, SingleResponse } from "../types";
 
 export const useGetCandidateApplications = () => {
   const params = { page: 1, limit: 50 };
@@ -196,46 +193,13 @@ export const useCandidateWorkExperiences = () => {
     queryKey: ["candidate-work-experiences"],
     queryFn: async () => {
       try {
-        const response = await apiClient.get<SingleResponse<WorkExperience[]>>(
-          "/candidates/work-experience",
-        );
+        const response = await apiClient.get<
+          SingleResponse<CandidateWorkExperience[]>
+        >("/work-experience/candidate");
         return response.data.data;
       } catch (error) {
         throw error;
       }
-    },
-  });
-};
-
-export const useCreateWorkExperience = () => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async (payload: {
-      company: string;
-      position: string;
-      startDate: string;
-      endDate?: string;
-      isCurrent?: boolean;
-      description?: string;
-    }) => {
-      try {
-        const response = await apiClient.post<SingleResponse<WorkExperience>>(
-          "/candidates/work-experience",
-          payload,
-        );
-        return response.data.data;
-      } catch (error) {
-        throw error;
-      }
-    },
-    onSuccess: async () => {
-      await Promise.all([
-        queryClient.invalidateQueries({
-          queryKey: ["candidate-work-experiences"],
-        }),
-        queryClient.invalidateQueries({ queryKey: ["candidate-profile"] }),
-      ]);
     },
   });
 };
@@ -246,7 +210,7 @@ export const useCandidateEducations = () => {
     queryFn: async () => {
       try {
         const response = await apiClient.get<SingleResponse<Education[]>>(
-          "/candidates/education",
+          "/education/candidate",
         );
         return response.data.data;
       } catch (error) {

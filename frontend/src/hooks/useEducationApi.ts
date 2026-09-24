@@ -1,7 +1,8 @@
 import { useMutation } from "@tanstack/react-query";
 import apiClient from "../app/api/api-client";
 import { queryClient } from "@/library/queryClient";
-import { SingleResponse, Education } from "../types/recruiter";
+import { SingleResponse } from "../types";
+import { Education } from "../types/education";
 
 export const useCreateEducation = () => {
   return useMutation({
@@ -16,7 +17,7 @@ export const useCreateEducation = () => {
     }) => {
       try {
         const response = await apiClient.post<SingleResponse<Education>>(
-          "/candidates/education",
+          "/education/candidate",
           payload,
         );
         return response.data.data;
@@ -48,7 +49,7 @@ export const useUpdateEducation = () => {
     }) => {
       try {
         const response = await apiClient.patch<SingleResponse<Education>>(
-          `/candidates/education/${id}`,
+          `/education/candidate/${id}`,
           payload,
         );
         return response.data.data;
@@ -67,7 +68,7 @@ export const useDeleteEducation = () => {
   return useMutation({
     mutationFn: async (id: number) => {
       try {
-        await apiClient.delete(`/candidates/education/${id}`);
+        await apiClient.delete(`/education/candidate/${id}`);
       } catch (error) {
         throw error;
       }

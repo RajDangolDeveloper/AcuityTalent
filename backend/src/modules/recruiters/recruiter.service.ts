@@ -1,4 +1,10 @@
-import { HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  HttpStatus,
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateRecruiterProfileDto } from './dto/CreateRecruiterProfile.dto';
 import { UpdateRecruiterProfileDto } from './dto/UpdateRecruiterProfile.dto';
 import { DeleteRecruiterProfileDto } from './dto/DeleteRecruiterProfile.dto';
@@ -97,6 +103,12 @@ export class RecruiterService {
         userId: id,
       },
     });
+
+    if (!findRecruiterProfile) {
+      throw new InternalServerErrorException(
+        'No Recruiter Profile for this ID',
+      );
+    }
 
     return {
       statusCode: HttpStatus.ACCEPTED,

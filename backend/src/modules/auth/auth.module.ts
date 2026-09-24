@@ -6,7 +6,6 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
-import { CandidateService } from '../candidates/candidate.service';
 import { AiModule } from '../ai/ai.module';
 import { CandidateModule } from '../candidates/candidate.module';
 import { RecruiterModule } from '../recruiters/recruiter.module';
@@ -38,7 +37,6 @@ import { PrismaService } from '../../prisma/prisma.service';
     PrismaService,
     PasswordService,
     EmailService,
-    CandidateService,
     JwtStrategy,
     JwtAuthGuard,
   ],

@@ -14,7 +14,7 @@ import { SendOtp } from './dto/sendOtp.dto';
 import { VerifyOtpDto } from './dto/verifyOtp.dto';
 import { JwtService } from '@nestjs/jwt';
 import { CandidateService } from '../candidates/candidate.service';
-import { RecruiterService } from '../recruiters/recruiter.service';
+
 import { CreateCandidateProfileDto } from '../candidates/dto/create-candidate-profile.dto';
 import { CreateRecruiterProfileDto } from '../recruiters/dto/CreateRecruiterProfile.dto';
 import { EmailService } from '../../config/email.service';

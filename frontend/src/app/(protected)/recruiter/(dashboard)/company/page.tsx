@@ -9,7 +9,7 @@ import {
 } from "@/src/hooks/useCompanyApi";
 import { useGetRecruiterCompanies } from "@/src/hooks/useRecruiterApi";
 import { useGetImageUrl } from "@/src/hooks/useImageApi";
-import { Panel, Tab, TabList, TabPanels } from "@/src/components/Tab";
+import { Panel, Tab, TabContainer, TabPanels } from "@/src/components/Tab";
 export default function ViewCompanyPage() {
   const { data: company, isLoading, error } = useGetRecruiterCompanies();
   const { data: logoUrl } = useGetImageUrl(company?.logoUrl, false);
@@ -156,7 +156,7 @@ export default function ViewCompanyPage() {
               src={backgroundUrl?.data}
               alt=""
             />
-            <div className="px-8 py-4 border-b border-gray-200">
+            <div className="px-10 pt-6 pb-4">
               <div className="flex justify-between items-center">
                 <div>
                   <div className="flex gap-4">
@@ -232,23 +232,13 @@ export default function ViewCompanyPage() {
               </div>
             </div>
 
-            <TabList defaultValue="overview">
+            <TabContainer defaultValue="overview">
               <div
-                className="flex gap-6 border-b border-gray-200 px-8"
+                className="flex gap-6 border-b border-gray-200 px-10"
                 role="tablist"
               >
-                <Tab
-                  value="overview"
-                  className="border-b-2 border-transparent px-1 py-4 text-sm font-semibold text-gray-500 transition hover:text-gray-900"
-                >
-                  Overview
-                </Tab>
-                <Tab
-                  value="details"
-                  className="border-b-2 border-transparent px-1 py-4 text-sm font-semibold text-gray-500 transition hover:text-gray-900"
-                >
-                  Company details
-                </Tab>
+                <Tab value="overview">Overview</Tab>
+                <Tab value="details">Company details</Tab>
               </div>
               <TabPanels>
                 <Panel value="overview">
@@ -290,7 +280,7 @@ export default function ViewCompanyPage() {
                   </div>
                 </Panel>
               </TabPanels>
-            </TabList>
+            </TabContainer>
           </>
         ) : (
           <div className="p-8">

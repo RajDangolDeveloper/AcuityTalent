@@ -269,14 +269,16 @@ model RecruiterProfile {
   id              Int              @id @default(autoincrement())
   userId          Int              @unique
   companyId       Int
+  headline        String?
+  summary         String?
   positionTitle   String
   experienceYears Int?
   highestDegree   EducationLevel?
   linkedinUrl     String?
   githubUrl       String?
   skills          String[]
-  workHistory     WorkExperience[]
-  education       Education[]
+  workHistory     RecruiterWorkExperience[]
+  education       RecruiterEducation[]
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @updatedAt
 
@@ -295,6 +297,7 @@ model CandidateProfile {
   id                Int                        @id @default(autoincrement())
   userId            Int                        @unique
   headline          String?
+  summary           String?
   currentPosition   String?
   currentCompanyId  Int?
   experienceYears   Int?
@@ -306,7 +309,6 @@ model CandidateProfile {
   embedding         CandidateProfileEmbedding?
   linkedinUrl       String?
   githubUrl         String?
-  summary           String?
   createdAt         DateTime                   @default(now())
   updatedAt         DateTime                   @updatedAt
 
@@ -314,8 +316,8 @@ model CandidateProfile {
   currentCompany    Company?               @relation(fields: [currentCompanyId], references: [id], onDelete: SetNull)
   resumes           Resume[]
   applications      Application[]
-  workHistory       WorkExperience[]
-  education         Education[]
+  workHistory       CandidateWorkExperience[]
+  education         CandidateEducation[]
   savedJobs         SavedJob[]
   interviewRequests InterviewRequest[]
   interviewsJoined  InterviewParticipant[]
@@ -340,10 +342,9 @@ model CandidateProfileEmbedding {
   @@index([candidateProfileId])
 }
 
-model WorkExperience {
+model CandidateWorkExperience {
   id          Int       @id @default(autoincrement())
   candidateId Int
-  recruiterProfileId Int?
   company     String
   position    String
   startDate   DateTime
@@ -353,13 +354,28 @@ model WorkExperience {
   createdAt   DateTime  @default(now())
 
   candidate          CandidateProfile  @relation(fields: [candidateId], references: [id], onDelete: Cascade)
-  recruiterProfile   RecruiterProfile? @relation(fields: [recruiterProfileId], references: [id])
   
-
   @@index([candidateId])
 }
 
-model Education {
+model RecruiterWorkExperience {
+  id          Int       @id @default(autoincrement())
+  recruiterId Int
+  company     String
+  position    String
+  startDate   DateTime
+  endDate     DateTime?
+  isCurrent   Boolean   @default(false)
+  description String?
+  createdAt   DateTime  @default(now())
+
+  recruiterProfile   RecruiterProfile? @relation(fields: [recruiterId], references: [id], onDelete: Cascade)
+  
+  @@index([recruiterId])
+  @@unique([recruiterId, isCurrent])
+}
+
+model CandidateEducation {
   id           Int            @id @default(autoincrement())
   candidateId  Int
   institution  String
@@ -372,10 +388,25 @@ model Education {
   createdAt    DateTime       @default(now())
 
   candidate          CandidateProfile  @relation(fields: [candidateId], references: [id], onDelete: Cascade)
-  recruiterProfile   RecruiterProfile? @relation(fields: [recruiterProfileId], references: [id])
-  recruiterProfileId Int?
 
   @@index([candidateId])
+}
+
+model RecruiterEducation {
+  id           Int            @id @default(autoincrement())
+  recruiterId  Int
+  institution  String
+  degree       EducationLevel
+  fieldOfStudy String?
+  startDate    DateTime
+  endDate      DateTime?
+  gpa          Float?
+  description  String?
+  createdAt    DateTime       @default(now())
+
+  recruiterProfile   RecruiterProfile? @relation(fields: [recruiterId], references: [id], onDelete : Cascade)
+  
+  @@index([recruiterId])
 }
 
 model Job {

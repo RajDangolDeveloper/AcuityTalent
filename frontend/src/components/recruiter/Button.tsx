@@ -25,7 +25,7 @@ export function Button({
     "font-semibold rounded-lg transition-colors focus:outline-none";
 
   const variantStyles = {
-    primary: "bg-blue-600 text-white hover:bg-blue-700 disabled:bg-blue-400",
+    primary: "bg-primary-600 text-white hover:bg-blue-700 disabled:bg-blue-400",
     secondary:
       "bg-gray-200 text-gray-900 hover:bg-gray-300 disabled:bg-gray-100",
     success:

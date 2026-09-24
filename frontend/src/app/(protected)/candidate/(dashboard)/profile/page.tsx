@@ -3,11 +3,7 @@
 import { useEffect, useState } from "react";
 import { Camera } from "lucide-react";
 
-import {
-  CandidateProfile,
-  WorkExperience,
-  Education,
-} from "@/src/types/candidate";
+import { CandidateProfile } from "@/src/types/candidate";
 import {
   useGetCurrentUser,
   useUploadProfileImage,
@@ -18,7 +14,6 @@ import {
   useCandidateWorkExperiences,
   useCandidateEducations,
   useUpdateCandidateProfile,
-  useCreateWorkExperience,
 } from "@/src/hooks/useCandidateApi";
 import {
   useCreateEducation,
@@ -28,7 +23,10 @@ import {
 import {
   useUpdateWorkExperience,
   useDeleteWorkExperience,
+  useCreateWorkExperience,
 } from "@/src/hooks/useExperienceApi";
+import { Education } from "@/src/types/education";
+import { CandidateWorkExperience } from "@/src/types/experience";
 
 export default function CandidateProfilePage() {
   const { data: profile } = useCandidateProfile();
@@ -92,7 +90,7 @@ export default function CandidateProfilePage() {
   const [newSkill, setNewSkill] = useState("");
 
   const [editingExperience, setEditingExperience] =
-    useState<WorkExperience | null>(null);
+    useState<CandidateWorkExperience | null>(null);
   const [experienceForm, setExperienceForm] = useState({
     company: "",
     position: "",
@@ -181,7 +179,7 @@ export default function CandidateProfilePage() {
     resetExperienceForm();
   };
 
-  const startEditExperience = (exp: WorkExperience) => {
+  const startEditExperience = (exp: CandidateWorkExperience) => {
     setEditingExperience(exp);
     setExperienceForm({
       company: exp.company,

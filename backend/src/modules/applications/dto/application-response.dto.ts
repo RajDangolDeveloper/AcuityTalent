@@ -1,12 +1,12 @@
 import { ApplicationStatus } from '@prisma/client';
-import { WorkExperienceResponseDto } from '../../candidates/dto/work-experience-response.dto';
+import { CandidateWorkExperienceResponseDto } from '../../workExperience/entity';
 
 export class ApplicationResponseDto {
   id!: number;
   candidateId!: number;
   candidateSkills!: string[];
   candidatePhone?: number;
-  candidateExperience?: WorkExperienceResponseDto[];
+  candidateExperience?: CandidateWorkExperienceResponseDto[];
   jobId!: number;
   resumeId!: number;
   status!: ApplicationStatus;

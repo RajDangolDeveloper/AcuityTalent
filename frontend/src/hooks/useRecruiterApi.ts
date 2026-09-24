@@ -6,12 +6,11 @@ import {
   ApplicationStatus,
   CandidateApplication,
   CandidateProfile,
-  PaginatedResponse,
-  SingleResponse,
 } from "../types/candidate";
 import { Job, LocationType } from "../types/job";
 import { ApplicationDetail } from "../types/application";
 import { RecruiterProfile } from "../types/recruiter";
+import { PaginatedResponse, SingleResponse } from "../types";
 
 export const useGetRecruiterJobs = (page: number = 1, limit: number = 10) => {
   return useQuery({

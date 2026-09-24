@@ -12,3 +12,21 @@ export type LoginUserProps = {
 };
 
 export type RoleType = "SUPER_ADMIN" | "ADMIN" | "CANDIDATE" | "RECRUITER";
+
+export interface PaginationMeta {
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+}
+
+export interface PaginatedResponse<T> {
+  statusCode: number;
+  data: T[];
+  pagination: PaginationMeta;
+}
+
+export interface SingleResponse<T> {
+  statusCode: number;
+  data: T;
+}

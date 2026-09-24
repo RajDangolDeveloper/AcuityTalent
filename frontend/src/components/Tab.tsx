@@ -24,10 +24,11 @@ export interface TabProps {
   children: ReactNode;
 }
 
-export interface TabListProps {
+export interface TabContainerProps {
   defaultValue: string;
   children: ReactNode;
 }
+
 export interface TabPanelsProps {
   children: ReactNode;
 }
@@ -37,7 +38,7 @@ export interface PanelProps {
   children: ReactNode;
 }
 
-export function TabList({ defaultValue, children }: TabListProps) {
+export function TabContainer({ defaultValue, children }: TabContainerProps) {
   const [selectedTab, setSelectedTab] = useState<string>(defaultValue);
   return (
     <TabsContext.Provider value={{ selectedTab, setSelectedTab }}>
@@ -55,7 +56,7 @@ export function Tab({ value, disabled, className, children }: TabProps) {
       disabled={disabled}
       role="tab"
       aria-selected={isSelected}
-      className={`${className ?? ""} ${isSelected ? "border-primary-500 text-primary-600" : ""}`}
+      className={`${className ?? ""} ${isSelected ? "border-b-2  px-8 py-4 text-sm font-semibold text-gray-800 transition hover:text-gray-900" : "border-b-2 border-transparent px-8 py-4 text-sm font-semibold text-gray-400 transition hover:text-gray-900"}`}
       onClick={() => setSelectedTab(value)}
     >
       {children || value}
@@ -64,12 +65,12 @@ export function Tab({ value, disabled, className, children }: TabProps) {
 }
 
 export function TabPanels({ children }: TabPanelsProps) {
-  return <div>{children}</div>;
+  return <div className="py-8 px-4">{children}</div>;
 }
 
 export function Panel({ value, children }: PanelProps) {
   const { selectedTab } = useTabs();
 
   if (selectedTab != value) return null;
-  return <div>{children}</div>;
+  return <>{children}</>;
 }

@@ -1,8 +1,12 @@
 export interface Education {
   id: number;
-  degree: string;
+  candidateId: number;
   institution: string;
-  description: string;
-  startDate: Date;
-  endDate: Date;
+  degree: string;
+  fieldOfStudy?: string | null;
+  startDate: string;
+  endDate?: string | null;
+  gpa?: number | null;
+  description?: string | null;
+  createdAt: string;
 }
